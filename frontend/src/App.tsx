@@ -1,33 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { SpotifyAuthProvider } from './hooks/useSpotifyAuth';
-import { Profile } from './components/Profile';
 
-function App() {
-  const REDIRECT_URI = 'http://localhost:3000';
-  const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
-  const RESPONSE_TYPE = 'token';
-  const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
+import React from 'react';
+import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+import { Profile } from './components/pages/Profile';
+import { Login } from './components/pages/Login';
+import { Dashboard } from './components/pages/Dashboard';
+import { Home } from './components/pages/Home';
 
+export default function App() {
   return (
-    <SpotifyAuthProvider>
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <a
-            className="App-link"
-            href={`${AUTH_ENDPOINT}?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Login with Spotify
-          </a>
-          <Profile />
-        </header>
+    <Router>
+      <div>
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
+            <li>
+              <Link to="/profile">Profile</Link>
+            </li>
+          </ul>
+        </nav>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
+        </Routes>
       </div>
-    </SpotifyAuthProvider>
+    </Router>
   );
 }
-
-export default App;
