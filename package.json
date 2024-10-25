@@ -1,0 +1,17 @@
+{
+  "name": "csc308_teamproject",
+  "version": "1.0.0",
+  "main": "",
+  "scripts": {
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm start\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.7",
+    "prettier": "^3.3.3"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
