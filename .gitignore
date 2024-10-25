@@ -1,17 +1,12 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
-/.pnp
 package-lock.json
-.pnp.js
-.env.local
 
 # testing
 /coverage
 
 # production
-/build
+build
 
 # misc
 .DS_Store
