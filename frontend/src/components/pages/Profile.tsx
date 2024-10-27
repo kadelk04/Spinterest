@@ -35,6 +35,7 @@ export const Profile: FunctionComponent = () => {
 
         const data = await response.json();
         if (data.error) {
+          console.log(data)
           console.error(data.error.message);
           return;
         }

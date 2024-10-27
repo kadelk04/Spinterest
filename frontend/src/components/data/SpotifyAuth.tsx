@@ -1,13 +1,20 @@
 import { FunctionComponent } from 'react';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 
 export const SpotifyLoginButton: FunctionComponent = () => {
   const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
   const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
 
   return (
-    <Button variant="contained" color={'primary'} href={AUTH_URL}>
-      Login with Spotify
+    <Button sx={{
+      color: 'white', 
+        '&:hover': {
+        bgcolor: '#3F51B5',}
+      }}
+        href={AUTH_URL}>
+      <Typography sx={{ textTransform: 'none' }}>
+        Login with Spotify
+      </Typography>
     </Button>
   );
 };
