@@ -8,6 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@mui/icons-material": "^6.1.5",
     "axios": "^1.7.7",
     "prettier": "^3.3.3"
   },
