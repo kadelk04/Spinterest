@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
 import { Profile } from './components/pages/Profile';
 import { Login } from './components/pages/Login';
 import { Dashboard } from './components/pages/Dashboard';
-import { Home } from './components/pages/Home';
 import axios from 'axios';
 
 export default function App() {
@@ -26,13 +25,10 @@ export default function App() {
         <nav>
           <ul>
             <li>
-              <Link to="/">Home</Link>
+              <Link to="/">Dashboard</Link>
             </li>
             <li>
               <Link to="/login">Login</Link>
-            </li>
-            <li>
-              <Link to="/dashboard">Dashboard</Link>
             </li>
             <li>
               <Link to="/profile">Profile</Link>
@@ -40,9 +36,8 @@ export default function App() {
           </ul>
         </nav>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </div>
