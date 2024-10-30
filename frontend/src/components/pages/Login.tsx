@@ -1,5 +1,9 @@
 import { useEffect } from 'react';
-import { fetchAuthToken, SpotifyLoginButton } from '../data/SpotifyAuth';
+import {
+  AUTH_URL,
+  fetchAuthToken,
+  SpotifyLoginButton,
+} from '../data/SpotifyAuth';
 import {
   Box,
   TextField,
@@ -12,9 +16,7 @@ import {
   Paper,
 } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import styles from "./Login.module.css";
-import vinylImage from '../../assets/vinyl_login.webp'
-
+import vinylImage from '../../assets/vinyl_login.webp';
 
 export const Login = () => {
   useEffect(() => {
@@ -54,29 +56,25 @@ export const Login = () => {
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              p: 4
+              p: 4,
             }}
           >
             <Typography
               component="h1"
               variant="h3"
               sx={{
-                mb: 1
+                mb: 1,
               }}
             >
               Welcome Back!
             </Typography>
-            
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ mb: 3 }}
-            >
+
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
               Let's get back to those tunes.
             </Typography>
 
             <Box component="form" sx={{ width: '100%', mt: 1 }}>
-              <TextField
+              {/* <TextField
                 margin="normal"
                 required
                 fullWidth
@@ -97,7 +95,7 @@ export const Login = () => {
                   },
                 }}
               />
-              
+
               <TextField
                 margin="normal"
                 required
@@ -120,7 +118,14 @@ export const Login = () => {
                 }}
               />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', my: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  my: 2,
+                }}
+              >
                 <FormControlLabel
                   control={<Checkbox value="remember" color="primary" />}
                   label="Remember me"
@@ -128,7 +133,7 @@ export const Login = () => {
                 <Link href="#" variant="body2" sx={{ textDecoration: 'none' }}>
                   Forgot password?
                 </Link>
-              </Box>
+              </Box> */}
 
               {/* <Button
                 fullWidth
@@ -145,22 +150,29 @@ export const Login = () => {
               >
                 Login
               </Button> */}
-              <Box
+              <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                href={AUTH_URL}
                 sx={{
-                  bgcolor: '#5C6BC0',
-                  textAlign: 'center', // Center align content (optional)
-                  cursor: 'pointer', // Make it look clickable
-                  '&:hover': {
-                    bgcolor: '#3F51B5',
-                  },
-                  borderRadius: 1, // Add border-radius for a button-like appearance
+                  mt: 2,
+                  py: 1.5,
+                  borderColor: 'transparent',
+                  textTransform: 'none', // This will prevent automatic capitalization
                 }}
               >
-                <SpotifyLoginButton />
-              </Box>
+                <Typography variant="body2" color="text.light" display="inline">
+                  Sign in with Spotify
+                </Typography>
+              </Button>
 
               <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Typography variant="body2" color="text.secondary" display="inline">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  display="inline"
+                >
                   Or sign up here!
                 </Typography>
               </Box>
