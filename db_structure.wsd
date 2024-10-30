@@ -1,0 +1,36 @@
+' UML Boilerplate'
+@startuml db_structure
+'Users structure'
+class User {
+    +String name
+    +String spotifyId
+    +String bio
+    +String location
+    +Favorites favorites
+    +List<Playlist> annotatedPlaylists
+}
+
+'Favorites structure'
+class Favorites {
+    +String genre
+    +String artist
+    +String album
+}
+
+'Playlist structure'
+class Playlist {
+    +String spotifyId
+    +List<String> tags
+}
+
+'Song structure'
+class Song {
+    +String spotifyId
+}
+
+Playlist "1" *-- "*" Song
+
+User "1" *-- "*" Playlist
+
+User "1" *-- "1" Favorites
+@enduml
