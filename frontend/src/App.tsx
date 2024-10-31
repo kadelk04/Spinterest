@@ -12,6 +12,7 @@ import {
   Dashboard as DashboardIcon,
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
+import PrivateRoute from './components/common/PrivateRoute';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -64,8 +65,14 @@ export default function App() {
           >
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route
+                path="/dashboard"
+                element={<PrivateRoute path="/dashboard" element={Dashboard} />}
+              />
+              <Route
+                path="/profile"
+                element={<PrivateRoute path="/profile" element={Profile} />}
+              />
             </Routes>
           </Box>
         </Box>
