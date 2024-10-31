@@ -1,7 +1,6 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { getRefreshedToken } from '../data/SpotifyAuth';
-import { Search as SearchIcon,  Settings as SettingsIcon 
-} from '@mui/icons-material';
+import { Search as SearchIcon, Settings as SettingsIcon } from '@mui/icons-material';
 import {
   Box,
   TextField,
@@ -9,10 +8,8 @@ import {
   Paper,
   Avatar,
   Grid,
-  InputAdornment,
   IconButton,
 } from '@mui/material';
-import { Form } from 'react-router-dom';
 
 interface SpotifyProfile {
   display_name: string;
@@ -64,74 +61,54 @@ export const Profile: FunctionComponent = () => {
   }, [accessToken, refreshToken]);
 
   return (
-    <div>
-      <h1>Profile</h1>
-      {profile ? (
-        <>
-          <h1>{profile.display_name}</h1>
-          {profile.images.length > 0 ? (
-            <img src={profile.images[0].url} alt={profile.display_name} />
-          ) : null}
-        </>
-      ) : (
-        <Box sx={{ 
-          display: 'flex',
-          flexDirection: 'column',
-          height: 468,
-          width: 340, 
-          bgcolor: '#eae6ef', 
-          borderRadius: 10,
-          position: 'relative',
-          alignItems: 'center',  
-          justifyContent: 'center',
-          left: '44px',
-            }}>
-          <Avatar src="/broken-image.jpg" 
-            sx={{
-              bgcolor: '#7C6BBB',
-              width: 224, 
-              height: 224,
-              mb: 3,}}
-          />
-          <TextField
-            id="profile-name"
-            label="Profile Name"
-            sx={{
-              maxWidth: '80%',
-              mb: 3,
-            }}
-            />
-            <TextField
-            id="blurb"
-            label="Small Blurb"
-            sx={{
-              maxWidth: '80%',
-            }}
-            />
-          </Box> 
-      )} 
+    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+      {/* Profile and Friends Column */}
+      <Box>
+        <Paper
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: '#eae6ef',
+            borderRadius: 2,
+            p: 4,
+            mb: 4,
+            width: 340,
+            height: 468,
+          }}
+        >
+          {profile ? (
+            <>
+              <Avatar src={profile.images[0]?.url} sx={{ width: 224, height: 224, mb: 3 }} />
+              <Typography variant="h5">{profile.display_name}</Typography>
+            </>
+          ) : (
+            <>
+              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224, mb: 3 }} />
+              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 3 }} />
+              <TextField id="blurb" label="Small Blurb" sx={{ maxWidth: '80%' }} />
+            </>
+          )}
+        </Paper>
 
-      {/*Friend Searching*/}
-      <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'flex-start', 
-          alignItems: 'flex-start', 
-          height: 468,
-          width: 340, 
-          bgcolor: '#eae6ef', 
-          borderRadius: 10,
-          position: 'relative',
-          top: '20px',
-          left: '44px',         
-        }}>
-          <Box sx={{display: 'flex', alignItems: 'center'}}>
+        {/* Friends Section */}
+        <Paper
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: '#eae6ef',
+            borderRadius: 2,
+            p: 2,
+            width: 340,
+          }}
+        >
           <TextField
             id="search-friends"
             label="Friends"
-            sx={{
-              top: '35px',
-              left: '20px',
-            }}
+            fullWidth
+            sx={{ flex: 1,
+                 height : 468 }}
             InputProps={{
               endAdornment: (
                 <IconButton>
@@ -140,60 +117,57 @@ export const Profile: FunctionComponent = () => {
               ),
             }}
           />
-          <IconButton sx={{ top: '35px', ml: 3 }}>
-            <SettingsIcon 
-              />
+          <IconButton>
+            <SettingsIcon />
           </IconButton>
-          </Box>   
+        </Paper>
       </Box>
 
-      <Box sx={{ 
-        p: 3, 
-        bgcolor: 'white', 
-        minHeight: '100vh'
-        }}>
-        {/* Combined About and Favorites Section */}
-        <Paper sx={{ p: 3, bgcolor: '#ECE6F0', mb: 2 }}>
-          <Grid container spacing={2}>
-            {/* About Section - Now on Left Column */}
-            <Grid item xs={6}>
-              <Typography variant="h5" sx={{ mb: 2 }}>
-                ABOUT
-              </Typography>
-              {/* This section remains empty as per request */}
-            </Grid>
+      {/* About, Favorites, and Pinned Music Column */}
+      <Box sx={{ flex: 1 }}>
+        {/* About and Favorites Section */}
+        <Paper sx={{ display: 'flex', p: 3, gap: 2, mb: 4, bgcolor: '#ECE6F0' }}>
+          {/* About Section */}
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              ABOUT
+            </Typography>
+            {/* Add content or fields for the About section here if needed */}
+          </Box>
 
-            {/* Favorites Section - Now on Right Column */}
-            <Grid item xs={6}>
-              <Typography variant="h5" sx={{ mb: 2 }}>
-                FAVORITES
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <TextField fullWidth placeholder="favorite genre" variant="outlined" sx={{ mb: 2 }} />
-                  <TextField fullWidth placeholder="fav artist" variant="outlined" sx={{ mb: 2 }} />
-                  <TextField fullWidth placeholder="album #1" variant="outlined" />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField fullWidth placeholder="favorite genre" variant="outlined" sx={{ mb: 2 }} />
-                  <TextField fullWidth placeholder="fav artist" variant="outlined" sx={{ mb: 2 }} />
-                  <TextField fullWidth placeholder="album #1" variant="outlined" />
-                </Grid>
+          {/* Favorites Section */}
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              FAVORITES
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Album #1" variant="outlined" />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Album #2" variant="outlined" />
               </Grid>
             </Grid>
-          </Grid>
+          </Box>
         </Paper>
+
         {/* Pinned Music Section */}
         <PinnedMusicSection />
       </Box>
-    </div>
+    </Box>
   );
 };
-
 
 // Pinned Music Section Component
 const PinnedMusicSection: FunctionComponent = () => (
   <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
+    <Typography variant="h5" sx={{ mb: 2 }}>
+      PINNED MUSIC
+    </Typography>
     <TextField
       fullWidth
       placeholder="Pinned Music"
@@ -201,16 +175,16 @@ const PinnedMusicSection: FunctionComponent = () => (
       sx={{
         mb: 2,
         '& .MuiOutlinedInput-root': {
-          bgcolor: '#F5EFF7', // Adjust background color here
+          bgcolor: '#F5EFF7',
           '&:hover fieldset': {
-            borderColor: '#000000', // Optional: Adjust border color on hover
+            borderColor: '#000000',
           },
         },
       }}
     />
     <Grid container spacing={2}>
-      {[...Array(8)].map((_, i) => (
-        <Grid item xs={3} key={i}>
+      {[...Array(6)].map((_, i) => (
+        <Grid item xs={4} key={i}>
           <Paper
             sx={{
               paddingTop: '100%',
