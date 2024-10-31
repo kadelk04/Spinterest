@@ -4,30 +4,21 @@ import {
   fetchAuthToken,
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Container,
-  Paper,
-} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { Box, Button, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid2';
 import vinylImage from '../../assets/vinyl_login.webp';
 
 export const Login = () => {
+  const navigate = useNavigate();
   useEffect(() => {
-    const { code } = getInfoFromUrl();
-    if (code) {
-      window.localStorage.setItem('spotify_token', code);
-    }
-
-    if (!code) return;
-
-    fetchAuthToken(code);
+    const fetchData = async () => {
+      const { code } = getInfoFromUrl();
+      if (!code) return;
+      await fetchAuthToken(code);
+      navigate('/dashboard');
+    };
+    fetchData();
   }, []);
 
   const getInfoFromUrl = () => {

@@ -1,5 +1,7 @@
 import { FunctionComponent, useState, useEffect } from 'react';
-import { getRefreshedToken } from '../data/SpotifyAuth';
+import { getRefreshedToken, logout } from '../data/SpotifyAuth';
+import { Box, Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 interface SpotifyProfile {
   display_name: string;
@@ -10,6 +12,7 @@ export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -35,7 +38,7 @@ export const Profile: FunctionComponent = () => {
 
         const data = await response.json();
         if (data.error) {
-          console.log(data)
+          console.log(data);
           console.error(data.error.message);
           return;
         }
@@ -57,12 +60,28 @@ export const Profile: FunctionComponent = () => {
     <div>
       <h1>Profile</h1>
       {profile ? (
-        <>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
           <h1>{profile.display_name}</h1>
           {profile.images.length > 0 ? (
             <img src={profile.images[0].url} alt={profile.display_name} />
           ) : null}
-        </>
+          <Button
+            sx={{ mt: 2 }}
+            variant="contained"
+            onClick={() => {
+              logout();
+              navigate('/login');
+            }}
+          >
+            Logout
+          </Button>
+        </Box>
       ) : (
         <p>Not Logged In</p>
       )}
