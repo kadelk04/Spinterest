@@ -1,11 +1,14 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { getRefreshedToken } from '../data/SpotifyAuth';
-import { 
-  Paper,
+import { Search as SearchIcon, Settings as SettingsIcon } from '@mui/icons-material';
+import {
   Box,
   TextField,
   Typography,
-  Grid
+  Paper,
+  Avatar,
+  Grid,
+  IconButton,
 } from '@mui/material';
 
 interface SpotifyProfile {
@@ -58,45 +61,103 @@ export const Profile: FunctionComponent = () => {
   }, [accessToken, refreshToken]);
 
   return (
-    <Box sx={{ 
-      p: 3, 
-      bgcolor: 'white', 
-      minHeight: '100vh'
-    }}>
-      {/* Combined About and Favorites Section */}
-      <Paper sx={{ p: 3, bgcolor: '#ECE6F0', mb: 2 }}>
-        <Grid container spacing={2}>
-          {/* About Section - Now on Left Column */}
-          <Grid item xs={6}>
+    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+      {/* Profile and Friends Column */}
+      <Box>
+        <Paper
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            bgcolor: '#eae6ef',
+            borderRadius: 2,
+            p: 4,
+            mb: 4,
+            width: 340,
+            height: 468,
+          }}
+        >
+          {profile ? (
+            <>
+              <Avatar src={profile.images[0]?.url} sx={{ width: 224, height: 224, mb: 3 }} />
+              <Typography variant="h5">{profile.display_name}</Typography>
+            </>
+          ) : (
+            <>
+              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224, mb: 3 }} />
+              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 3 }} />
+              <TextField id="blurb" label="Small Blurb" sx={{ maxWidth: '80%' }} />
+            </>
+          )}
+        </Paper>
+
+        {/* Friends Section */}
+        <Paper
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: '#eae6ef',
+            borderRadius: 2,
+            p: 2,
+            width: 340,
+          }}
+        >
+          <TextField
+            id="search-friends"
+            label="Friends"
+            fullWidth
+            sx={{ flex: 1,
+                 height : 468 }}
+            InputProps={{
+              endAdornment: (
+                <IconButton>
+                  <SearchIcon />
+                </IconButton>
+              ),
+            }}
+          />
+          <IconButton>
+            <SettingsIcon />
+          </IconButton>
+        </Paper>
+      </Box>
+
+      {/* About, Favorites, and Pinned Music Column */}
+      <Box sx={{ flex: 1 }}>
+        {/* About and Favorites Section */}
+        <Paper sx={{ display: 'flex', p: 3, gap: 2, mb: 4, bgcolor: '#ECE6F0' }}>
+          {/* About Section */}
+          <Box sx={{ flex: 1 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               ABOUT
             </Typography>
-            {/* This section remains empty as per request */}
-          </Grid>
+            {/* Add content or fields for the About section here if needed */}
+          </Box>
 
-          {/* Favorites Section - Now on Right Column */}
-          <Grid item xs={6}>
+          {/* Favorites Section */}
+          <Box sx={{ flex: 1 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               FAVORITES
             </Typography>
             <Grid container spacing={2}>
               <Grid item xs={6}>
-                <TextField fullWidth placeholder="favorite genre" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="fav artist" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="album #1" variant="outlined" />
+                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Album #1" variant="outlined" />
               </Grid>
               <Grid item xs={6}>
-                <TextField fullWidth placeholder="favorite genre" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="fav artist" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="album #1" variant="outlined" />
+                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
+                <TextField fullWidth placeholder="Album #2" variant="outlined" />
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-      </Paper>
+          </Box>
+        </Paper>
 
-      {/* Pinned Music Section */}
-      <PinnedMusicSection />
+        {/* Pinned Music Section */}
+        <PinnedMusicSection />
+      </Box>
     </Box>
   );
 };
@@ -104,6 +165,9 @@ export const Profile: FunctionComponent = () => {
 // Pinned Music Section Component
 const PinnedMusicSection: FunctionComponent = () => (
   <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
+    <Typography variant="h5" sx={{ mb: 2 }}>
+      PINNED MUSIC
+    </Typography>
     <TextField
       fullWidth
       placeholder="Pinned Music"
@@ -111,16 +175,16 @@ const PinnedMusicSection: FunctionComponent = () => (
       sx={{
         mb: 2,
         '& .MuiOutlinedInput-root': {
-          bgcolor: '#F5EFF7', // Adjust background color here
+          bgcolor: '#F5EFF7',
           '&:hover fieldset': {
-            borderColor: '#000000', // Optional: Adjust border color on hover
+            borderColor: '#000000',
           },
         },
       }}
     />
     <Grid container spacing={2}>
-      {[...Array(8)].map((_, i) => (
-        <Grid item xs={3} key={i}>
+      {[...Array(6)].map((_, i) => (
+        <Grid item xs={4} key={i}>
           <Paper
             sx={{
               paddingTop: '100%',
