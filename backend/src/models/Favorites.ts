@@ -1,9 +1,15 @@
-import { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-const Favorites = {
-  genre: String,
-  artist: String,
-  album: String,
-};
+export interface IFavorites {
+  genre?: string;
+  artist?: string;
+  album?: string;
+}
 
-export default Favorites;
+const FavoritesSchema = new Schema<IFavorites>({
+  genre: { type: String },
+  artist: { type: String },
+  album: { type: String },
+});
+
+export default mongoose.model<IFavorites>('Favorites', FavoritesSchema);

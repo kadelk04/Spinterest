@@ -1,8 +1,13 @@
-import { Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
+
+export interface IPlaylist {
+  spotifyId: string;
+  tags: string[];
+}
 
 const Playlist = new Schema({
-  spotifyId: String,
+  spotifyId: { type: String, required: true },
   tags: [String],
 });
 
-export default Playlist;
+export default mongoose.model<IPlaylist>('Playlist', Playlist);

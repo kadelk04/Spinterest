@@ -2,10 +2,11 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon src/backend.ts",
-    "start": "node src/backend.ts"
+    "dev": "nodemon --exec node --loader ts-node/esm src/backend.ts",
+    "start": "node --loader ts-node/esm src/backend.ts"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,11 @@
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "mongoose": "^8.8.0",
+    "nodemon": "^3.1.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "ts-node": "^10.4.0",
     "nodemon": "^3.1.7"
   }
 }
