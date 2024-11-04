@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import { getDbConnection } from '../utils/connection';
+import { getDbConnection, getModel } from '../utils/connection';
+import { IUser } from '../models/User';
 
 /**
  * Retrieve a user by their username
@@ -9,18 +9,23 @@ import { getDbConnection } from '../utils/connection';
  * @returns
  */
 export const getUserByUsername = async (req: Request, res: Response) => {
-  const connection = getDbConnection();
-  if (!req.params.username) {
-    res.status(400).send('Invalid request');
-    return;
+  try {
+    const connection = getDbConnection();
+    if (!req.params.username) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.params.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching user');
   }
-  const userModel = connection.model('User');
-  const user = await userModel.findOne({ username: req.params.username });
-  if (!user) {
-    res.status(404).send('User not found');
-    return;
-  }
-  res.status(200).send(user);
 };
 
 /**
@@ -30,21 +35,26 @@ export const getUserByUsername = async (req: Request, res: Response) => {
  * @returns
  */
 export const updateUserByUsername = async (req: Request, res: Response) => {
-  const connection = getDbConnection();
-  if (!req.params.username || !req.body) {
-    res.status(400).send('Invalid request');
-    return;
-  }
-  const userModel = connection.model('User');
-  const user = await userModel.findOne({ username: req.params.username });
-  if (!user) {
-    res.status(404).send('User not found');
-    return;
-  }
   try {
-    await user.updateOne(req.body);
-    res.status(200).send('User updated');
+    const connection = getDbConnection();
+    if (!req.params.username || !req.body) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.params.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    try {
+      await user.updateOne(req.body);
+      res.status(200).send('User updated');
+    } catch (err) {
+      res.status(500).send('Error updating user');
+    }
   } catch (err) {
+    console.error(err);
     res.status(500).send('Error updating user');
   }
 };
@@ -56,21 +66,26 @@ export const updateUserByUsername = async (req: Request, res: Response) => {
  * @returns
  */
 export const deleteUserByUsername = async (req: Request, res: Response) => {
-  const connection = getDbConnection();
-  if (!req.params.username) {
-    res.status(400).send('Invalid request');
-    return;
-  }
-  const userModel = connection.model('User');
-  const user = await userModel.findOne({ username: req.params.username });
-  if (!user) {
-    res.status(404).send('User not found');
-    return;
-  }
   try {
-    await user.deleteOne();
-    res.status(200).send('User deleted');
+    const connection = getDbConnection();
+    if (!req.params.username) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.params.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    try {
+      await user.deleteOne();
+      res.status(200).send('User deleted');
+    } catch (err) {
+      res.status(500).send('Error deleting user');
+    }
   } catch (err) {
+    console.error(err);
     res.status(500).send('Error deleting user');
   }
 };
@@ -81,34 +96,40 @@ export const deleteUserByUsername = async (req: Request, res: Response) => {
  * @param res
  * @returns
  */
-export const createUser = async (req: Request, res: Response) => {
-  const connection = getDbConnection();
-  if (!req.body || !req.body.username || !req.body.password) {
-    res.status(400).send('Invalid request');
-    return;
-  }
-  const userModel = connection.model('User');
+export const addUser = async (req: Request, res: Response) => {
   try {
-    const user = new userModel({
-      username: req.body.username,
-      password: req.body.password,
-    });
-    await user.save();
-    res.status(201).send('User created');
+    const connection = getDbConnection();
+    if (!req.body.username || !req.body.password) {
+      res.status(400).send('Invalid request');
+    }
+    const UserModel = getModel<IUser>('User');
+    const user = new UserModel(req.body);
+    try {
+      await user.save();
+      res.status(201).send('User created');
+    } catch (err) {
+      res.status(500).send('Error creating user');
+    }
   } catch (err) {
+    console.error(err);
     res.status(500).send('Error creating user');
   }
 };
 
 /**
- * Get all users
+ * Retrieve all users
  * @param req
  * @param res
  * @returns
  */
 export const getAllUsers = async (req: Request, res: Response) => {
-  const connection = getDbConnection();
-  const userModel = connection.model('User');
-  const users = await userModel.find();
-  res.status(200).send(users);
+  try {
+    const connection = getDbConnection();
+    const UserModel = getModel<IUser>('User');
+    const users = await UserModel.find({});
+    res.status(200).send(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching users');
+  }
 };

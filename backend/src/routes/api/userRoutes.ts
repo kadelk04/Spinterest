@@ -3,6 +3,7 @@ import {
   getUserByUsername,
   getAllUsers,
   updateUserByUsername,
+  addUser,
 } from '../../controllers/userController';
 import auth from '../../middleware/auth';
 import {
@@ -11,19 +12,21 @@ import {
   removeFavorite,
   updateFavorite,
 } from '../../controllers/favoritesController';
-import { getPlaylistByUsername } from '../../controllers/playlistController';
+import { getPlaylistsByUsername } from '../../controllers/playlistController';
 
 const router = Router();
 
-router.get('/', auth, getAllUsers);
-router.get('/:username', auth, getUserByUsername);
-router.put('/:username', auth, updateUserByUsername);
+router.get('/', getAllUsers);
+router.post('/', addUser);
+
+router.get('/:username', getUserByUsername);
+router.put('/:username', updateUserByUsername);
 
 // Nested routes for user resources
-router.get('/:username/playlist', auth, getPlaylistByUsername);
-router.get('/:username/favorites', auth, getUserFavorites);
-router.post('/:username/favorites', auth, addFavorite);
-router.delete('/:username/favorites', auth, removeFavorite);
-router.patch('/:username/favorites', auth, updateFavorite);
+router.get('/:username/playlist', getPlaylistsByUsername);
+router.get('/:username/favorites', getUserFavorites);
+router.post('/:username/favorites', addFavorite);
+router.delete('/:username/favorites', removeFavorite);
+router.patch('/:username/favorites', updateFavorite);
 
 export default router;

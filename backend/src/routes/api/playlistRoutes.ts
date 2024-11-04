@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
 import {
-  createPlaylist,
+  addPlaylist,
   getAllPlaylists,
   getPlaylistById,
   updatePlaylistById,
@@ -12,9 +12,9 @@ import auth from '../../middleware/auth';
 const router = Router();
 
 router.get('/', getAllPlaylists);
-router.post('/', auth, createPlaylist);
+router.post('/', addPlaylist);
 router.get('/:playlistId', getPlaylistById);
-router.put('/:playlistId', auth, updatePlaylistById);
-router.delete('/:playlistId', auth, deletePlaylistById);
+router.put('/:playlistId', updatePlaylistById);
+router.delete('/:playlistId', deletePlaylistById);
 
 export default router;

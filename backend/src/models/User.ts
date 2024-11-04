@@ -1,6 +1,6 @@
-import { Schema, model } from 'mongoose';
-import Favorites, { IFavorites } from './Favorites';
-import Playlist, { IPlaylist } from './Playlist';
+import mongoose, { Schema, model } from 'mongoose';
+import { IFavorites } from './Favorites';
+import { IPlaylist } from './Playlist';
 
 export interface IUser {
   username: string;
@@ -12,14 +12,14 @@ export interface IUser {
   annotatedPlaylists?: IPlaylist[];
 }
 
-const User = new Schema({
+export const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   spotifyId: String,
   bio: String,
   location: String,
-  favorites: Favorites,
-  annotatedPlaylists: [Playlist],
+  favorites: { type: mongoose.Schema.Types.ObjectId, ref: 'Favorites' },
+  annotatedPlaylists: [
+    { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
+  ],
 });
-
-export default model<IUser>('User', User);

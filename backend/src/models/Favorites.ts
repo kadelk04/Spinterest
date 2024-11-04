@@ -6,10 +6,9 @@ export interface IFavorites {
   album?: string;
 }
 
-const FavoritesSchema = new Schema<IFavorites>({
-  genre: { type: String },
-  artist: { type: String },
-  album: { type: String },
+export const FavoritesSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  song: String,
+  artist: String,
+  genre: String,
 });
-
-export default mongoose.model<IFavorites>('Favorites', FavoritesSchema);

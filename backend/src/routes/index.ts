@@ -8,7 +8,7 @@ const router = Router();
 // router.use('/auth', authRoutes);
 
 // Protected routes
-router.use('/users', userRoutes);
-router.use('/playlists', playlistRoutes);
+router.use('/user', userRoutes);
+router.use('/playlist', playlistRoutes);
 
 export default router;

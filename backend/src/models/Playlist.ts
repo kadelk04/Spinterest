@@ -5,9 +5,12 @@ export interface IPlaylist {
   tags: string[];
 }
 
-const Playlist = new Schema({
-  spotifyId: { type: String, required: true },
-  tags: [String],
+export const PlaylistSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  songs: [String],
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
-
-export default mongoose.model<IPlaylist>('Playlist', Playlist);
