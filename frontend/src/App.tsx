@@ -7,6 +7,7 @@ import { Dashboard } from './components/pages/Dashboard';
 import { Box, CssBaseline } from '@mui/material';
 import { Navbar } from './components/common/Navbar';
 import { Theme } from './components/common/Theme';
+import { PlaylistWidgets } from './components/PlaylistWidgets';
 import '@fontsource/roboto';
 import {
   Dashboard as DashboardIcon,
@@ -27,6 +28,8 @@ export default function App() {
       return false;
     }
   }
+
+  const playlistWidgets = PlaylistWidgets();
 
   return (
     <Theme>
@@ -67,7 +70,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route
                 path="/dashboard"
-                element={<PrivateRoute path="/dashboard" element={Dashboard} />}
+                element={<Dashboard widgets={playlistWidgets}/>}
               />
               <Route
                 path="/profile"

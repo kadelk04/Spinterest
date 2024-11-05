@@ -1,15 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
-  TextField,
-  Button,
   Typography,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Container,
-  Paper,
-  InputLabel,
   Input,
   InputAdornment
 } from '@mui/material';
@@ -17,10 +10,44 @@ import {
   Search, 
   Dehaze 
 } from '@mui/icons-material';
+import GridLayout, { Layout } from 'react-grid-layout';
 
-import Grid from '@mui/material/Grid2';
-import styles from "./Login.module.css";
-export const Dashboard = () => {
+interface Widget {
+  id: string;
+  component: JSX.Element;
+}
+
+export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
+  const [layout, setLayout] = React.useState<Layout[]>(
+    widgets.map((widget, index) => ({
+        i: widget.id,
+        x: (index % 3) * 4,
+        y: Math.floor(index / 3) * 4,
+        w: 4,
+        h: 4,
+    }))
+  );
+  const gridWidth = 1200; // Customize as needed
+
+  const onLayoutChange = (newLayout: Layout[]) => {
+    setLayout(newLayout);
+  };
+
+  const renderWidget = (id: string) => (
+    <Box
+      sx={{
+        backgroundColor: 'orange',
+        borderRadius: '10px',
+        padding: '10px',
+        height: '100%',
+        textAlign: 'center'
+      }}
+    >
+      <Typography variant="h6">{id}</Typography>
+      <Typography>Playlist content for {id}</Typography>
+    </Box>
+  );
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Input
@@ -47,6 +74,20 @@ export const Dashboard = () => {
       <Typography>
         Dashboard
       </Typography>
+      <GridLayout
+        className="layout"
+        layout={layout}
+        cols={12}
+        rowHeight={60}
+        width={gridWidth}
+        onLayoutChange={onLayoutChange}
+      >
+        {widgets.map((widget) => (
+          <div key={widget.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {widget.component}
+          </div>
+        ))}
+      </GridLayout>
     </Box>
   );
 };
