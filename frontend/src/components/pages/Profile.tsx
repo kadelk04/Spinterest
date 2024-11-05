@@ -1,8 +1,10 @@
 import { FunctionComponent, useState, useEffect } from 'react';
-import { getRefreshedToken } from '../data/SpotifyAuth';
+import { getRefreshedToken, logout } from '../data/SpotifyAuth';
+import { useNavigate } from 'react-router-dom';
 import { Search as SearchIcon, Settings as SettingsIcon } from '@mui/icons-material';
 import {
   Box,
+  Button,
   TextField,
   Typography,
   Paper,
@@ -20,6 +22,7 @@ export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -43,6 +46,7 @@ export const Profile: FunctionComponent = () => {
 
         const data = await response.json();
         if (data.error) {
+          console.log(data);
           console.error(data.error.message);
           return;
         }
@@ -64,37 +68,43 @@ export const Profile: FunctionComponent = () => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' }, 
-        gap: 2,
-        flexWrap: 'wrap',
+        flexDirection: {xs: 'column', md: 'row'}, 
       }}
     >
       {/* Profile and Friends Column */}
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1' }}}>
+      <Box sx={{ flex: { xs: '100%', md: 1 }}}>
         <Paper
           sx={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: '#eae6ef',
+            bgcolor: '#ECE6F0',
             borderRadius: 2,
-            p: 0,
-            mb: 4,
-            width: '100%', 
-            height: 468,
+            p: 3,
+            mb: {xs: 2, md: 4},
+            width: {xs: '100%', md: '90%'}, 
           }}
         >
           {profile ? (
             <>
               <Avatar src={profile.images[0]?.url} sx={{ width: 224, height: 224, mb: 3 }} />
               <Typography variant="h5">{profile.display_name}</Typography>
+              <Button
+                sx={{ mt: 2 }}
+                variant="contained"
+                onClick={() => {
+                logout();
+                navigate('/login');
+                }}
+                >
+                Logout
+              </Button>
+              <TextField id="blurb" label="current status" sx={{ maxWidth: '80%', mt: 2 }} />
             </>
           ) : (
             <>
-              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224, mb: 3 }} />
-              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 3 }} />
-              <TextField id="blurb" label="Small Blurb" sx={{ maxWidth: '80%' }} />
+              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224}} />
+              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 2 }} />
             </>
           )}
         </Paper>
@@ -104,18 +114,18 @@ export const Profile: FunctionComponent = () => {
           sx={{
             display: 'flex',
             alignItems: 'flex-start',
-            bgcolor: '#eae6ef',
+            bgcolor: '#ECE6F0',
             borderRadius: 2,
-            p: 0,
-            width: '100%', 
-            height: 468,
+            width: {xs: '100%', md: '90%'},
+            height: 300, 
+            p: 2,
           }}
         >
           <TextField
             id="search-friends"
             label="Friends"
             fullWidth
-            sx={{ flex: 1, top: '20px'}}
+            sx={{ flex: 1 }}
             InputProps={{
               endAdornment: (
                 <IconButton>
@@ -125,13 +135,13 @@ export const Profile: FunctionComponent = () => {
             }}
           />
           <IconButton>
-            <SettingsIcon sx={{ alignItems: 'top' }} />
+            <SettingsIcon sx={{ ml: 1 }} />
           </IconButton>
         </Paper>
       </Box>
 
       {/* About, Favorites, and Pinned Music Column */}
-      <Box sx={{ flex: { xs: '1 1 100%', md: '1' } }}>
+      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0}}}>
         {/* About and Favorites Section */}
         <Paper
           sx={{
