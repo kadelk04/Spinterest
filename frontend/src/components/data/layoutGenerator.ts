@@ -5,10 +5,10 @@ export const getLayouts = (widgets: Widget[]): Layouts => {
   const generateLayout = (breakpoint: string, cols: number): Layout[] => {
     return widgets.map((item, index) => ({
       i: item.id,
-      x: (index % cols) * (12 / cols),
+      x: (index % cols),
       y: Math.floor(index / cols) * 2,
-      w: 12 / cols,
-      h: 2,
+      w: 1,
+      h: 1,
     }));
   };
 

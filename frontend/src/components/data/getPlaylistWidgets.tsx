@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { PlaylistWidget } from '../DashboardComponents/PlaylistWidget'; // Adjust import path if necessary
-import { fetchPlaylists, Playlist } from '../components/data/FetchPlaylists'; // Adjust import path if necessary
+import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget'; // Adjust import path if necessary
+import { fetchPlaylists, Playlist } from './FetchPlaylists'; // Adjust import path if necessary
 
 export const PlaylistWidgets = () => {
     const [widgets, setWidgets] = useState<any[]>([]);

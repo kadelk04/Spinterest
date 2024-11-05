@@ -11,42 +11,22 @@ import {
   Dehaze 
 } from '@mui/icons-material';
 import GridLayout, { Layout } from 'react-grid-layout';
+import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
+import { getLayouts } from '../data/layoutGenerator';
 
-interface Widget {
+export interface Widget {
   id: string;
   component: JSX.Element;
 }
 
 export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
-  const [layout, setLayout] = React.useState<Layout[]>(
-    widgets.map((widget, index) => ({
-        i: widget.id,
-        x: (index % 3) * 4,
-        y: Math.floor(index / 3) * 4,
-        w: 4,
-        h: 4,
-    }))
-  );
+  const layouts = getLayouts(widgets);
+
   const gridWidth = 1200; // Customize as needed
 
-  const onLayoutChange = (newLayout: Layout[]) => {
-    setLayout(newLayout);
-  };
-
-  const renderWidget = (id: string) => (
-    <Box
-      sx={{
-        backgroundColor: 'orange',
-        borderRadius: '10px',
-        padding: '10px',
-        height: '100%',
-        textAlign: 'center'
-      }}
-    >
-      <Typography variant="h6">{id}</Typography>
-      <Typography>Playlist content for {id}</Typography>
-    </Box>
-  );
+  // const onLayoutChange = (newLayout: Layout[]) => {
+  //   setLayout(newLayout);
+  // };
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -74,20 +54,22 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
       <Typography>
         Dashboard
       </Typography>
-      <GridLayout
+      <ResponsiveGridLayout
         className="layout"
-        layout={layout}
-        cols={12}
-        rowHeight={60}
+        layouts={layouts}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 }}
+        // cols={6}
+        rowHeight={420}
         width={gridWidth}
-        onLayoutChange={onLayoutChange}
+        // onLayoutChange={onLayoutChange}
       >
         {widgets.map((widget) => (
           <div key={widget.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {widget.component}
           </div>
         ))}
-      </GridLayout>
+      </ResponsiveGridLayout>
     </Box>
   );
 };

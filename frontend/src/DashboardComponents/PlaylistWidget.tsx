@@ -24,11 +24,10 @@ export const PlaylistWidget = ({
       sx={{
         width: '250px',
         height: '400px',
-        backgroundColor: 'white',
+        backgroundColor: 'orange',
       }}
     >
       <CardContent>
-        {/* Display the cover image */}
         {typeof cover === 'string' ? (
           <Box
             component="img"
@@ -36,15 +35,14 @@ export const PlaylistWidget = ({
             alt="Cover Image"
             sx={{
               width: '100%',
+              height: '100%',
               objectFit: 'cover',
               borderRadius: '10px',
               marginBottom: '10px',
             }}
           />
         ) : null}
-        
-        {/* Display title and tags */}
-        <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+        <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
           {title}
         </Typography>
         <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 12 }}>
