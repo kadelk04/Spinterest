@@ -6,6 +6,7 @@ export interface IUser {
   username: string;
   password: string;
   spotifyId?: string;
+  refreshToken?: string;
   bio?: string;
   location?: string;
   favorites: IFavorites;
@@ -18,6 +19,7 @@ export const UserSchema = new mongoose.Schema({
   spotifyId: String,
   bio: String,
   location: String,
+  refreshToken: String,
   favorites: { type: mongoose.Schema.Types.ObjectId, ref: 'Favorites' },
   annotatedPlaylists: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
