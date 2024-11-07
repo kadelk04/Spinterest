@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getDbConnection, getModel } from '../utils/connection';
+import { getModel } from '../utils/connection';
 import { IUser } from '../models/User';
 
 /**
@@ -10,7 +10,6 @@ import { IUser } from '../models/User';
  */
 export const getUserByUsername = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.username) {
       res.status(400).send('Invalid request');
       return;
@@ -36,7 +35,6 @@ export const getUserByUsername = async (req: Request, res: Response) => {
  */
 export const updateUserByUsername = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.username || !req.body) {
       res.status(400).send('Invalid request');
       return;
@@ -51,7 +49,7 @@ export const updateUserByUsername = async (req: Request, res: Response) => {
       await user.updateOne(req.body);
       res.status(200).send('User updated');
     } catch (err) {
-      res.status(500).send('Error updating user');
+      res.status(500).send('Error updating user: ' + err);
     }
   } catch (err) {
     console.error(err);
@@ -67,7 +65,6 @@ export const updateUserByUsername = async (req: Request, res: Response) => {
  */
 export const deleteUserByUsername = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.username) {
       res.status(400).send('Invalid request');
       return;
@@ -82,7 +79,7 @@ export const deleteUserByUsername = async (req: Request, res: Response) => {
       await user.deleteOne();
       res.status(200).send('User deleted');
     } catch (err) {
-      res.status(500).send('Error deleting user');
+      res.status(500).send('Error deleting user: ' + err);
     }
   } catch (err) {
     console.error(err);
@@ -98,7 +95,6 @@ export const deleteUserByUsername = async (req: Request, res: Response) => {
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.body.username || !req.body.password) {
       res.status(400).send('Invalid request');
     }
@@ -108,7 +104,7 @@ export const addUser = async (req: Request, res: Response) => {
       await user.save();
       res.status(201).send('User created');
     } catch (err) {
-      res.status(500).send('Error creating user');
+      res.status(500).send('Error creating user: ' + err);
     }
   } catch (err) {
     console.error(err);
@@ -124,7 +120,6 @@ export const addUser = async (req: Request, res: Response) => {
  */
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     const UserModel = getModel<IUser>('User');
     const users = await UserModel.find({});
     res.status(200).send(users);

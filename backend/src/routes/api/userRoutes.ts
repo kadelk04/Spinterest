@@ -4,8 +4,7 @@ import {
   getAllUsers,
   updateUserByUsername,
   addUser,
-} from '../../controllers/userController';
-import auth from '../../middleware/auth';
+} from '../../controllers/UserController';
 import {
   addFavorite,
   getUserFavorites,

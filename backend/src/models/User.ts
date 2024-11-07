@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from 'mongoose';
+import mongoose from 'mongoose';
 import { IFavorites } from './Favorites';
 import { IPlaylist } from './Playlist';
 
