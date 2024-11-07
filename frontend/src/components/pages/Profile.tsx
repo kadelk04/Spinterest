@@ -1,7 +1,15 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { Search as SearchIcon, Settings as SettingsIcon } from '@mui/icons-material';
+import { 
+  Search as SearchIcon, 
+  Settings as SettingsIcon, 
+  Edit as EditIcon,
+  Close as CloseIcon,
+  LocationOn as LocationOnIcon,
+  AccountCircle as AccountCircleIcon,
+  MusicNote as MusicNoteIcon,
+} from '@mui/icons-material';
 import {
   Box,
   Button,
@@ -11,6 +19,7 @@ import {
   Avatar,
   Grid,
   IconButton,
+  Icon,
 } from '@mui/material';
 
 interface SpotifyProfile {
@@ -99,7 +108,9 @@ export const Profile: FunctionComponent = () => {
                 >
                 Logout
               </Button>
-              <TextField id="blurb" label="current status" sx={{ maxWidth: '80%', mt: 2 }} />
+
+              {/* Editable status blurb */}
+              <EditableBlurb/>
             </>
           ) : (
             <>
@@ -158,6 +169,54 @@ export const Profile: FunctionComponent = () => {
             <Typography variant="h5" sx={{ mb: 2 }}>
               ABOUT
             </Typography>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  id="location"
+                  label="location"
+                  InputProps={{
+                    startAdornment: (
+                      <Icon>
+                        <LocationOnIcon />
+                      </Icon>
+                    )
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                id="links"
+                label="links"
+                InputProps={{
+                  startAdornment: (
+                    <Icon>
+                      <MusicNoteIcon />
+                    </Icon>
+                  )
+                }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+              <TextField
+                id="biography"
+                label="user bio"
+                multiline
+                fullWidth
+                maxRows = {3}
+                InputProps={{
+                  startAdornment: (
+                    <Icon>
+                      <AccountCircleIcon />
+                    </Icon>
+                  )
+                }}
+              />
+              </Grid>
+            </Grid>
+
             {/* Add content or fields for the About section here if needed */}
           </Box>
 
@@ -185,6 +244,41 @@ export const Profile: FunctionComponent = () => {
         <PinnedMusicSection />
       </Box>
     </Box>
+  );
+};
+
+//Editable Status Field
+//making this more universal function to edit other textfields 
+//set a character to limit
+// TODO: connect back to the backend for user profile 
+const EditableBlurb: FunctionComponent = () => {
+  const [isEditable, setIsEditable] = useState(false);
+  const [text, setText] = useState("status");
+  const [clicked, setClicked] = useState(false);
+
+  const handleIconClick = () => {
+    setIsEditable((prev) => !prev); // Toggle the editable state
+    setClicked((prev) => !prev); //Swiches the Icons
+  };
+
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setText(event.target.value);
+  };
+
+  return (
+  <TextField id="blurb" label="status" 
+      sx={{ maxWidth: '80%', mt: 2 }}
+      value={text}
+      onChange={handleTextChange} 
+      InputProps={{
+        readOnly: !isEditable,
+        endAdornment: (
+          <IconButton onClick={handleIconClick}>
+            {clicked ? <CloseIcon /> : <EditIcon />}
+          </IconButton>
+        ),
+      }}
+    />
   );
 };
 
