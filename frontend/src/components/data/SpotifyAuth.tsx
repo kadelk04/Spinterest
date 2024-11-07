@@ -6,18 +6,21 @@ export const SpotifyLoginButton: FunctionComponent = () => {
   const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
 
   return (
-    <Button sx={{
-      color: 'white', 
+    <Button
+      sx={{
+        color: 'white',
         '&:hover': {
-        bgcolor: '#3F51B5',}
+          bgcolor: '#3F51B5',
+        },
       }}
-        href={AUTH_URL}>
-      <Typography sx={{ textTransform: 'none' }}>
-        Login with Spotify
-      </Typography>
+      href={AUTH_URL}
+    >
+      <Typography sx={{ textTransform: 'none' }}>Login with Spotify</Typography>
     </Button>
   );
 };
+
+export const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
 
 export const fetchAuthToken = async (code: string) => {
   var authOptions = {
@@ -85,4 +88,13 @@ export const getRefreshedToken = async (refreshToken: string) => {
   } catch (error) {
     console.error('Error fetching auth token', error);
   }
+};
+
+export const getAccessToken = () => {
+  return window.localStorage.getItem('spotify_token');
+};
+
+export const logout = () => {
+  window.localStorage.removeItem('spotify_token');
+  window.localStorage.removeItem('spotify_refresh_token');
 };
