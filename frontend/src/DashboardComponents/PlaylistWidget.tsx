@@ -7,16 +7,21 @@ import {
   Card,
   CardContent,
   CardActions,
+  Stack,
 } from '@mui/material';
-import { Search, Dehaze } from '@mui/icons-material';
+import { AddOutlined, FavoriteBorderOutlined } from '@mui/icons-material';
+import { Owner } from '../components/data/FetchPlaylists';
+
 
 export const PlaylistWidget = ({
   cover,
   title,
+  owner, 
   tags,
 }: {
   cover: string | File;
   title: string;
+  owner: string;
   tags: string[];
 }) => {
   return (
@@ -24,10 +29,11 @@ export const PlaylistWidget = ({
       sx={{
         width: '250px',
         height: '400px',
-        backgroundColor: 'orange',
+        backgroundColor: '#FEF7FF',
+        borderRadius: '20px',
       }}
     >
-      <CardContent>
+      <CardContent sx={{ padding: 0 }}>
         {typeof cover === 'string' ? (
           <Box
             component="img"
@@ -37,17 +43,28 @@ export const PlaylistWidget = ({
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              borderRadius: '10px',
-              marginBottom: '10px',
+              // marginBottom: '10px',
             }}
           />
         ) : null}
-        <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
-          {title}
-        </Typography>
-        <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 12 }}>
-          {tags.join(', ')}
-        </Typography>
+        <Box sx={{padding: 2}}>
+          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+            {owner}
+          </Typography>
+          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+            {title}
+          </Typography>
+          {/* <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 12 }}>
+            {tags.join(', ')}
+          </Typography> */}
+        </Box>
+        <Stack direction="row" spacing={2}
+          sx={{justifyContent:'flex-end', marginTop:'10%', width: '100%' }}
+        >
+          <FavoriteBorderOutlined></FavoriteBorderOutlined>
+          <AddOutlined></AddOutlined>
+        </Stack>
+
       </CardContent>
     </Card>
   );

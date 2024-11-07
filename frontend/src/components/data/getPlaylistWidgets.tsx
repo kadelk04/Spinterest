@@ -15,6 +15,7 @@ export const PlaylistWidgets = () => {
                         <PlaylistWidget
                             key={playlist.id}
                             cover={playlist.images?.[0]?.url || ''}
+                            owner={playlist.owner.display_name}
                             title={playlist.name}
                             tags={playlist.genres || []}
                         />

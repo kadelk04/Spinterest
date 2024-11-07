@@ -1,8 +1,13 @@
 export interface Playlist {
     id: string;
     name: string;
+    owner:Owner;
     images: { url: string }[]; // Adjust as needed based on the Spotify API response
     genres?: string[]; // Adjust if genres are available or if you need other properties
+}
+
+export interface Owner {
+  display_name:string;
 }
 
 export const fetchPlaylists = async (): Promise<Playlist[] | null> => {

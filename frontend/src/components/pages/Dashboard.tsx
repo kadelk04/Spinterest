@@ -22,11 +22,18 @@ export interface Widget {
 export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
   const layouts = getLayouts(widgets);
 
-  const gridWidth = 1200; // Customize as needed
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // const onLayoutChange = (newLayout: Layout[]) => {
-  //   setLayout(newLayout);
-  // };
+  useEffect(() => {
+    const handleResize  = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -61,7 +68,7 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
         cols={{ lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 }}
         // cols={6}
         rowHeight={420}
-        width={gridWidth}
+        width={windowWidth}
         // onLayoutChange={onLayoutChange}
       >
         {widgets.map((widget) => (
