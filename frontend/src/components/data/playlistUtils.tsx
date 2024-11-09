@@ -53,6 +53,7 @@ export const fetchPlaylists = async (accessToken:string): Promise<WidgetData[]> 
 export const buildWidgets = async (playlists: WidgetData[], accessToken:string): Promise<Widget[]> => {
   // get playlist data from fetchPlaylists
 
+  playlists = playlists.slice(0, 3);
   // for each playlist, use the id to get the tracks
 
   const widgets: Widget[] = await Promise.all(playlists.map(async (playlist: WidgetData) => {
@@ -94,10 +95,10 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
     const allArtistInfo = artistInfoResponses.flatMap(response => response.data.artists);
     console.log('All Artist Info:', allArtistInfo);
 
-    // const genres = artistInfo.flatMap((artist: any) => artist.genres);
-    // console.log('Genres:', genres);
+    const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
+    console.log('Genres:', genres);
 
- //   return getGenres(response.data.genres, accessToken);
+    console.log(getGenres(genres, accessToken));
     // }));
 
     return {
@@ -129,7 +130,7 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
 
 export const getGenres = async (genres: string[], accessToken: string): Promise<string[]> => {
 
-  console.log('Genres:', genres);
+  console.log('Genres in getGenres:', genres);
   return [];
 };
 
