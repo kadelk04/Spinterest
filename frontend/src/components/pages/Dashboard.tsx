@@ -13,13 +13,16 @@ import {
 import GridLayout, { Layout } from 'react-grid-layout';
 import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
 import { getLayouts } from '../data/layoutGenerator';
+import { fetchPlaylists } from '../data/playlistUtils';
 
 export interface Widget {
   id: string;
-  component: JSX.Element;
+  component: React.ReactNode;
 }
 
 export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
+  
+  console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);

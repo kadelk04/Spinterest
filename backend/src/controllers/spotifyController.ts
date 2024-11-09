@@ -1,6 +1,17 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
 
+export interface Playlist {
+  id: string;
+  name: string;
+  owner:Owner;
+  images: { url: string }[]; 
+}
+
+export interface Owner {
+display_name:string;
+}
+
 export const getProfileInfo = async (req: Request, res: Response) => {
   const payload = {
     spotifyToken: req.body.spotifyToken,
@@ -19,10 +30,10 @@ export const getProfileInfo = async (req: Request, res: Response) => {
 };
 
 export const getPlaylists = async (req: Request, res: Response) => {
-  const payload = {
-    spotifyToken: req.body.spotifyToken,
-  };
   try {
+    const payload = {
+      spotifyToken: req.query.spotifyToken,
+    };
     const response = await axios.get(
       'https://api.spotify.com/v1/me/playlists',
       {
