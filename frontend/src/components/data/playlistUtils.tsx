@@ -56,8 +56,7 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
   // for each playlist, use the id to get the tracks
 
   const widgets: Widget[] = await Promise.all(playlists.map(async (playlist: WidgetData) => {
-    console.log('Playlist:', playlist);
-    console.log('access token:', accessToken);
+
     const response = await axios.get(`http://localhost:8000/api/spotify/playlists/${playlist.id}`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -65,18 +64,20 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
     });
 
     console.log('Playlist in playlistUtils:', response.data);
-    // const tracks = response.data.tracks.items;
+    const tracks = response.data.items;
+    console.log('Tracks:', tracks);
 
-    // const artists = tracks.map((track: any) => track.track.artists[0].id);
+    const artists = tracks.map((track: any) => track.track.artists[0].id);
+    console.log('Artists:', artists);
+    const genres = await Promise.all(artists.map(async (artist: string) => {
+      const response = await axios.get(`http://localhost:8000/api/spotify/artist/${artist}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    }));
 
-    // const genres = await Promise.all(artists.map(async (artist: string) => {
-    //   const response = await axios.get(`http://localhost:8000/api/spotify/artist/${artist}`, {
-    //     params: {
-    //       spotifyToken: accessToken,
-    //     }
-    //   });
-      
-
+    console.log("genres", genres);
     //   return getGenres(response.data.genres, accessToken);
     // }));
 

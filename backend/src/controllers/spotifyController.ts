@@ -96,9 +96,6 @@ export const getPlaylistTracks = async (req: Request, res: Response,  next: Next
       return;
     }
 
-    console.log("Received spotifyToken:", spotifyToken);
-    console.log("Received playlistId:", playlistId);
-
     // Make request to Spotify API to get playlist tracks
     const response = await axios.get(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
@@ -108,7 +105,7 @@ export const getPlaylistTracks = async (req: Request, res: Response,  next: Next
         },
       }
     );
-
+    //console.log('Playlist track in getPlaylistTracks:', response.data);
     // Send the data from Spotify API as the response
     res.status(200).send(response.data);
   } catch (err) {
@@ -181,17 +178,21 @@ export const getUserPlaylistTracks = async (req: Request, res: Response) => {
   }
 };
 
-export const getArtistInfo = async (req: Request, res: Response) => {
-  const payload = {
-    spotifyToken: req.body.spotifyToken,
-    artistId: req.params.artistId,
-  };
-  try {
+export const getArtistInfo = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
+    const artistId = req.params.artistId;
+
+    if (!spotifyToken) {
+      res.status(400).send('Spotify token is missing');
+      return;
+    }
+
     const response = await axios.get(
-      `https://api.spotify.com/v1/artists/${payload.artistId}`,
+      `https://api.spotify.com/v1/artists/${artistId}`,
       {
         headers: {
-          Authorization: `Bearer ${payload.spotifyToken}`,
+          Authorization: `Bearer ${spotifyToken}`,
         },
       }
     );
