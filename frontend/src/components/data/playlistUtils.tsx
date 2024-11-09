@@ -53,37 +53,39 @@ export const fetchPlaylists = async (accessToken:string): Promise<WidgetData[]> 
 export const buildWidgets = async (playlists: WidgetData[], accessToken:string): Promise<Widget[]> => {
   // get playlist data from fetchPlaylists
 
-  // for each playlist, get the id
+  // for each playlist, use the id to get the tracks
 
   const widgets: Widget[] = await Promise.all(playlists.map(async (playlist: WidgetData) => {
     console.log('Playlist:', playlist);
+    console.log('access token:', accessToken);
     const response = await axios.get(`http://localhost:8000/api/spotify/playlists/${playlist.id}`, {
-      params: {
-        spotifyToken: accessToken,
-      }
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
 
-    const tracks = response.data.tracks.items;
+    console.log('Playlist in playlistUtils:', response.data);
+    // const tracks = response.data.tracks.items;
 
-    const artists = tracks.map((track: any) => track.track.artists[0].id);
+    // const artists = tracks.map((track: any) => track.track.artists[0].id);
 
-    const genres = await Promise.all(artists.map(async (artist: string) => {
-      const response = await axios.get(`http://localhost:8000/api/spotify/artist/${artist}`, {
-        params: {
-          spotifyToken: accessToken,
-        }
-      });
+    // const genres = await Promise.all(artists.map(async (artist: string) => {
+    //   const response = await axios.get(`http://localhost:8000/api/spotify/artist/${artist}`, {
+    //     params: {
+    //       spotifyToken: accessToken,
+    //     }
+    //   });
       
 
-      return getGenres(response.data.genres, accessToken);
-    }));
+    //   return getGenres(response.data.genres, accessToken);
+    // }));
 
     return {
       id: playlist.id,
       cover: playlist.cover,
       owner: playlist.owner.display_name,
       title: playlist.title,
-      genres: genres,
+      genres: [],
       component: (
         <PlaylistWidget
           key={playlist.id}
@@ -123,24 +125,26 @@ export const returnWidgets = async (): Promise<Widget[]> => {
 
 
   const playlists_data = await fetchPlaylists(accessToken);
+  console.log(playlists_data)
 
   const playlists_with_genres = await buildWidgets(playlists_data, accessToken);
 
 
-  const widgets: Widget[] = playlists_with_genres.map((playlist: any) => ({
-    id: playlist.id,
-    cover: playlist.images?.[0]?.url || '',
-    owner: playlist.owner.display_name,
-    title: playlist.name,
-    genres: [],
-    component: (
-      <PlaylistWidget
-        key={playlist.id}
-        cover={playlist.images?.[0]?.url || ''}
-        owner={playlist.owner.display_name}
-        title={playlist.name}
-      />
-    )
-  }));
+  // const widgets: Widget[] = playlists_with_genres.map((playlist: any) => ({
+  //   id: playlist.id,
+  //   cover: playlist.images?.[0]?.url || '',
+  //   owner: playlist.owner.display_name,
+  //   title: playlist.name,
+  //   genres: [],
+  //   component: (
+  //     <PlaylistWidget
+  //       key={playlist.id}
+  //       cover={playlist.images?.[0]?.url || ''}
+  //       owner={playlist.owner.display_name}
+  //       title={playlist.name}
+  //     />
+  //   )
+  // }));
   
-  return widgets};
+  return []
+};

@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 
 export interface Playlist {
@@ -85,23 +85,35 @@ export const getPlaylists = async (req: Request, res: Response) => {
   }
 };
 
-export const getPlaylistTracks = async (req: Request, res: Response) => {
-  const payload = {
-    spotifyToken: req.body.spotifyToken,
-    playlistId: req.params.playlistId,
-  };
+export const getPlaylistTracks = async (req: Request, res: Response,  next: NextFunction): Promise<void> => {
   try {
+    // Extract spotifyToken from the Authorization header
+    const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
+    const playlistId = req.params.playlistId;
+
+    if (!spotifyToken) {
+      res.status(400).send('Spotify token is missing');
+      return;
+    }
+
+    console.log("Received spotifyToken:", spotifyToken);
+    console.log("Received playlistId:", playlistId);
+
+    // Make request to Spotify API to get playlist tracks
     const response = await axios.get(
-      `https://api.spotify.com/v1/playlists/${payload.playlistId}/tracks`,
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
       {
         headers: {
-          Authorization: `Bearer ${payload.spotifyToken}`,
+          Authorization: `Bearer ${spotifyToken}`,
         },
       }
     );
+
+    // Send the data from Spotify API as the response
     res.status(200).send(response.data);
   } catch (err) {
     console.error('Error fetching playlist tracks:', err);
+    // Send a 500 error response with more information if available
     res.status(500).send('Error fetching playlist tracks');
   }
 };
