@@ -10,6 +10,7 @@ import { IPlaylist } from '../models/Playlist';
  * @param connection
  * @returns
  * */
+
 export const getAllPlaylists = async (req: Request, res: Response) => {
   try {
     const connection = getDbConnection();

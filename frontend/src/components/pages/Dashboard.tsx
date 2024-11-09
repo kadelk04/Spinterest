@@ -1,15 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
-  TextField,
-  Button,
   Typography,
-  Checkbox,
-  FormControlLabel,
-  Link,
-  Container,
-  Paper,
-  InputLabel,
   Input,
   InputAdornment
 } from '@mui/material';
@@ -17,10 +10,34 @@ import {
   Search, 
   Dehaze 
 } from '@mui/icons-material';
+import GridLayout, { Layout } from 'react-grid-layout';
+import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
+import { getLayouts } from '../data/layoutGenerator';
+import { fetchPlaylists } from '../data/playlistUtils';
 
-import Grid from '@mui/material/Grid2';
-import styles from "./Login.module.css";
-export const Dashboard = () => {
+export interface Widget {
+  id: string;
+  component: React.ReactNode;
+}
+
+export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
+  
+  console.log('Widgets:', widgets);
+  const layouts = getLayouts(widgets);
+
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize  = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Input
@@ -47,6 +64,22 @@ export const Dashboard = () => {
       <Typography>
         Dashboard
       </Typography>
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={layouts}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 }}
+        // cols={6}
+        rowHeight={420}
+        width={windowWidth}
+        // onLayoutChange={onLayoutChange}
+      >
+        {widgets.map((widget) => (
+          <div key={widget.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {widget.component}
+          </div>
+        ))}
+      </ResponsiveGridLayout>
     </Box>
   );
 };
