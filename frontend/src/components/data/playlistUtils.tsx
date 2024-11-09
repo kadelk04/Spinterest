@@ -67,18 +67,37 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
     const tracks = response.data.items;
     console.log('Tracks:', tracks);
 
-    const artists = tracks.map((track: any) => track.track.artists[0].id);
+    const artists = tracks.flatMap((track: any) => track.track.artists.map((artist: any) => artist.id));
     console.log('Artists:', artists);
-    const genres = await Promise.all(artists.map(async (artist: string) => {
-      const response = await axios.get(`http://localhost:8000/api/spotify/artist/${artist}`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-    }));
 
-    console.log("genres", genres);
-    //   return getGenres(response.data.genres, accessToken);
+    // const artistInfoResponse = await axios.get(`http://localhost:8000/api/spotify/artists/${artists.join(',')}`, {
+    //   headers: {
+    //     Authorization: `Bearer ${accessToken}`,
+    //   },
+    // });
+
+    // Split artist IDs into batches of 50 and make requests
+    const artistInfoResponses = await Promise.all(
+      Array.from({ length: Math.ceil(artists.length / 50) }, (_, i) => {
+        const batch = artists.slice(i * 50, (i + 1) * 50).join(',');
+        return axios.get(`http://localhost:8000/api/spotify/artists?ids=${batch}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+      })
+    );
+
+    // const artistInfo = artistInfoResponse.data.artists;
+    // console.log('Artist Info:', artistInfo);
+    // Process each batch response if needed
+    const allArtistInfo = artistInfoResponses.flatMap(response => response.data.artists);
+    console.log('All Artist Info:', allArtistInfo);
+
+    // const genres = artistInfo.flatMap((artist: any) => artist.genres);
+    // console.log('Genres:', genres);
+
+ //   return getGenres(response.data.genres, accessToken);
     // }));
 
     return {

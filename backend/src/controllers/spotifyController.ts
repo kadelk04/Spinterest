@@ -202,3 +202,28 @@ export const getArtistInfo = async (req: Request, res: Response, next: NextFunct
     res.status(500).send('Error fetching artist info');
   }
 };
+
+export const getMultipleArtistInfo = async (req: Request, res: Response, next: NextFunction) => {
+  try{
+    const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
+    const artistIds = (req.query.ids as string)?.split(',');
+    
+    if (!spotifyToken) {
+      res.status(400).send('Spotify token is missing');
+      return;
+    }
+
+    const response = await axios.get(
+      `https://api.spotify.com/v1/artists?ids=${artistIds.join(',')}`,
+      {
+        headers: {
+          Authorization: `Bearer ${spotifyToken}`,
+        },
+      }
+    );
+    res.status(200).send(response.data);
+  } catch (err) {
+    console.error('Error fetching artist info:', err);
+    res.status(500).send('Error fetching artist info');
+  }
+};

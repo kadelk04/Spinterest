@@ -10,6 +10,7 @@ import {
   getArtistInfo,
   getPlaylist,
   getMyPlaylists,
+  getMultipleArtistInfo
 } from '../../controllers/spotifyController';
 
 const router = Router();
@@ -21,5 +22,6 @@ router.get('/playlists/:playlistId', getPlaylistTracks);
 router.get('/user/:userId/playlists/', getUserPlaylists);
 router.get('/user/:userId/playlists/:playlistId', getUserPlaylistTracks);
 router.get('/artist/:artistId', getArtistInfo);
+router.get('/artists', getMultipleArtistInfo);
 
 export default router;
