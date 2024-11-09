@@ -29,7 +29,7 @@ export const getProfileInfo = async (req: Request, res: Response) => {
   }
 };
 
-export const getPlaylists = async (req: Request, res: Response) => {
+export const getMyPlaylists = async (req: Request, res: Response) => {
   try {
     const payload = {
       spotifyToken: req.query.spotifyToken,
@@ -42,6 +42,42 @@ export const getPlaylists = async (req: Request, res: Response) => {
         },
       }
     );
+    res.status(200).send(response.data);
+  } catch (err) {
+    console.error('Error fetching playlists:', err);
+    res.status(500).send('Error fetching playlists');
+  }
+};
+
+export const getPlaylist = async (req: Request, res: Response) => {
+  const payload = {
+    spotifyToken: req.query.spotifyToken || req.body.spotifyToken,
+  };
+  console.log('Payload:', payload);
+  try {
+    const response = await axios.get(`https://api.spotify.com/v1/playlists`, {
+      headers: {
+        Authorization: `Bearer ${payload.spotifyToken}`,
+      },
+    });
+    res.status(200).send(response.data);
+  } catch (err) {
+    console.error('Error fetching playlists:', err);
+    res.status(500).send('Error fetching playlists');
+  }
+};
+
+export const getPlaylists = async (req: Request, res: Response) => {
+  const payload = {
+    spotifyToken: req.params.spotifyToken,
+    playlistId: req.params.playlistId,
+  };
+  try {
+    const response = await axios.get(`https://api.spotify.com/v1/playlists/${payload.playlistId}`, {
+      headers: {
+        Authorization: `Bearer ${payload.spotifyToken}`,
+      },
+    });
     res.status(200).send(response.data);
   } catch (err) {
     console.error('Error fetching playlists:', err);
@@ -130,5 +166,26 @@ export const getUserPlaylistTracks = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Error fetching user playlist tracks:', err);
     res.status(500).send('Error fetching user playlist tracks');
+  }
+};
+
+export const getArtistInfo = async (req: Request, res: Response) => {
+  const payload = {
+    spotifyToken: req.body.spotifyToken,
+    artistId: req.params.artistId,
+  };
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/artists/${payload.artistId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${payload.spotifyToken}`,
+        },
+      }
+    );
+    res.status(200).send(response.data);
+  } catch (err) {
+    console.error('Error fetching artist info:', err);
+    res.status(500).send('Error fetching artist info');
   }
 };

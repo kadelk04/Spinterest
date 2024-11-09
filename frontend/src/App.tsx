@@ -8,7 +8,7 @@ import { Box, CssBaseline } from '@mui/material';
 import { Navbar } from './components/common/Navbar';
 import { Theme } from './components/common/Theme';
 
-import { fetchPlaylists } from './components/data/playlistUtils';
+import { fetchPlaylists, returnWidgets } from './components/data/playlistUtils';
 import { Widget } from './components/data/playlistUtils';
 
 import '@fontsource/roboto';
@@ -25,7 +25,7 @@ export default function App() {
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
 
   useEffect(() => {
-    fetchPlaylists().then((widgets) => {
+    returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
   }, []);
