@@ -8,7 +8,7 @@ import { Box, CssBaseline } from '@mui/material';
 import { Navbar } from './components/common/Navbar';
 import { Theme } from './components/common/Theme';
 
-import { fetchPlaylists, returnWidgets } from './components/data/playlistUtils';
+import { returnWidgets } from './components/data/playlistUtils';
 import { Widget } from './components/data/playlistUtils';
 
 import '@fontsource/roboto';

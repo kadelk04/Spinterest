@@ -56,6 +56,13 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
   playlists = playlists.slice(0, 3);
   // for each playlist, use the id to get the tracks
 
+  // use the id to get the tracks
+  // for each track, get the artist
+  // for each artist, get the genre 
+
+  // count the genres, get top genres
+  // return top 3 genres
+
   const widgets: Widget[] = await Promise.all(playlists.map(async (playlist: WidgetData) => {
 
     const response = await axios.get(`http://localhost:8000/api/spotify/playlists/${playlist.id}`, {
@@ -71,12 +78,6 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
     const artists = tracks.flatMap((track: any) => track.track.artists.map((artist: any) => artist.id));
     console.log('Artists:', artists);
 
-    // const artistInfoResponse = await axios.get(`http://localhost:8000/api/spotify/artists/${artists.join(',')}`, {
-    //   headers: {
-    //     Authorization: `Bearer ${accessToken}`,
-    //   },
-    // });
-
     // Split artist IDs into batches of 50 and make requests
     const artistInfoResponses = await Promise.all(
       Array.from({ length: Math.ceil(artists.length / 50) }, (_, i) => {
@@ -89,24 +90,21 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
       })
     );
 
-    // const artistInfo = artistInfoResponse.data.artists;
-    // console.log('Artist Info:', artistInfo);
-    // Process each batch response if needed
     const allArtistInfo = artistInfoResponses.flatMap(response => response.data.artists);
     console.log('All Artist Info:', allArtistInfo);
 
     const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
     console.log('Genres:', genres);
 
-    console.log(getGenres(genres, accessToken));
-    // }));
+    const topGenres = await getTopGenres(genres, accessToken);
+    console.log("topGenres", topGenres)
 
     return {
       id: playlist.id,
       cover: playlist.cover,
       owner: playlist.owner.display_name,
       title: playlist.title,
-      genres: [],
+      genres: topGenres,
       component: (
         <PlaylistWidget
           key={playlist.id}
@@ -117,23 +115,23 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
       )
     };
   }));
-
-
-  // use the id to get the tracks
-  // for each track, get the artist
-  // for each artist, get the genre 
-
-  // count the genres, get top genres
-  // return top 3 genres
-  return [];
+  console.log("widgets", widgets)
+  return widgets;
 };
 
-export const getGenres = async (genres: string[], accessToken: string): Promise<string[]> => {
+// later it may be beneficial to create a better algorithm for getting the top genres
+export const getTopGenres = async (genres: string[], accessToken: string): Promise<string[]> => {
+  console.log("in getTopGenres")
+  const genreCount: { [key: string]: number } = {};
 
-  console.log('Genres in getGenres:', genres);
-  return [];
+  genres.forEach((genre) => {
+    genreCount[genre] = (genreCount[genre] || 0) + 1;
+  });
+  const sortedGenres = Object.keys(genreCount).sort((a, b) => genreCount[b] - genreCount[a]);
+
+  // top 3 genres
+  return sortedGenres.slice(0, 3);
 };
-
 
 export const returnWidgets = async (): Promise<Widget[]> => { 
   
@@ -151,21 +149,6 @@ export const returnWidgets = async (): Promise<Widget[]> => {
   const playlists_with_genres = await buildWidgets(playlists_data, accessToken);
 
 
-  // const widgets: Widget[] = playlists_with_genres.map((playlist: any) => ({
-  //   id: playlist.id,
-  //   cover: playlist.images?.[0]?.url || '',
-  //   owner: playlist.owner.display_name,
-  //   title: playlist.name,
-  //   genres: [],
-  //   component: (
-  //     <PlaylistWidget
-  //       key={playlist.id}
-  //       cover={playlist.images?.[0]?.url || ''}
-  //       owner={playlist.owner.display_name}
-  //       title={playlist.name}
-  //     />
-  //   )
-  // }));
-  
-  return []
+  // returns Widget[] type
+  return playlists_with_genres;
 };
