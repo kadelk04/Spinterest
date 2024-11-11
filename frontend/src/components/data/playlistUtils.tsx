@@ -111,6 +111,7 @@ export const buildWidgets = async (playlists: WidgetData[], accessToken:string):
           cover={playlist.cover}
           owner={playlist.owner.display_name}
           title={playlist.title}
+          genres={topGenres}
         />
       )
     };
