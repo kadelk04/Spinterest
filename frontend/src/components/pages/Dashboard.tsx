@@ -1,16 +1,8 @@
 import { useEffect, useState } from 'react';
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Input,
-  InputAdornment
-} from '@mui/material';
-import {
-  Search,
-  Dehaze
-} from '@mui/icons-material';
-import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
+import { Box, Typography, Input, InputAdornment } from '@mui/material';
+import { Search, Dehaze } from '@mui/icons-material';
+import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
 import { returnWidgets } from '../data/playlistUtils';
@@ -43,7 +35,7 @@ export const Dashboard = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    const handleResize  = () => {
+    const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
 
@@ -51,12 +43,10 @@ export const Dashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Input
-        placeholder='/genre, /tag, /person'
+        placeholder="/genre, /tag, /person"
         id="input-with-icon-adornment"
         startAdornment={
           <InputAdornment position="start">
@@ -76,9 +66,7 @@ export const Dashboard = () => {
           border: '1px solid #ccc',
         }}
       />
-      <Typography>
-        Dashboard
-      </Typography>
+      <Typography>Dashboard</Typography>
       <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
@@ -90,7 +78,14 @@ export const Dashboard = () => {
         // onLayoutChange={onLayoutChange}
       >
         {widgets.map((widget) => (
-          <div key={widget.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            key={widget.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             {widget.component}
           </div>
         ))}
@@ -98,4 +93,3 @@ export const Dashboard = () => {
     </Box>
   );
 };
-
