@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Input,
-  InputAdornment,
-  ThemeProvider,
-} from '@mui/material';
-import { Search, Dehaze } from '@mui/icons-material';
+import { Box, Typography, Input, InputAdornment } from '@mui/material';
+import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
@@ -77,6 +71,7 @@ export const Dashboard = () => {
                 : theme.palette.background.default,
             padding: '5px 15px',
             border: '0px solid #ccc',
+            zIndex: 100,
           }}
         />
         <Typography>Dashboard</Typography>
