@@ -1,14 +1,25 @@
 import { FunctionComponent, useState, useEffect } from 'react';
-import { getRefreshedToken } from '../data/SpotifyAuth';
-import { Search as SearchIcon, Settings as SettingsIcon } from '@mui/icons-material';
+import { getRefreshedToken, logout } from '../data/SpotifyAuth';
+import { useNavigate } from 'react-router-dom';
+import { 
+  Search as SearchIcon, 
+  Settings as SettingsIcon, 
+  Edit as EditIcon,
+  Close as CloseIcon,
+  LocationOn as LocationOnIcon,
+  AccountCircle as AccountCircleIcon,
+  MusicNote as MusicNoteIcon,
+} from '@mui/icons-material';
 import {
   Box,
+  Button,
   TextField,
   Typography,
   Paper,
   Avatar,
   Grid,
   IconButton,
+  Icon,
 } from '@mui/material';
 
 interface SpotifyProfile {
@@ -20,6 +31,7 @@ export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -43,6 +55,7 @@ export const Profile: FunctionComponent = () => {
 
         const data = await response.json();
         if (data.error) {
+          console.log(data);
           console.error(data.error.message);
           return;
         }
@@ -61,33 +74,48 @@ export const Profile: FunctionComponent = () => {
   }, [accessToken, refreshToken]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', gap: 4 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: {xs: 'column', md: 'row'}, 
+      }}
+    >
       {/* Profile and Friends Column */}
-      <Box>
+      <Box sx={{ flex: { xs: '100%', md: 1 }}}>
         <Paper
           sx={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            bgcolor: '#eae6ef',
+            bgcolor: '#ECE6F0',
             borderRadius: 2,
-            p: 4,
-            mb: 4,
-            width: 340,
-            height: 468,
+            p: 3,
+            mb: {xs: 2, md: 4},
+            width: {xs: '100%', md: '90%'}, 
           }}
         >
           {profile ? (
             <>
               <Avatar src={profile.images[0]?.url} sx={{ width: 224, height: 224, mb: 3 }} />
               <Typography variant="h5">{profile.display_name}</Typography>
+              <Button
+                sx={{ mt: 2 }}
+                variant="contained"
+                onClick={() => {
+                logout();
+                navigate('/login');
+                }}
+                >
+                Logout
+              </Button>
+
+              {/* Editable status blurb */}
+              <EditableBlurb/>
             </>
           ) : (
             <>
-              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224, mb: 3 }} />
-              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 3 }} />
-              <TextField id="blurb" label="Small Blurb" sx={{ maxWidth: '80%' }} />
+              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224}} />
+              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 2 }} />
             </>
           )}
         </Paper>
@@ -96,19 +124,19 @@ export const Profile: FunctionComponent = () => {
         <Paper
           sx={{
             display: 'flex',
-            alignItems: 'center',
-            bgcolor: '#eae6ef',
+            alignItems: 'flex-start',
+            bgcolor: '#ECE6F0',
             borderRadius: 2,
+            width: {xs: '100%', md: '90%'},
+            height: 300, 
             p: 2,
-            width: 340,
           }}
         >
           <TextField
             id="search-friends"
             label="Friends"
             fullWidth
-            sx={{ flex: 1,
-                 height : 468 }}
+            sx={{ flex: 1 }}
             InputProps={{
               endAdornment: (
                 <IconButton>
@@ -118,20 +146,77 @@ export const Profile: FunctionComponent = () => {
             }}
           />
           <IconButton>
-            <SettingsIcon />
+            <SettingsIcon sx={{ ml: 1 }} />
           </IconButton>
         </Paper>
       </Box>
 
       {/* About, Favorites, and Pinned Music Column */}
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0}}}>
         {/* About and Favorites Section */}
-        <Paper sx={{ display: 'flex', p: 3, gap: 2, mb: 4, bgcolor: '#ECE6F0' }}>
+        <Paper
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            p: 3,
+            gap: 2,
+            mb: 4,
+            bgcolor: '#ECE6F0',
+          }}
+        >
           {/* About Section */}
           <Box sx={{ flex: 1 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               ABOUT
             </Typography>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={4}>
+                <TextField
+                  id="location"
+                  label="location"
+                  InputProps={{
+                    startAdornment: (
+                      <Icon>
+                        <LocationOnIcon />
+                      </Icon>
+                    )
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+              <TextField
+                id="links"
+                label="links"
+                InputProps={{
+                  startAdornment: (
+                    <Icon>
+                      <MusicNoteIcon />
+                    </Icon>
+                  )
+                }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+              <TextField
+                id="biography"
+                label="user bio"
+                multiline
+                fullWidth
+                maxRows = {3}
+                InputProps={{
+                  startAdornment: (
+                    <Icon>
+                      <AccountCircleIcon />
+                    </Icon>
+                  )
+                }}
+              />
+              </Grid>
+            </Grid>
+
             {/* Add content or fields for the About section here if needed */}
           </Box>
 
@@ -159,6 +244,41 @@ export const Profile: FunctionComponent = () => {
         <PinnedMusicSection />
       </Box>
     </Box>
+  );
+};
+
+//Editable Status Field
+//making this more universal function to edit other textfields 
+//set a character to limit
+// TODO: connect back to the backend for user profile 
+const EditableBlurb: FunctionComponent = () => {
+  const [isEditable, setIsEditable] = useState(false);
+  const [text, setText] = useState("status");
+  const [clicked, setClicked] = useState(false);
+
+  const handleIconClick = () => {
+    setIsEditable((prev) => !prev); // Toggle the editable state
+    setClicked((prev) => !prev); //Swiches the Icons
+  };
+
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setText(event.target.value);
+  };
+
+  return (
+  <TextField id="blurb" label="status" 
+      sx={{ maxWidth: '80%', mt: 2 }}
+      value={text}
+      onChange={handleTextChange} 
+      InputProps={{
+        readOnly: !isEditable,
+        endAdornment: (
+          <IconButton onClick={handleIconClick}>
+            {clicked ? <CloseIcon /> : <EditIcon />}
+          </IconButton>
+        ),
+      }}
+    />
   );
 };
 
