@@ -5,12 +5,7 @@ import { Search, Dehaze } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
-import { returnWidgets } from '../data/playlistUtils';
-
-export interface Widget {
-  id: string;
-  component: React.ReactNode;
-}
+import { returnWidgets, Widget } from '../data/playlistUtils';
 
 export const Dashboard = () => {
 
