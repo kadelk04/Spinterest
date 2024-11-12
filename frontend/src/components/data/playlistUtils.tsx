@@ -35,7 +35,7 @@ export const fetchPlaylists = async (accessToken:string): Promise<WidgetData[]> 
     const data = response.data;
 
     console.log('Playlists:', data);
-
+    
     const widgetsData: WidgetData[] = data.items.map((playlist: any) => ({
       id: playlist.id,
       cover: playlist.images?.[0]?.url || '',
