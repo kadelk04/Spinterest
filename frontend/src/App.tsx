@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Profile } from './components/pages/Profile';
 import { Login } from './components/pages/Login';
@@ -7,9 +7,6 @@ import { Dashboard } from './components/pages/Dashboard';
 import { Box, CssBaseline } from '@mui/material';
 import { Navbar } from './components/common/Navbar';
 import { Theme } from './components/common/Theme';
-
-import { returnWidgets } from './components/data/playlistUtils';
-import { Widget } from './components/data/playlistUtils';
 
 import '@fontsource/roboto';
 import {
@@ -22,13 +19,6 @@ import { grey } from '@mui/material/colors';
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
   const signedIn = localStorage.getItem('spotify_token');
-  const [widgets, setWidgets] = React.useState<Widget[]>([]);
-
-  useEffect(() => {
-    returnWidgets().then((widgets) => {
-      setWidgets(widgets);
-    });
-  }, []);
 
   return (
     <Theme>
@@ -76,10 +66,7 @@ export default function App() {
           >
             <Routes>
               <Route path="/login" element={<Login />} />
-              <Route
-                path="/dashboard"
-                element={<Dashboard widgets={widgets} />}
-              />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route
                 path="/profile"
                 element={<PrivateRoute path="/profile" element={Profile} />}

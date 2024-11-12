@@ -8,17 +8,20 @@ import {
   CardContent,
   CardActions,
   Stack,
+  Chip,
 } from '@mui/material';
 import { AddOutlined, FavoriteBorderOutlined } from '@mui/icons-material';
 
 export const PlaylistWidget = ({
   cover,
   title,
-  owner, 
+  owner,
+  genres,
 }: {
   cover: string | File;
   title: string;
   owner: string;
+  genres: string[];
 }) => {
   return (
     <Card
@@ -43,21 +46,35 @@ export const PlaylistWidget = ({
             }}
           />
         ) : null}
-        <Box sx={{padding: 2}}>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+        <Box sx={{ padding: 2 }}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             {owner}
           </Typography>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             {title}
           </Typography>
         </Box>
-        <Stack direction="row" spacing={2}
-          sx={{justifyContent:'flex-end', marginTop:'10%', width: '100%' }}
+        <Box sx={{ padding: 2 }}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+            {genres.map((genre) => (
+              <Chip key={genre} label={genre} size="small" />
+            ))}
+          </Stack>
+        </Box>
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
         >
           <FavoriteBorderOutlined></FavoriteBorderOutlined>
           <AddOutlined></AddOutlined>
         </Stack>
-
       </CardContent>
     </Card>
   );

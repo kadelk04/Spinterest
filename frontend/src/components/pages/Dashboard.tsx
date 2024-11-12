@@ -5,12 +5,28 @@ import { Search, Dehaze } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
+import { returnWidgets } from '../data/playlistUtils';
+
 export interface Widget {
   id: string;
   component: React.ReactNode;
 }
 
-export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
+export const Dashboard = () => {
+  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+
+  const spotToken = localStorage.getItem('spotify_token');
+
+  if (!spotToken) {
+    window.location.replace('http://localhost:3000/login');
+  }
+
+  useEffect(() => {
+    returnWidgets().then((widgets) => {
+      setWidgets(widgets);
+    });
+  }, []);
+
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 

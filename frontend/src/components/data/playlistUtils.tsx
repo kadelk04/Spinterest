@@ -4,7 +4,8 @@ import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
 export interface Widget {
   id: string;
   cover: string;
-  owner: Owner;
+  // owner: Owner;
+  owner: string;
   title: string;
   genres: string[];
   component: React.ReactNode;
@@ -116,11 +117,11 @@ export const buildWidgets = async (
 
       const topGenres = await getTopGenres(genres, accessToken);
       console.log('topGenres', topGenres);
-      console.log('owner', playlist.owner.display_name);
+
       return {
         id: playlist.id,
         cover: playlist.cover,
-        owner: playlist.owner,
+        owner: playlist.owner.display_name,
         title: playlist.title,
         genres: topGenres,
         component: (
@@ -129,6 +130,7 @@ export const buildWidgets = async (
             cover={playlist.cover}
             owner={playlist.owner.display_name}
             title={playlist.title}
+            genres={topGenres}
           />
         ),
       };
