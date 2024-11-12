@@ -6,14 +6,12 @@ import {
   Input,
   InputAdornment
 } from '@mui/material';
-import { 
-  Search, 
-  Dehaze 
+import {
+  Search,
+  Dehaze
 } from '@mui/icons-material';
-import GridLayout, { Layout } from 'react-grid-layout';
 import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
 import { getLayouts } from '../data/layoutGenerator';
-import { fetchPlaylists } from '../data/playlistUtils';
 
 export interface Widget {
   id: string;
@@ -21,7 +19,7 @@ export interface Widget {
 }
 
 export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
-  
+
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 
@@ -36,7 +34,7 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  
+
 
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -56,9 +54,9 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
         disableUnderline
         sx={{
           borderRadius: '20px',
-          backgroundColor: 'white', 
+          backgroundColor: 'white',
           padding: '5px 15px',
-          border: '1px solid #ccc', 
+          border: '1px solid #ccc',
         }}
       />
       <Typography>

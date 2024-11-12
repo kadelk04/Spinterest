@@ -5,6 +5,7 @@ import {
   updateUserByUsername,
   addUser,
 } from '../../controllers/UserController';
+import auth from '../../middleware/auth';
 import {
   addFavorite,
   getUserFavorites,
