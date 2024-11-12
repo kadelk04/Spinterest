@@ -77,6 +77,7 @@ export const Dashboard = () => {
                 : theme.palette.background.default,
             padding: '5px 15px',
             border: '0px solid #ccc',
+            zIndex: 100,
           }}
         />
         <Typography>Dashboard</Typography>
