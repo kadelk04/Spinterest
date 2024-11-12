@@ -1,11 +1,12 @@
+import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
     mode: 'light',
     background: {
-      default: '#F2F2F1',
-      paper: '#EBEBEA',
+      default: '#ffffff',
+      paper: '#fdfafb',
     },
     primary: {
       main: '#CFBCFF',

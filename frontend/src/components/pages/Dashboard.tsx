@@ -8,21 +8,19 @@ import { getLayouts } from '../data/layoutGenerator';
 import { returnWidgets, Widget } from '../data/playlistUtils';
 
 export const Dashboard = () => {
-
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
 
   const spotToken = localStorage.getItem('spotify_token');
 
-  if (!spotToken){
-    window.location.replace("http://localhost:3000/login");
+  if (!spotToken) {
+    window.location.replace('http://localhost:3000/login');
   }
-  
+
   useEffect(() => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
   }, []);
-  
 
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);

@@ -41,7 +41,7 @@ export const fetchPlaylists = async (
     const data = response.data;
 
     console.log('Playlists:', data);
-    
+
     const widgetsData: WidgetData[] = data.items.map((playlist: any) => ({
       id: playlist.id,
       cover: playlist.images?.[0]?.url || '',
@@ -115,27 +115,28 @@ export const buildWidgets = async (
       const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
       console.log('Genres:', genres);
 
-    const topGenres = await getTopGenres(genres, accessToken);
-    console.log("topGenres", topGenres)
+      const topGenres = await getTopGenres(genres, accessToken);
+      console.log('topGenres', topGenres);
 
-    return {
-      id: playlist.id,
-      cover: playlist.cover,
-      owner: playlist.owner.display_name,
-      title: playlist.title,
-      genres: topGenres,
-      component: (
-        <PlaylistWidget
-          key={playlist.id}
-          cover={playlist.cover}
-          owner={playlist.owner.display_name}
-          title={playlist.title}
-          genres={topGenres}
-        />
-      )
-    };
-  }));
-  console.log("widgets", widgets)
+      return {
+        id: playlist.id,
+        cover: playlist.cover,
+        owner: playlist.owner.display_name,
+        title: playlist.title,
+        genres: topGenres,
+        component: (
+          <PlaylistWidget
+            key={playlist.id}
+            cover={playlist.cover}
+            owner={playlist.owner.display_name}
+            title={playlist.title}
+            genres={topGenres}
+          />
+        ),
+      };
+    })
+  );
+  console.log('widgets', widgets);
   return widgets;
 };
 

@@ -16,7 +16,7 @@ export const PlaylistWidget = ({
   cover,
   title,
   owner,
-  genres, 
+  genres,
 }: {
   cover: string | File;
   title: string;
@@ -46,11 +46,17 @@ export const PlaylistWidget = ({
             }}
           />
         ) : null}
-        <Box sx={{padding: 2}}>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+        <Box sx={{ padding: 2 }}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             {owner}
           </Typography>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
             {title}
           </Typography>
         </Box>
@@ -61,13 +67,14 @@ export const PlaylistWidget = ({
             ))}
           </Stack>
         </Box>
-        <Stack direction="row" spacing={2}
-          sx={{justifyContent:'flex-end', marginTop:'10%', width: '100%' }}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
         >
           <FavoriteBorderOutlined></FavoriteBorderOutlined>
           <AddOutlined></AddOutlined>
         </Stack>
-
       </CardContent>
     </Card>
   );
