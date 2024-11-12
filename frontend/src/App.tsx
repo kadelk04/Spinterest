@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Profile } from './components/pages/Profile';
 import { Login } from './components/pages/Login';
 import { Dashboard } from './components/pages/Dashboard';
@@ -17,11 +17,11 @@ import {
   AccountCircle as ProfileIcon,
 } from '@mui/icons-material';
 import PrivateRoute from './components/common/PrivateRoute';
+import { grey } from '@mui/material/colors';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
   const signedIn = localStorage.getItem('spotify_token');
-  
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
 
   useEffect(() => {
@@ -33,7 +33,15 @@ export default function App() {
   return (
     <Theme>
       <Router>
-        <Box sx={{ display: 'flex' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            background: (theme) =>
+              theme.palette.mode === 'light'
+                ? theme.palette.background.default
+                : grey[900],
+          }}
+        >
           <CssBaseline />
           <Navbar
             expanded={expanded}
@@ -61,6 +69,7 @@ export default function App() {
             component="main"
             sx={{
               flexGrow: 1,
+              height: '100vh',
               p: 3,
               transition: 'all 0.3s ease',
             }}
@@ -69,7 +78,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route
                 path="/dashboard"
-                element={<Dashboard widgets={widgets}/>}
+                element={<Dashboard widgets={widgets} />}
               />
               <Route
                 path="/profile"
