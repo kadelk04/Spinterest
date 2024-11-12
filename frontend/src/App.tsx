@@ -21,14 +21,6 @@ import PrivateRoute from './components/common/PrivateRoute';
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
   const signedIn = localStorage.getItem('spotify_token');
-  
-  const [widgets, setWidgets] = React.useState<Widget[]>([]);
-
-  useEffect(() => {
-    returnWidgets().then((widgets) => {
-      setWidgets(widgets);
-    });
-  }, []);
 
   return (
     <Theme>
@@ -69,7 +61,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route
                 path="/dashboard"
-                element={<Dashboard widgets={widgets}/>}
+                element={<Dashboard />}
               />
               <Route
                 path="/profile"
