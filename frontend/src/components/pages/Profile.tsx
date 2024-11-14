@@ -5,7 +5,6 @@ import {
   Search as SearchIcon, 
   Settings as SettingsIcon, 
   Edit as EditIcon,
-  Close as CloseIcon,
   LocationOn as LocationOnIcon,
   AccountCircle as AccountCircleIcon,
   MusicNote as MusicNoteIcon,
