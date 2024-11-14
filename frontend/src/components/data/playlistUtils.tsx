@@ -15,7 +15,7 @@ export interface Widget {
 export interface WidgetData {
   id: string;
   cover: string;
-  owner: string;
+  owner: Owner;
   name: string;
   title: string;
 }
@@ -113,13 +113,12 @@ export const buildWidgets = async (
       const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
       console.log('Genres:', genres);
 
-      const topGenres = await getTopGenres(genres, accessToken);
+      const topGenres = await getTopGenres(genres);
       console.log('topGenres', topGenres);
 
       return {
         id: playlist.id,
         cover: playlist.cover,
-        owner: playlist.owner,
         owner: playlist.owner.display_name,
         title: playlist.title,
         genres: topGenres,
@@ -140,10 +139,7 @@ export const buildWidgets = async (
 };
 
 // later it may be beneficial to create a better algorithm for getting the top genres
-export const getTopGenres = async (
-  genres: string[],
-  accessToken: string
-): Promise<string[]> => {
+export const getTopGenres = async (genres: string[]): Promise<string[]> => {
   console.log('in getTopGenres');
   const genreCount: { [key: string]: number } = {};
 

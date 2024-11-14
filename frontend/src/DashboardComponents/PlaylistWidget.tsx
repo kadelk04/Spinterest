@@ -42,7 +42,6 @@ export const PlaylistWidget = ({
             variant="subtitle1"
             component={'h3'}
             gutterBottom
-            // ellipsize if greater than 2 lines
             sx={{
               color: 'text.primary',
               fontWeight: 'bold',

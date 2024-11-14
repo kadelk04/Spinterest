@@ -6,7 +6,6 @@ import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
-import { Theme } from '../common/Theme';
 
 export const Dashboard = () => {
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
@@ -41,11 +40,6 @@ export const Dashboard = () => {
       <Input
         placeholder="/genre, /tag, /person"
         id="input-with-icon-adornment"
-        startAdornment={
-          <InputAdornment position="start">
-            <Dehaze />
-          </InputAdornment>
-        }
         endAdornment={
           <InputAdornment position="end">
             <Search />
