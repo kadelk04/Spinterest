@@ -6,7 +6,8 @@
     "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm start\"",
     "prettier:check": "prettier --check .",
     "prettier:write": "prettier --write .",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc"
   },
   "author": "",
   "license": "ISC",
@@ -28,7 +29,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
-      "prettier --write"
+      "prettier --write --config ./.prettierrc"
     ]
   }
 }
