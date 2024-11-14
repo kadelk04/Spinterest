@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import { getDbConnection, getModel } from '../utils/connection';
+import { getModel } from '../utils/connection';
 import { IPlaylist } from '../models/Playlist';
 
 /**
@@ -13,7 +12,6 @@ import { IPlaylist } from '../models/Playlist';
 
 export const getAllPlaylists = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     const PlaylistModel = getModel<IPlaylist>('Playlist');
     const playlists = await PlaylistModel.find();
     res.status(200).send(playlists);
@@ -31,7 +29,6 @@ export const getAllPlaylists = async (req: Request, res: Response) => {
  * */
 export const addPlaylist = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.body) {
       res.status(400).send('Invalid request');
       return;
@@ -54,7 +51,6 @@ export const addPlaylist = async (req: Request, res: Response) => {
  * */
 export const getPlaylistById = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.playlistId) {
       res.status(400).send('Invalid request');
       return;
@@ -81,7 +77,6 @@ export const getPlaylistById = async (req: Request, res: Response) => {
  * */
 export const updatePlaylistById = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.playlistId || !req.body) {
       res.status(400).send('Invalid request');
       return;
@@ -108,7 +103,6 @@ export const updatePlaylistById = async (req: Request, res: Response) => {
  * */
 export const deletePlaylistById = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.playlistId) {
       res.status(400).send('Invalid request');
       return;
@@ -135,7 +129,6 @@ export const deletePlaylistById = async (req: Request, res: Response) => {
  */
 export const getPlaylistsByUsername = async (req: Request, res: Response) => {
   try {
-    const connection = getDbConnection();
     if (!req.params.username) {
       res.status(400).send('Invalid request');
       return;

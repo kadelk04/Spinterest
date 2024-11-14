@@ -5,6 +5,7 @@ import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
 export interface Widget {
   id: string;
   cover: string;
+  // owner: Owner;
   owner: string;
   title: string;
   genres: string[];
@@ -45,7 +46,7 @@ export const fetchPlaylists = async (
     const widgetsData: WidgetData[] = data.items.map((playlist: any) => ({
       id: playlist.id,
       cover: playlist.images?.[0]?.url || '',
-      owner: playlist.owner.display_name,
+      owner: playlist.owner,
       title: playlist.name,
     }));
 
@@ -85,12 +86,10 @@ export const buildWidgets = async (
 
       console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
-      console.log('Tracks:', tracks);
 
       const artists = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
       );
-      console.log('Artists:', artists);
 
       // Split artist IDs into batches of 50 and make requests
       const artistInfoResponses = await Promise.all(
@@ -110,7 +109,6 @@ export const buildWidgets = async (
       const allArtistInfo = artistInfoResponses.flatMap(
         (response) => response.data.artists
       );
-      console.log('All Artist Info:', allArtistInfo);
 
       const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
       console.log('Genres:', genres);
@@ -122,13 +120,14 @@ export const buildWidgets = async (
         id: playlist.id,
         cover: playlist.cover,
         owner: playlist.owner,
+        owner: playlist.owner.display_name,
         title: playlist.title,
         genres: topGenres,
         component: (
           <PlaylistWidget
             key={playlist.id}
             cover={playlist.cover}
-            owner={playlist.owner}
+            owner={playlist.owner.display_name}
             title={playlist.title}
             genres={topGenres}
           />

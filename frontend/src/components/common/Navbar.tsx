@@ -32,7 +32,7 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
         '& .MuiDrawer-paper': {
           width: props.expanded ? '180px' : '90px',
           boxSizing: 'border-box',
-          backgroundColor: 'background.paper',
+          backgroundColor: 'secondary.light',
           border: 'none',
           transition: 'width 0.3s ease',
           height: '100%',

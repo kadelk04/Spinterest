@@ -1,16 +1,27 @@
 import { useEffect, useState } from 'react';
 import React from 'react';
 import { Box, Typography, Input, InputAdornment } from '@mui/material';
-import { Search, Dehaze } from '@mui/icons-material';
+import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
-export interface Widget {
-  id: string;
-  component: React.ReactNode;
-}
+import { returnWidgets, Widget } from '../data/playlistUtils';
+import { Theme } from '../common/Theme';
 
-export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
+export const Dashboard = () => {
+  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+
+  const spotToken = localStorage.getItem('spotify_token');
+
+  if (!spotToken) {
+    window.location.replace('http://localhost:3000/login');
+  }
+
+  useEffect(() => {
+    returnWidgets().then((widgets) => {
+      setWidgets(widgets);
+    });
+  }, []);
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 

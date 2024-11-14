@@ -1,5 +1,5 @@
 import { Layout, Layouts } from 'react-grid-layout';
-import { Widget } from '../pages/Dashboard';
+import { Widget } from '../data/playlistUtils';
 
 export const getLayouts = (widgets: Widget[]): Layouts => {
   const generateLayout = (breakpoint: string, cols: number): Layout[] => {

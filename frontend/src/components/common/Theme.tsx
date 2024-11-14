@@ -1,19 +1,21 @@
+import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
     mode: 'light',
     background: {
-      default: '#F2F2F1',
-      paper: '#EBEBEA',
+      default: '#ffffff',
+      paper: '#fdfafb',
     },
     primary: {
-      main: '#6a994e',
-      light: '#a7c957',
-      dark: '#386641',
+      main: '#CFBCFF',
+      light: '#E8DEF8',
+      dark: '#65548F',
     },
     secondary: {
-      main: '#bc4749',
+      main: '#FFD9E4',
+      light: '#FEF8FF',
     },
   },
 });
