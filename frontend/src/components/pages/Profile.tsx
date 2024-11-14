@@ -337,8 +337,6 @@ const EditableAbout: FunctionComponent = () => {
   );
 };
 
-
-
 // Pinned Music Section Component
 const PinnedMusicSection: FunctionComponent = () => (
   <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
