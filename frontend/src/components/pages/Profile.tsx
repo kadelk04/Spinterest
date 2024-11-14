@@ -9,6 +9,7 @@ import {
   LocationOn as LocationOnIcon,
   AccountCircle as AccountCircleIcon,
   MusicNote as MusicNoteIcon,
+  SaveAlt as SaveAltIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -165,79 +166,7 @@ export const Profile: FunctionComponent = () => {
           }}
         >
           {/* About Section */}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              ABOUT
-            </Typography>
-
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  id="location"
-                  label="location"
-                  InputProps={{
-                    startAdornment: (
-                      <Icon>
-                        <LocationOnIcon />
-                      </Icon>
-                    )
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="links"
-                label="links"
-                InputProps={{
-                  startAdornment: (
-                    <Icon>
-                      <MusicNoteIcon />
-                    </Icon>
-                  )
-                }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-              <TextField
-                id="biography"
-                label="user bio"
-                multiline
-                fullWidth
-                maxRows = {3}
-                InputProps={{
-                  startAdornment: (
-                    <Icon>
-                      <AccountCircleIcon />
-                    </Icon>
-                  )
-                }}
-              />
-              </Grid>
-            </Grid>
-
-            {/* Add content or fields for the About section here if needed */}
-          </Box>
-
-          {/* Favorites Section */}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              FAVORITES
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Album #1" variant="outlined" />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Album #2" variant="outlined" />
-              </Grid>
-            </Grid>
-          </Box>
+          <EditableAbout/>
         </Paper>
 
         {/* Pinned Music Section */}
@@ -274,13 +203,141 @@ const EditableBlurb: FunctionComponent = () => {
         readOnly: !isEditable,
         endAdornment: (
           <IconButton onClick={handleIconClick}>
-            {clicked ? <CloseIcon /> : <EditIcon />}
+            {clicked ? <SaveAltIcon /> : <EditIcon />}
           </IconButton>
         ),
       }}
     />
   );
 };
+
+const EditableAbout: FunctionComponent = () => {
+  const [isEditable, setIsEditable] = useState(false);
+
+  const handleIconClick = () => {
+    setIsEditable((prev) => !prev); // Toggle the editable state
+  };
+
+
+  return (
+    <Box sx={{ p: 4 }}>
+      {/* About Section */}
+      <Box sx={{ flex: 1, mb: 4 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5">ABOUT</Typography>
+          <IconButton onClick={handleIconClick}>
+            {isEditable ? <SaveAltIcon /> : <EditIcon />}
+          </IconButton>
+        </Box>
+
+        <Grid container spacing={2} mt={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              id="location"
+              label="Location"
+              disabled={!isEditable}
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <LocationOnIcon />
+                  </Icon>
+                )
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              id="links"
+              label="Links"
+              disabled={!isEditable}
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <MusicNoteIcon />
+                  </Icon>
+                )
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              id="biography"
+              label="User Bio"
+              multiline
+              fullWidth
+              maxRows={3}
+              disabled={!isEditable}
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <AccountCircleIcon />
+                  </Icon>
+                )
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Favorites Section */}
+      <Box sx={{ flex: 1 }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          FAVORITES
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              placeholder="Favorite Genre"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Favorite Artist"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Album #1"
+              variant="outlined"
+              disabled={!isEditable}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              placeholder="Favorite Genre"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Favorite Artist"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Album #2"
+              variant="outlined"
+              disabled={!isEditable}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
+  );
+};
+
+
 
 // Pinned Music Section Component
 const PinnedMusicSection: FunctionComponent = () => (
