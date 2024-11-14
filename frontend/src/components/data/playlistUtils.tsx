@@ -1,3 +1,4 @@
+import React from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
 
@@ -14,7 +15,7 @@ export interface Widget {
 export interface WidgetData {
   id: string;
   cover: string;
-  owner: Owner;
+  owner: string;
   name: string;
   title: string;
 }
@@ -62,7 +63,7 @@ export const buildWidgets = async (
 ): Promise<Widget[]> => {
   // get playlist data from fetchPlaylists
 
-  playlists = playlists.slice(0, 3);
+  playlists = playlists.slice(0, 10);
   // for each playlist, use the id to get the tracks
 
   // use the id to get the tracks
@@ -85,12 +86,10 @@ export const buildWidgets = async (
 
       console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
-      // console.log('Tracks:', tracks);
 
       const artists = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
       );
-      // console.log('Artists:', artists);
 
       // Split artist IDs into batches of 50 and make requests
       const artistInfoResponses = await Promise.all(
@@ -110,7 +109,6 @@ export const buildWidgets = async (
       const allArtistInfo = artistInfoResponses.flatMap(
         (response) => response.data.artists
       );
-      // console.log('All Artist Info:', allArtistInfo);
 
       const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
       console.log('Genres:', genres);
@@ -121,6 +119,7 @@ export const buildWidgets = async (
       return {
         id: playlist.id,
         cover: playlist.cover,
+        owner: playlist.owner,
         owner: playlist.owner.display_name,
         title: playlist.title,
         genres: topGenres,

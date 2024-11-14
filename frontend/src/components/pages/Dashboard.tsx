@@ -22,15 +22,14 @@ export const Dashboard = () => {
       setWidgets(widgets);
     });
   }, []);
-
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      setWindowWidth(window.innerWidth - 120);
     };
 
     window.addEventListener('resize', handleResize);
@@ -38,62 +37,52 @@ export const Dashboard = () => {
   }, []);
 
   return (
-    <Theme>
-      <Box
+    <Box sx={{ flexGrow: 1 }}>
+      <Input
+        placeholder="/genre, /tag, /person"
+        id="input-with-icon-adornment"
+        startAdornment={
+          <InputAdornment position="start">
+            <Dehaze />
+          </InputAdornment>
+        }
+        endAdornment={
+          <InputAdornment position="end">
+            <Search />
+          </InputAdornment>
+        }
+        disableUnderline
         sx={{
-          flexGrow: 1,
-          display: 'flex',
-          flexDirection: 'column',
+          borderRadius: '20px',
+          backgroundColor: 'white',
+          padding: '5px 15px',
+          border: '1px solid #ccc',
         }}
+      />
+      <Typography>Dashboard</Typography>
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={layouts}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 }}
+        // cols={6}
+        rowHeight={420}
+        width={windowWidth}
+        // onLayoutChange={onLayoutChange}
       >
-        <Input
-          placeholder="/genre, /tag, /person"
-          id="input-with-icon-adornment"
-          endAdornment={
-            <InputAdornment position="end">
-              <Search />
-            </InputAdornment>
-          }
-          disableUnderline
-          sx={{
-            alignSelf: 'center',
-            width: '33%',
-            minWidth: '300px',
-            borderRadius: '40px',
-            backgroundColor: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.primary.light
-                : theme.palette.background.default,
-            padding: '5px 15px',
-            border: '0px solid #ccc',
-            zIndex: 100,
-          }}
-        />
-        <Typography>Dashboard</Typography>
-        <ResponsiveGridLayout
-          className="layout"
-          layouts={layouts}
-          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 }}
-          // cols={6}
-          rowHeight={420}
-          width={windowWidth}
-          // onLayoutChange={onLayoutChange}
-        >
-          {widgets.map((widget) => (
-            <div
-              key={widget.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {widget.component}
-            </div>
-          ))}
-        </ResponsiveGridLayout>
-      </Box>
-    </Theme>
+        {widgets.map((widget) => (
+          <div
+            key={widget.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {widget.component}
+          </div>
+        ))}
+      </ResponsiveGridLayout>
+    </Box>
   );
 };

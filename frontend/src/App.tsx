@@ -66,6 +66,10 @@ export default function App() {
           >
             <Routes>
               <Route path="/login" element={<Login />} />
+              <Route
+                path="/dashboard"
+                element={<Dashboard widgets={widgets} />}
+              />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route
                 path="/profile"
