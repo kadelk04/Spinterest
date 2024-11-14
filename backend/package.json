@@ -2,16 +2,28 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon src/backend.ts",
-    "start": "node src/backend.ts"
+    "dev": "NODE_OPTIONS='--loader ts-node/esm --experimental-specifier-resolution=node' nodemon",
+    "start": "node dist/backend.js"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "mongoose": "^8.8.0",
     "nodemon": "^3.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "nodemon": "^3.1.7",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
   }
 }
