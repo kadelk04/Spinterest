@@ -14,11 +14,11 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
 
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      setWindowWidth(window.innerWidth - 120);
     };
 
     window.addEventListener('resize', handleResize);

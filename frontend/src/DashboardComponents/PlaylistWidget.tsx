@@ -76,7 +76,7 @@ export const PlaylistWidget = ({
             }}
           >
             {genres.map((genre) => (
-              <Chip key={genre} label={genre} size="small" />
+              <Chip key={genre} label={genre} size="small" color="primary" />
             ))}
           </Stack>
         </Box>
