@@ -1,19 +1,9 @@
 import { useEffect, useState } from 'react';
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Input,
-  InputAdornment
-} from '@mui/material';
-import { 
-  Search, 
-  Dehaze 
-} from '@mui/icons-material';
-import GridLayout, { Layout } from 'react-grid-layout';
-import { Responsive as ResponsiveGridLayout } from "react-grid-layout";
+import { Box, Typography, Input, InputAdornment } from '@mui/material';
+import { Search, Dehaze } from '@mui/icons-material';
+import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
-import { fetchPlaylists } from '../data/playlistUtils';
 
 export interface Widget {
   id: string;
@@ -21,14 +11,13 @@ export interface Widget {
 }
 
 export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
-  
   console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
-    const handleResize  = () => {
+    const handleResize = () => {
       setWindowWidth(window.innerWidth);
     };
 
@@ -36,12 +25,10 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <Input
-        placeholder='/genre, /tag, /person'
+        placeholder="/genre, /tag, /person"
         id="input-with-icon-adornment"
         startAdornment={
           <InputAdornment position="start">
@@ -56,14 +43,12 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
         disableUnderline
         sx={{
           borderRadius: '20px',
-          backgroundColor: 'white', 
+          backgroundColor: 'white',
           padding: '5px 15px',
-          border: '1px solid #ccc', 
+          border: '1px solid #ccc',
         }}
       />
-      <Typography>
-        Dashboard
-      </Typography>
+      <Typography>Dashboard</Typography>
       <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
@@ -75,7 +60,14 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
         // onLayoutChange={onLayoutChange}
       >
         {widgets.map((widget) => (
-          <div key={widget.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div
+            key={widget.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             {widget.component}
           </div>
         ))}
@@ -83,4 +75,3 @@ export const Dashboard = ({ widgets }: { widgets: Widget[] }) => {
     </Box>
   );
 };
-

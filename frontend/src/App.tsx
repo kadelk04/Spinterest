@@ -1,6 +1,6 @@
 import './App.css';
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Link, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Profile } from './components/pages/Profile';
 import { Login } from './components/pages/Login';
 import { Dashboard } from './components/pages/Dashboard';
@@ -21,7 +21,7 @@ import PrivateRoute from './components/common/PrivateRoute';
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
   const signedIn = localStorage.getItem('spotify_token');
-  
+
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route
                 path="/dashboard"
-                element={<Dashboard widgets={widgets}/>}
+                element={<Dashboard widgets={widgets} />}
               />
               <Route
                 path="/profile"

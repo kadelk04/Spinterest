@@ -1,22 +1,12 @@
-import { useEffect } from 'react';
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Card,
-  CardContent,
-  CardActions,
-  Stack,
-  Chip,
-} from '@mui/material';
+import React from 'react';
+import { Box, Typography, Card, CardContent, Stack, Chip } from '@mui/material';
 import { AddOutlined, FavoriteBorderOutlined } from '@mui/icons-material';
 
 export const PlaylistWidget = ({
   cover,
   title,
   owner,
-  genres, 
+  genres,
 }: {
   cover: string | File;
   title: string;
@@ -40,34 +30,64 @@ export const PlaylistWidget = ({
             alt="Cover Image"
             sx={{
               width: '100%',
-              height: '100%',
+              height: '250px',
               objectFit: 'cover',
+              opacity: 1,
               // marginBottom: '10px',
             }}
           />
         ) : null}
-        <Box sx={{padding: 2}}>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
-            {owner}
-          </Typography>
-          <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14,}}>
+        <Box sx={{ px: 2, height: '64px' }}>
+          <Typography
+            variant="subtitle1"
+            component={'h3'}
+            gutterBottom
+            // ellipsize if greater than 2 lines
+            sx={{
+              color: 'text.primary',
+              fontWeight: 'bold',
+              lineHeight: 1.2,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+            }}
+          >
             {title}
+          </Typography>
+          <Typography
+            gutterBottom
+            sx={{ color: 'text.secondary', fontSize: 14 }}
+          >
+            {owner}
           </Typography>
         </Box>
         <Box sx={{ padding: 2 }}>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+          {/* only horizontal space if not on new line */}
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              flexWrap: 'wrap',
+              justifyContent: 'flex-start',
+              width: '100%',
+              height: '64px',
+            }}
+          >
             {genres.map((genre) => (
               <Chip key={genre} label={genre} size="small" />
             ))}
           </Stack>
         </Box>
-        <Stack direction="row" spacing={2}
-          sx={{justifyContent:'flex-end', marginTop:'10%', width: '100%' }}
+        <Stack
+          direction="row"
+          spacing={2}
+          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
         >
           <FavoriteBorderOutlined></FavoriteBorderOutlined>
           <AddOutlined></AddOutlined>
         </Stack>
-
       </CardContent>
     </Card>
   );
