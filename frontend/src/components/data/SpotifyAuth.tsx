@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { Button, Typography } from '@mui/material';
 
 export const SpotifyLoginButton: FunctionComponent = () => {
