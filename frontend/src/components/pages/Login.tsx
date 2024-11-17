@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { AUTH_URL, fetchAuthToken } from '../data/SpotifyAuth';
+import {
+  AUTH_URL,
+  fetchAuthToken,
+  SpotifyLoginButton,
+} from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, TextField, Link } from '@mui/material';
 import Grid from '@mui/material/Grid2';
@@ -68,6 +72,7 @@ export const Login = () => {
       <Grid container spacing={2}>
         <Grid size={6}>
           <SignupModal open={open} setOpen={setOpen} />
+          <SpotifyLoginButton />
           <Box
             sx={{
               mt: 8,

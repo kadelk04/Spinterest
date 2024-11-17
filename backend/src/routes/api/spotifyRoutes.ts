@@ -16,17 +16,13 @@ import { authenticateUser } from '../../middleware/auth';
 
 const router = Router();
 
-router.get('/profile', authenticateUser, getProfileInfo);
-router.get('/playlists', authenticateUser, getMyPlaylists);
-router.get('/friends', authenticateUser, getFriends);
-router.get('/playlists/:playlistId', authenticateUser, getPlaylistTracks);
-router.get('/user/:userId/playlists/', authenticateUser, getUserPlaylists);
-router.get(
-  '/user/:userId/playlists/:playlistId',
-  authenticateUser,
-  getUserPlaylistTracks
-);
-router.get('/artist/:artistId', authenticateUser, getArtistInfo);
-router.get('/artists', authenticateUser, getMultipleArtistInfo);
+router.get('/profile', getProfileInfo);
+router.get('/playlists', getMyPlaylists);
+router.get('/friends', getFriends);
+router.get('/playlists/:playlistId', getPlaylistTracks);
+router.get('/user/:userId/playlists/', getUserPlaylists);
+router.get('/user/:userId/playlists/:playlistId', getUserPlaylistTracks);
+router.get('/artist/:artistId', getArtistInfo);
+router.get('/artists', getMultipleArtistInfo);
 
 export default router;

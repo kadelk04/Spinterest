@@ -16,12 +16,39 @@ export interface WidgetData {
   id: string;
   cover: string;
   owner: Owner;
-  name: string;
   title: string;
 }
 
 export interface Owner {
   display_name: string;
+}
+
+export interface PlaylistData {
+  id: string;
+  images: Image[];
+  owner: Owner;
+  name: string;
+  tracks: any[];
+}
+
+interface Playlist {
+  items: any[];
+}
+
+interface Image {
+  url: string;
+}
+
+interface PlaylistResponse {
+  items: PlaylistData[];
+}
+
+interface Artist {
+  genres: string[];
+}
+
+interface ArtistResponse {
+  artists: Artist[];
 }
 
 export const fetchPlaylists = async (
@@ -30,7 +57,7 @@ export const fetchPlaylists = async (
   // calls the getplaylists endpoint to get the playlists from the user's spotify account
   // returns an array of Widgets that the dashboard can use to display the playlists
   try {
-    const response = await axios.get(
+    const response = await axios.get<PlaylistResponse>(
       'http://localhost:8000/api/spotify/playlists',
       {
         params: {
@@ -43,12 +70,14 @@ export const fetchPlaylists = async (
 
     console.log('Playlists:', data);
 
-    const widgetsData: WidgetData[] = data.items.map((playlist: any) => ({
-      id: playlist.id,
-      cover: playlist.images?.[0]?.url || '',
-      owner: playlist.owner,
-      title: playlist.name,
-    }));
+    const widgetsData: WidgetData[] = data.items.map(
+      (playlist: PlaylistData) => ({
+        id: playlist.id,
+        cover: playlist.images?.[0]?.url || '',
+        owner: playlist.owner,
+        title: playlist.name,
+      })
+    );
 
     return widgetsData;
   } catch (error) {
@@ -75,7 +104,7 @@ export const buildWidgets = async (
 
   const widgets: Widget[] = await Promise.all(
     playlists.map(async (playlist: WidgetData) => {
-      const response = await axios.get(
+      const response = await axios.get<Playlist>(
         `http://localhost:8000/api/spotify/playlists/${playlist.id}`,
         {
           headers: {
@@ -84,8 +113,9 @@ export const buildWidgets = async (
         }
       );
 
-      console.log('Playlist in playlistUtils:', response.data);
+      // console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
+      console.log('Tracks:', tracks);
 
       const artists = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
@@ -95,7 +125,7 @@ export const buildWidgets = async (
       const artistInfoResponses = await Promise.all(
         Array.from({ length: Math.ceil(artists.length / 50) }, (_, i) => {
           const batch = artists.slice(i * 50, (i + 1) * 50).join(',');
-          return axios.get(
+          return axios.get<ArtistResponse>(
             `http://localhost:8000/api/spotify/artists?ids=${batch}`,
             {
               headers: {
@@ -105,9 +135,9 @@ export const buildWidgets = async (
           );
         })
       );
-
+      console.log('artistInfoResponses', artistInfoResponses);
       const allArtistInfo = artistInfoResponses.flatMap(
-        (response) => response.data.artists
+        (response) => response.data
       );
 
       const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
