@@ -135,9 +135,8 @@ export const buildWidgets = async (
           );
         })
       );
-      console.log('artistInfoResponses', artistInfoResponses);
       const allArtistInfo = artistInfoResponses.flatMap(
-        (response) => response.data
+        (response) => response.data.artists
       );
 
       const genres = allArtistInfo.flatMap((artist: any) => artist.genres);
