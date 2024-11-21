@@ -1,14 +1,14 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search as SearchIcon, 
-  Settings as SettingsIcon, 
+import {
+  Search as SearchIcon,
+  Settings as SettingsIcon,
   Edit as EditIcon,
-  Close as CloseIcon,
   LocationOn as LocationOnIcon,
   AccountCircle as AccountCircleIcon,
   MusicNote as MusicNoteIcon,
+  SaveAlt as SaveAltIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -77,11 +77,11 @@ export const Profile: FunctionComponent = () => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: {xs: 'column', md: 'row'}, 
+        flexDirection: { xs: 'column', md: 'row' },
       }}
     >
       {/* Profile and Friends Column */}
-      <Box sx={{ flex: { xs: '100%', md: 1 }}}>
+      <Box sx={{ flex: { xs: '100%', md: 1 } }}>
         <Paper
           sx={{
             display: 'flex',
@@ -90,32 +90,42 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
             borderRadius: 2,
             p: 3,
-            mb: {xs: 2, md: 4},
-            width: {xs: '100%', md: '90%'}, 
+            mb: { xs: 2, md: 4 },
+            width: { xs: '100%', md: '90%' },
           }}
         >
           {profile ? (
             <>
-              <Avatar src={profile.images[0]?.url} sx={{ width: 224, height: 224, mb: 3 }} />
+              <Avatar
+                src={profile.images[0]?.url}
+                sx={{ width: 224, height: 224, mb: 3 }}
+              />
               <Typography variant="h5">{profile.display_name}</Typography>
               <Button
                 sx={{ mt: 2 }}
                 variant="contained"
                 onClick={() => {
-                logout();
-                navigate('/login');
+                  logout();
+                  navigate('/login');
                 }}
-                >
+              >
                 Logout
               </Button>
 
               {/* Editable status blurb */}
-              <EditableBlurb/>
+              <EditableBlurb />
             </>
           ) : (
             <>
-              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224}} />
-              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 2 }} />
+              <Avatar
+                src="/broken-image.jpg"
+                sx={{ bgcolor: '#7C6BBB', width: 224, height: 224 }}
+              />
+              <TextField
+                id="profile-name"
+                label="Profile Name"
+                sx={{ maxWidth: '80%', mb: 2 }}
+              />
             </>
           )}
         </Paper>
@@ -127,8 +137,8 @@ export const Profile: FunctionComponent = () => {
             alignItems: 'flex-start',
             bgcolor: '#ECE6F0',
             borderRadius: 2,
-            width: {xs: '100%', md: '90%'},
-            height: 300, 
+            width: { xs: '100%', md: '90%' },
+            height: 300,
             p: 2,
           }}
         >
@@ -152,7 +162,7 @@ export const Profile: FunctionComponent = () => {
       </Box>
 
       {/* About, Favorites, and Pinned Music Column */}
-      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0}}}>
+      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
         {/* About and Favorites Section */}
         <Paper
           sx={{
@@ -165,79 +175,7 @@ export const Profile: FunctionComponent = () => {
           }}
         >
           {/* About Section */}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              ABOUT
-            </Typography>
-
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6} md={4}>
-                <TextField
-                  id="location"
-                  label="location"
-                  InputProps={{
-                    startAdornment: (
-                      <Icon>
-                        <LocationOnIcon />
-                      </Icon>
-                    )
-                  }}
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4}>
-              <TextField
-                id="links"
-                label="links"
-                InputProps={{
-                  startAdornment: (
-                    <Icon>
-                      <MusicNoteIcon />
-                    </Icon>
-                  )
-                }}
-                />
-              </Grid>
-
-              <Grid item xs={12}>
-              <TextField
-                id="biography"
-                label="user bio"
-                multiline
-                fullWidth
-                maxRows = {3}
-                InputProps={{
-                  startAdornment: (
-                    <Icon>
-                      <AccountCircleIcon />
-                    </Icon>
-                  )
-                }}
-              />
-              </Grid>
-            </Grid>
-
-            {/* Add content or fields for the About section here if needed */}
-          </Box>
-
-          {/* Favorites Section */}
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              FAVORITES
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Album #1" variant="outlined" />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField fullWidth placeholder="Favorite Genre" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Favorite Artist" variant="outlined" sx={{ mb: 2 }} />
-                <TextField fullWidth placeholder="Album #2" variant="outlined" />
-              </Grid>
-            </Grid>
-          </Box>
+          <EditableAbout />
         </Paper>
 
         {/* Pinned Music Section */}
@@ -248,12 +186,12 @@ export const Profile: FunctionComponent = () => {
 };
 
 //Editable Status Field
-//making this more universal function to edit other textfields 
+//making this more universal function to edit other textfields
 //set a character to limit
-// TODO: connect back to the backend for user profile 
+// TODO: connect back to the backend for user profile
 const EditableBlurb: FunctionComponent = () => {
   const [isEditable, setIsEditable] = useState(false);
-  const [text, setText] = useState("status");
+  const [text, setText] = useState('status');
   const [clicked, setClicked] = useState(false);
 
   const handleIconClick = () => {
@@ -266,19 +204,146 @@ const EditableBlurb: FunctionComponent = () => {
   };
 
   return (
-  <TextField id="blurb" label="status" 
+    <TextField
+      id="blurb"
+      label="status"
       sx={{ maxWidth: '80%', mt: 2 }}
       value={text}
-      onChange={handleTextChange} 
+      onChange={handleTextChange}
       InputProps={{
         readOnly: !isEditable,
         endAdornment: (
           <IconButton onClick={handleIconClick}>
-            {clicked ? <CloseIcon /> : <EditIcon />}
+            {clicked ? <SaveAltIcon /> : <EditIcon />}
           </IconButton>
         ),
       }}
     />
+  );
+};
+
+const EditableAbout: FunctionComponent = () => {
+  const [isEditable, setIsEditable] = useState(false);
+
+  const handleIconClick = () => {
+    setIsEditable((prev) => !prev); // Toggle the editable state
+  };
+
+  return (
+    <Box sx={{ p: 4 }}>
+      {/* About Section */}
+      <Box sx={{ flex: 1, mb: 4 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5">ABOUT</Typography>
+          <IconButton onClick={handleIconClick}>
+            {isEditable ? <SaveAltIcon /> : <EditIcon />}
+          </IconButton>
+        </Box>
+
+        <Grid container spacing={2} mt={2}>
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              id="location"
+              label="Location"
+              disabled={!isEditable}
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <LocationOnIcon />
+                  </Icon>
+                ),
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              id="links"
+              label="Links"
+              disabled={!isEditable}
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <MusicNoteIcon />
+                  </Icon>
+                ),
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12}>
+            <TextField
+              id="biography"
+              label="User Bio"
+              multiline
+              fullWidth
+              maxRows={3}
+              disabled={!isEditable}
+              InputProps={{
+                startAdornment: (
+                  <Icon>
+                    <AccountCircleIcon />
+                  </Icon>
+                ),
+              }}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+
+      {/* Favorites Section */}
+      <Box sx={{ flex: 1 }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          FAVORITES
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              placeholder="Favorite Genre"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Favorite Artist"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Album #1"
+              variant="outlined"
+              disabled={!isEditable}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              fullWidth
+              placeholder="Favorite Genre"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Favorite Artist"
+              variant="outlined"
+              sx={{ mb: 2 }}
+              disabled={!isEditable}
+            />
+            <TextField
+              fullWidth
+              placeholder="Album #2"
+              variant="outlined"
+              disabled={!isEditable}
+            />
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
 };
 
