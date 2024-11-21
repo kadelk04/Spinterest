@@ -71,7 +71,7 @@ export const Login = () => {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={2}>
         <Grid size={6}>
-          <SignupModal open={open} setOpen={setOpen} />
+          <SignupModal open={open} setOpen={setOpen} navigate={navigate} />
           <SpotifyLoginButton />
           <Box
             sx={{
