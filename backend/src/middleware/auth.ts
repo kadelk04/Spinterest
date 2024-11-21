@@ -6,7 +6,7 @@ import { IUser, UserSchema } from '../models/User';
 import { model } from 'mongoose';
 import mongoose from 'mongoose';
 
-const User = mongoose.model<IUser & mongoose.Document>('User', UserSchema);
+//const User = mongoose.model<IUser & mongoose.Document>('User', UserSchema);
 
 export async function registerUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body; // from form
@@ -70,38 +70,44 @@ function generateAccessToken(username: string): Promise<string> {
   });
 }
 
-export function loginUser(req: Request, res: Response): void {
+export async function loginUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body; // from form
   const User = getModel<IUser>('User');
   console.log(req.body);
 
+  console.log('i wanna log in');
   if (!username || !password) {
     res.status(400).send('Bad request: Invalid input data.');
-  } else {
-    User.findOne({ username })
-      .select('+password')
-      .then((user) => {
-        if (!user) {
-          res.status(404).send('User not found');
-        } else {
-          bcrypt
-            .compare(password, user.password)
-            .then((result) => {
-              if (result) {
-                generateAccessToken(username).then((token) => {
-                  console.log('Token:', token);
-                  res.status(200).send({ token: token });
-                });
-              } else {
-                res.status(401).send('Invalid password');
-              }
-            })
-            .catch((error) => {
-              console.error('Error during login:', error);
-              res.status(500).send('Internal server error');
-            });
-        }
-      });
+    return;
+  }
+  try {
+    // Find user by username and include the password field explicitly
+    const user = await User.findOne({ username }).select('+password');
+
+    console.log('User:', user);
+    if (!user) {
+      res.status(400).send('Invalid username or password.');
+      return;
+    }
+
+    // Compare the provided password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    console.log('Password valid:', isPasswordValid);
+
+    if (!isPasswordValid) {
+      res.status(400).send('Invalid username or password.');
+      return;
+    }
+
+    // Generate an access token
+    const token = await generateAccessToken(user.username);
+
+    // Send the token as the response
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).send('Internal server error.');
   }
 }
 
