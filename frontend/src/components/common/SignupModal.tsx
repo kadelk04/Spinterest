@@ -7,6 +7,7 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
+import { SpotifyLoginButton } from '../data/SpotifyAuth';
 
 interface SignupModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [verifyPassword, setVerifyPassword] = useState('');
+  const [connectedToSpotify, setConnectedToSpotify] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +46,21 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSpotifyConnect = () => {
+    // Logic to handle Spotify connection
+    setConnectedToSpotify(true);
+  };
+
+  const isFormValid = () => {
+    return (
+      username !== '' &&
+      password !== '' &&
+      verifyPassword !== '' &&
+      password === verifyPassword &&
+      connectedToSpotify
+    );
   };
 
   return (
@@ -92,6 +109,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
             required={true}
             onChange={(e) => setVerifyPassword(e.target.value)}
           />
+          <SpotifyLoginButton />
           <Box
             sx={{
               display: 'flex',
