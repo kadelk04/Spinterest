@@ -4,44 +4,60 @@ import { Request, Response, NextFunction } from 'express';
 import { getModel } from '../utils/connection';
 import { IUser, UserSchema } from '../models/User';
 import { model } from 'mongoose';
+import mongoose from 'mongoose';
 
-export function registerUser(req: Request, res: Response): void {
+const User = mongoose.model<IUser & mongoose.Document>('User', UserSchema);
+
+export async function registerUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body; // from form
+  console.log('in regiserUser');
   const User = getModel<IUser>('User');
   console.log(req.body);
   if (!username || !password) {
     res.status(400).send('Bad request: Invalid input data.');
   } else {
-    User.findOne({ username }).then((existingUser) => {
-      if (existingUser) {
-        res.status(409).send('Username already taken');
-      } else {
-        bcrypt
-          .genSalt(10)
-          .then((salt) => bcrypt.hash(password, salt))
-          .then((hashedPassword) => {
-            const newUser = new User({ username, password: hashedPassword });
-            newUser.save().then(() => {
-              generateAccessToken(username).then((token) => {
-                console.log('Token:', token);
-                res.status(201).send({ token: token });
-              });
+    console.log('in registerUser');
+
+    // Check if the username already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      res.status(400).json({ error: 'Username already taken' });
+      return;
+    } else {
+      console.log('gonna bcrypt');
+      bcrypt
+        .genSalt(10)
+        .then((salt) => bcrypt.hash(password, salt))
+        .then((hashedPassword) => {
+          const newUser = new User({ username, password: hashedPassword });
+          newUser.save().then(() => {
+            generateAccessToken(username).then((token) => {
+              console.log('Token:', token);
+              res.status(201).send({ token: token });
             });
-          })
-          .catch((error) => {
-            console.error('Error during registration:', error);
-            res.status(500).send('Internal server error');
           });
-      }
-    });
+        })
+        .catch((error) => {
+          console.error('Error during registration:', error);
+          res.status(500).send('Internal server error');
+        });
+    }
   }
 }
 
 function generateAccessToken(username: string): Promise<string> {
+  const secret = process.env.TOKEN_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      'TOKEN_SECRET is not defined in the environment variables.'
+    );
+  }
+
   return new Promise((resolve, reject) => {
     jwt.sign(
-      { username: username },
-      process.env.TOKEN_SECRET!,
+      { username },
+      secret, // Use the environment variable
       { expiresIn: '1d' },
       (error, token) => {
         if (error) {
