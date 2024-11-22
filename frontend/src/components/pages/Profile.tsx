@@ -1,9 +1,9 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Search as SearchIcon, 
-  Settings as SettingsIcon, 
+import {
+  Search as SearchIcon,
+  Settings as SettingsIcon,
   Edit as EditIcon,
   LocationOn as LocationOnIcon,
   AccountCircle as AccountCircleIcon,
@@ -77,11 +77,11 @@ export const Profile: FunctionComponent = () => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: {xs: 'column', md: 'row'}, 
+        flexDirection: { xs: 'column', md: 'row' },
       }}
     >
       {/* Profile and Friends Column */}
-      <Box sx={{ flex: { xs: '100%', md: 1 }}}>
+      <Box sx={{ flex: { xs: '100%', md: 1 } }}>
         <Paper
           sx={{
             display: 'flex',
@@ -90,32 +90,42 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
             borderRadius: 2,
             p: 3,
-            mb: {xs: 2, md: 4},
-            width: {xs: '100%', md: '90%'}, 
+            mb: { xs: 2, md: 4 },
+            width: { xs: '100%', md: '90%' },
           }}
         >
           {profile ? (
             <>
-              <Avatar src={profile.images[0]?.url} sx={{ width: 224, height: 224, mb: 3 }} />
+              <Avatar
+                src={profile.images[0]?.url}
+                sx={{ width: 224, height: 224, mb: 3 }}
+              />
               <Typography variant="h5">{profile.display_name}</Typography>
               <Button
                 sx={{ mt: 2 }}
                 variant="contained"
                 onClick={() => {
-                logout();
-                navigate('/login');
+                  logout();
+                  navigate('/login');
                 }}
-                >
+              >
                 Logout
               </Button>
 
               {/* Editable status blurb */}
-              <EditableBlurb/>
+              <EditableBlurb />
             </>
           ) : (
             <>
-              <Avatar src="/broken-image.jpg" sx={{ bgcolor: '#7C6BBB', width: 224, height: 224}} />
-              <TextField id="profile-name" label="Profile Name" sx={{ maxWidth: '80%', mb: 2 }} />
+              <Avatar
+                src="/broken-image.jpg"
+                sx={{ bgcolor: '#7C6BBB', width: 224, height: 224 }}
+              />
+              <TextField
+                id="profile-name"
+                label="Profile Name"
+                sx={{ maxWidth: '80%', mb: 2 }}
+              />
             </>
           )}
         </Paper>
@@ -127,8 +137,8 @@ export const Profile: FunctionComponent = () => {
             alignItems: 'flex-start',
             bgcolor: '#ECE6F0',
             borderRadius: 2,
-            width: {xs: '100%', md: '90%'},
-            height: 300, 
+            width: { xs: '100%', md: '90%' },
+            height: 300,
             p: 2,
           }}
         >
@@ -152,7 +162,7 @@ export const Profile: FunctionComponent = () => {
       </Box>
 
       {/* About, Favorites, and Pinned Music Column */}
-      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0}}}>
+      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
         {/* About and Favorites Section */}
         <Paper
           sx={{
@@ -165,7 +175,7 @@ export const Profile: FunctionComponent = () => {
           }}
         >
           {/* About Section */}
-          <EditableAbout/>
+          <EditableAbout />
         </Paper>
 
         {/* Pinned Music Section */}
@@ -176,12 +186,12 @@ export const Profile: FunctionComponent = () => {
 };
 
 //Editable Status Field
-//making this more universal function to edit other textfields 
+//making this more universal function to edit other textfields
 //set a character to limit
-// TODO: connect back to the backend for user profile 
+// TODO: connect back to the backend for user profile
 const EditableBlurb: FunctionComponent = () => {
   const [isEditable, setIsEditable] = useState(false);
-  const [text, setText] = useState("status");
+  const [text, setText] = useState('status');
   const [clicked, setClicked] = useState(false);
 
   const handleIconClick = () => {
@@ -194,10 +204,12 @@ const EditableBlurb: FunctionComponent = () => {
   };
 
   return (
-  <TextField id="blurb" label="status" 
+    <TextField
+      id="blurb"
+      label="status"
       sx={{ maxWidth: '80%', mt: 2 }}
       value={text}
-      onChange={handleTextChange} 
+      onChange={handleTextChange}
       InputProps={{
         readOnly: !isEditable,
         endAdornment: (
@@ -216,7 +228,6 @@ const EditableAbout: FunctionComponent = () => {
   const handleIconClick = () => {
     setIsEditable((prev) => !prev); // Toggle the editable state
   };
-
 
   return (
     <Box sx={{ p: 4 }}>
@@ -240,7 +251,7 @@ const EditableAbout: FunctionComponent = () => {
                   <Icon>
                     <LocationOnIcon />
                   </Icon>
-                )
+                ),
               }}
             />
           </Grid>
@@ -255,7 +266,7 @@ const EditableAbout: FunctionComponent = () => {
                   <Icon>
                     <MusicNoteIcon />
                   </Icon>
-                )
+                ),
               }}
             />
           </Grid>
@@ -273,7 +284,7 @@ const EditableAbout: FunctionComponent = () => {
                   <Icon>
                     <AccountCircleIcon />
                   </Icon>
-                )
+                ),
               }}
             />
           </Grid>

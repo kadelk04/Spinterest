@@ -10,8 +10,9 @@ import {
   getArtistInfo,
   getPlaylist,
   getMyPlaylists,
-  getMultipleArtistInfo
+  getMultipleArtistInfo,
 } from '../../controllers/spotifyController';
+import { authenticateUser } from '../../middleware/auth';
 
 const router = Router();
 

@@ -4,12 +4,12 @@ import axios from 'axios';
 export interface Playlist {
   id: string;
   name: string;
-  owner:Owner;
-  images: { url: string }[]; 
+  owner: Owner;
+  images: { url: string }[];
 }
 
 export interface Owner {
-display_name:string;
+  display_name: string;
 }
 
 export const getProfileInfo = async (req: Request, res: Response) => {
@@ -73,11 +73,14 @@ export const getPlaylists = async (req: Request, res: Response) => {
     playlistId: req.params.playlistId,
   };
   try {
-    const response = await axios.get(`https://api.spotify.com/v1/playlists/${payload.playlistId}`, {
-      headers: {
-        Authorization: `Bearer ${payload.spotifyToken}`,
-      },
-    });
+    const response = await axios.get(
+      `https://api.spotify.com/v1/playlists/${payload.playlistId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${payload.spotifyToken}`,
+        },
+      }
+    );
     res.status(200).send(response.data);
   } catch (err) {
     console.error('Error fetching playlists:', err);
@@ -85,7 +88,11 @@ export const getPlaylists = async (req: Request, res: Response) => {
   }
 };
 
-export const getPlaylistTracks = async (req: Request, res: Response,  next: NextFunction): Promise<void> => {
+export const getPlaylistTracks = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
     // Extract spotifyToken from the Authorization header
     const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
@@ -178,8 +185,12 @@ export const getUserPlaylistTracks = async (req: Request, res: Response) => {
   }
 };
 
-export const getArtistInfo = async (req: Request, res: Response, next: NextFunction) => {
-  try{
+export const getArtistInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
     const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
     const artistId = req.params.artistId;
 
@@ -203,11 +214,15 @@ export const getArtistInfo = async (req: Request, res: Response, next: NextFunct
   }
 };
 
-export const getMultipleArtistInfo = async (req: Request, res: Response, next: NextFunction) => {
-  try{
+export const getMultipleArtistInfo = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
     const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
     const artistIds = (req.query.ids as string)?.split(',');
-    
+
     if (!spotifyToken) {
       res.status(400).send('Spotify token is missing');
       return;

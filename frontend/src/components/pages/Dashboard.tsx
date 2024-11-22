@@ -5,16 +5,18 @@ import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
+import { SpotifyLoginButton } from '../data/SpotifyAuth';
+
 import { returnWidgets, Widget } from '../data/playlistUtils';
+import { set } from 'mongoose';
 
 export const Dashboard = () => {
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
 
-  const spotToken = localStorage.getItem('spotify_token');
-
-  if (!spotToken) {
-    window.location.replace('http://localhost:3000/login');
-  }
+  // const [spotToken, setSpotToken] = useState<string | null>(null);
+  // useEffect(() => {
+  //   setSpotToken(localStorage.getItem('spotify_token'));
+  // }, []);
 
   useEffect(() => {
     returnWidgets().then((widgets) => {
@@ -54,6 +56,7 @@ export const Dashboard = () => {
         }}
       />
       <Typography>Dashboard</Typography>
+      {/* {spotToken ? null : <SpotifyLoginButton />} */}
       <ResponsiveGridLayout
         className="layout"
         layouts={layouts}

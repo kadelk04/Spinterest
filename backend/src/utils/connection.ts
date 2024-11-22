@@ -7,7 +7,6 @@ import { IUser } from '../models/User';
 import { UserSchema } from '../models/User';
 import dotenv from 'dotenv';
 
-
 let connection: mongoose.Connection | null = null;
 const env = dotenv.config({ path: '.env.local' });
 

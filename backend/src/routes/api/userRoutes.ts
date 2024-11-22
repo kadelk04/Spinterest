@@ -3,9 +3,7 @@ import {
   getUserByUsername,
   getAllUsers,
   updateUserByUsername,
-  addUser,
 } from '../../controllers/UserController';
-import auth from '../../middleware/auth';
 import {
   addFavorite,
   getUserFavorites,
@@ -13,11 +11,12 @@ import {
   updateFavorite,
 } from '../../controllers/favoritesController';
 import { getPlaylistsByUsername } from '../../controllers/playlistController';
+import { authenticateUser, registerUser } from '../../middleware/auth';
 
 const router = Router();
 
 router.get('/', getAllUsers);
-router.post('/', addUser);
+router.post('/', registerUser);
 
 router.get('/:username', getUserByUsername);
 router.put('/:username', updateUserByUsername);

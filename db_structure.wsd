@@ -2,19 +2,21 @@
 @startuml db_structure
 'Users structure'
 class User {
-    +String name
+    +String username
+    -String password
     +String spotifyId
     +String bio
     +String location
+    +String link
     +Favorites favorites
     +List<Playlist> annotatedPlaylists
 }
 
 'Favorites structure'
 class Favorites {
-    +String genre
-    +String artist
-    +String album
+    +List<Playlist> genre
+    +List<Playlist> artist
+    +List<Playlist> album
 }
 
 'Playlist structure'

@@ -1,4 +1,4 @@
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { Button, Typography } from '@mui/material';
 
 export const SpotifyLoginButton: FunctionComponent = () => {
@@ -9,13 +9,14 @@ export const SpotifyLoginButton: FunctionComponent = () => {
     <Button
       sx={{
         color: 'white',
+        bgcolor: 'green',
         '&:hover': {
-          bgcolor: '#3F51B5',
+          bgcolor: 'lightgreen',
         },
       }}
       href={AUTH_URL}
     >
-      <Typography sx={{ textTransform: 'none' }}>Login with Spotify</Typography>
+      <Typography sx={{ textTransform: 'none' }}>Connect to Spotify</Typography>
     </Button>
   );
 };
