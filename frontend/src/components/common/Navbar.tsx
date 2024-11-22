@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import ListItem from '@mui/material/ListItem';
@@ -6,14 +6,17 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { FunctionComponent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
+import {
+  Dashboard as DashboardIcon,
+  AccountCircle as ProfileIcon,
+} from '@mui/icons-material';
 import { List } from '@mui/material';
 
 interface NavbarProps {
   expanded: boolean;
   setExpanded: (expanded: boolean) => void;
-  items: ItemProps[];
 }
 
 interface ItemProps {
@@ -22,6 +25,33 @@ interface ItemProps {
   icon: React.ReactNode;
 }
 export const Navbar: FunctionComponent<NavbarProps> = (props) => {
+  const location = useLocation();
+  let signedIn = localStorage.getItem('spotify_token');
+  useEffect(() => {
+    signedIn = localStorage.getItem('spotify_token');
+  }, [location.pathname]);
+
+  const loggedInItems: ItemProps[] = [
+    {
+      href: '/dashboard',
+      label: 'Dashboard',
+      icon: <DashboardIcon />,
+    },
+    {
+      href: '/profile',
+      label: 'Profile',
+      icon: <ProfileIcon />,
+    },
+  ];
+
+  const loggedOutItems: ItemProps[] = [
+    {
+      href: '/login',
+      label: 'Login',
+      icon: <ProfileIcon />,
+    },
+  ];
+
   return (
     <Drawer
       variant="permanent"
@@ -60,7 +90,7 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
             justifyContent: 'center',
           }}
         >
-          {props.items.map((item, index) => (
+          {(signedIn ? loggedInItems : loggedOutItems).map((item, index) => (
             <ListItem
               key={index}
               component={Link}

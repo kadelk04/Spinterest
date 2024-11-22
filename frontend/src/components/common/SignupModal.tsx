@@ -8,13 +8,15 @@ import {
   Paper,
 } from '@mui/material';
 import { SpotifyLoginButton } from '../data/SpotifyAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface SignupModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  navigate: ReturnType<typeof useNavigate>;
 }
 
-export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
+export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [verifyPassword, setVerifyPassword] = useState('');
@@ -38,6 +40,8 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
       });
       if (response.ok) {
         setOpen(false);
+        console.log('yay going to profile');
+        navigate('/profile');
       } else {
         setError(`Failed to sign up: ${response.statusText}`);
       }
@@ -109,7 +113,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
             required={true}
             onChange={(e) => setVerifyPassword(e.target.value)}
           />
-          <SpotifyLoginButton />
+          {/* <SpotifyLoginButton /> */}
           <Box
             sx={{
               display: 'flex',
