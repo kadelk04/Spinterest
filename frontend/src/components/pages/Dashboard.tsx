@@ -8,7 +8,6 @@ import { getLayouts } from '../data/layoutGenerator';
 import { SpotifyLoginButton } from '../data/SpotifyAuth';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
-import { set } from 'mongoose';
 
 export const Dashboard = () => {
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
