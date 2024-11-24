@@ -33,7 +33,7 @@ export const Login = () => {
     return { code, state };
   };
 
-  const handleClick = async () => {
+  const handleLoginClick = async () => {
     try {
       const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
@@ -177,7 +177,7 @@ export const Login = () => {
                 fullWidth
                 variant="contained"
                 color="primary"
-                onClick={handleClick}
+                onClick={handleLoginClick}
                 sx={{
                   mt: 2,
                   py: 1.5,

@@ -64,6 +64,7 @@ function generateAccessToken(username: string): Promise<string> {
           reject(error);
         } else {
           resolve(token as string);
+          console.log('in hereeee');
         }
       }
     );
@@ -118,7 +119,8 @@ export function authenticateUser(
 ): void {
   const authHeader = req.headers['authorization'];
   // Getting the 2nd part of the auth header (the token)
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader;
+  console.log('Auth header:', token);
 
   if (!token) {
     console.log('No token received');

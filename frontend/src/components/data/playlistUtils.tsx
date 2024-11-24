@@ -63,6 +63,9 @@ export const fetchPlaylists = async (
         params: {
           spotifyToken: accessToken,
         },
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
       }
     );
 

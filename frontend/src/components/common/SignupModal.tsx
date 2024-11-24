@@ -7,7 +7,7 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
-import { SpotifyLoginButton } from '../data/SpotifyAuth';
+import { AUTH_URL, SpotifyLoginButton } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 
 interface SignupModalProps {
@@ -24,7 +24,7 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignup = async () => {
+  const handleSignupClick = async () => {
     try {
       setLoading(true);
       if (password !== verifyPassword) {
@@ -39,9 +39,14 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
         body: JSON.stringify({ username, password }),
       });
       if (response.ok) {
+        localStorage.setItem('username', username);
+        localStorage.setItem(
+          'jwttoken',
+          await response.json().then((data) => data.token)
+        );
         setOpen(false);
         console.log('yay going to profile');
-        navigate('/profile');
+        window.location.href = AUTH_URL;
       } else {
         setError(`Failed to sign up: ${response.statusText}`);
       }
@@ -50,11 +55,6 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSpotifyConnect = () => {
-    // Logic to handle Spotify connection
-    setConnectedToSpotify(true);
   };
 
   const isFormValid = () => {
@@ -125,7 +125,7 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={handleSignup}
+              onClick={handleSignupClick}
               disabled={loading}
               sx={{ marginRight: 2 }}
             >
