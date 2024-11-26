@@ -34,7 +34,7 @@ export const PlaylistWidget = ({
     <Card
       sx={{
         width: '250px',
-        height: '400px',
+        height: '420px',
         backgroundColor: '#FEF7FF',
         borderRadius: '20px',
         transition: 'transform 0.3s, box-shadow 0.3s',
@@ -93,6 +93,7 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
+              border: '1px solid red',
             }}
           >
             {title}
@@ -104,20 +105,44 @@ export const PlaylistWidget = ({
             {owner}
           </Typography>
         </Box>
-        <Box sx={{ padding: 2 }}>
+        <Box
+          sx={{
+            padding: 1,
+            border: '1px solid #ccc',
+          }}
+        >
           {/* only horizontal space if not on new line */}
           <Stack
             direction="row"
             spacing={1}
             sx={{
-              flexWrap: 'wrap',
+              // flexWrap: 'wrap',
+              flexWrap: 'nowrap', // Prevent wrapping
+              overflowX: 'auto', // Allow horizontal scrolling
+              scrollbarWidth: 'thin', // Optional: Make the scrollbar less intrusive
+              '&::-webkit-scrollbar': {
+                height: '6px', // Optional: Adjust scrollbar height for better UX
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#ccc', // Optional: Style the scrollbar
+                borderRadius: '4px',
+              },
               justifyContent: 'flex-start',
               width: '100%',
-              height: '64px',
+              height: '30px',
+              // overflow: 'hidden',
+              // textOverflow: 'ellipsis',
+              // whiteSpace: 'nowrap',
             }}
           >
             {genres.map((genre) => (
-              <Chip key={genre} label={genre} size="small" color="primary" />
+              <Chip
+                sx={{ fontSize: '8pt' }}
+                key={genre}
+                label={genre}
+                size="small"
+                color="primary"
+              />
             ))}
           </Stack>
         </Box>
