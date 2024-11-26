@@ -5,6 +5,9 @@ import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { getLayouts } from '../data/layoutGenerator';
 
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
 import { returnWidgets, Widget } from '../data/playlistUtils';
 
 export const Dashboard = () => {

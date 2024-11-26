@@ -14,6 +14,9 @@ import {
   DragIndicator,
 } from '@mui/icons-material';
 
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
+
 export const PlaylistWidget = ({
   cover,
   title,
@@ -107,7 +110,7 @@ export const PlaylistWidget = ({
         </Box>
         <Box
           sx={{
-            padding: 1,
+            paddingTop: 1,
             border: '1px solid #ccc',
           }}
         >
@@ -149,10 +152,32 @@ export const PlaylistWidget = ({
         <Stack
           direction="row"
           spacing={2}
-          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
+          sx={{
+            justifyContent: 'flex-end',
+            marginTop: '10%',
+            width: '100%',
+          }}
         >
-          <FavoriteBorderOutlined></FavoriteBorderOutlined>
-          <AddOutlined></AddOutlined>
+          <FavoriteBorderOutlined
+            sx={{
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow:
+                  '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+              },
+            }}
+          ></FavoriteBorderOutlined>
+          <AddOutlined
+            sx={{
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow:
+                  '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+              },
+            }}
+          ></AddOutlined>
         </Stack>
       </CardContent>
     </Card>
