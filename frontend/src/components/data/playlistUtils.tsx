@@ -5,11 +5,10 @@ import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
 export interface Widget {
   id: string;
   cover: string;
-  // owner: Owner;
   owner: string;
   title: string;
   genres: string[];
-  component: React.ReactNode;
+  component: React.ReactElement;
 }
 
 export interface WidgetData {
@@ -163,6 +162,8 @@ export const buildWidgets = async (
             owner={playlist.owner.display_name}
             title={playlist.title}
             genres={topGenres}
+            dragHandleClass="drag-handle"
+            noDragClass="no-drag"
           />
         ),
       };

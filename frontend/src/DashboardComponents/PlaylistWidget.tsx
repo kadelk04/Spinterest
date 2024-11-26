@@ -19,11 +19,15 @@ export const PlaylistWidget = ({
   title,
   owner,
   genres,
+  dragHandleClass,
+  noDragClass,
 }: {
   cover: string | File;
   title: string;
   owner: string;
   genres: string[];
+  dragHandleClass: string;
+  noDragClass: string;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   return (
@@ -45,6 +49,7 @@ export const PlaylistWidget = ({
     >
       {isHovered && (
         <IconButton
+          className={dragHandleClass}
           sx={{
             position: 'absolute',
             top: 8,
@@ -58,7 +63,7 @@ export const PlaylistWidget = ({
           <DragIndicator />
         </IconButton>
       )}
-      <CardContent sx={{ padding: 0 }}>
+      <CardContent className={noDragClass} sx={{ padding: 0 }}>
         {/* <DragIndicator/> */}
         {typeof cover === 'string' ? (
           <Box

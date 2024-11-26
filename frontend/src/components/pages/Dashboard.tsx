@@ -63,6 +63,8 @@ export const Dashboard = () => {
         rowHeight={420}
         width={windowWidth}
         // onLayoutChange={onLayoutChange}
+        draggableHandle=".drag-handle"
+        draggableCancel=".no-drag"
       >
         {widgets.map((widget) => (
           <div
@@ -73,7 +75,11 @@ export const Dashboard = () => {
               justifyContent: 'center',
             }}
           >
-            {widget.component}
+            {/* {widget.component} */}
+            {React.cloneElement(widget.component, {
+              dragHandleClass: 'drag-handle',
+              noDragClass: 'no-drag',
+            })}
           </div>
         ))}
       </ResponsiveGridLayout>
