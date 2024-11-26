@@ -1,6 +1,18 @@
-import React from 'react';
-import { Box, Typography, Card, CardContent, Stack, Chip } from '@mui/material';
-import { AddOutlined, FavoriteBorderOutlined } from '@mui/icons-material';
+import { useState } from 'react';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Stack,
+  Chip,
+  IconButton,
+} from '@mui/material';
+import {
+  AddOutlined,
+  FavoriteBorderOutlined,
+  DragIndicator,
+} from '@mui/icons-material';
 
 export const PlaylistWidget = ({
   cover,
@@ -13,6 +25,7 @@ export const PlaylistWidget = ({
   owner: string;
   genres: string[];
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
   return (
     <Card
       sx={{
@@ -20,9 +33,33 @@ export const PlaylistWidget = ({
         height: '400px',
         backgroundColor: '#FEF7FF',
         borderRadius: '20px',
+        transition: 'transform 0.3s, box-shadow 0.3s',
+        '&:hover': {
+          transform: 'scale(1.05)',
+          boxShadow:
+            '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+        },
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
+      {isHovered && (
+        <IconButton
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 1)',
+            },
+          }}
+        >
+          <DragIndicator />
+        </IconButton>
+      )}
       <CardContent sx={{ padding: 0 }}>
+        {/* <DragIndicator/> */}
         {typeof cover === 'string' ? (
           <Box
             component="img"
