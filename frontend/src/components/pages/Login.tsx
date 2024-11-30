@@ -47,9 +47,10 @@ export const Login = () => {
       if (response.ok) {
         const data = await response.json();
         // Store the token securely, e.g., in localStorage or a secure cookie
-        localStorage.setItem('token', data.token);
+        localStorage.setItem('jwttoken', data.token);
+        localStorage.setItem('username', username);
         setPassword(''); // Clear password from state
-        navigate('/dashboard');
+        window.location.href = AUTH_URL;
       } else {
         setError('Invalid username or password');
       }

@@ -95,7 +95,7 @@ export const getPlaylistTracks = async (
 ): Promise<void> => {
   try {
     // Extract spotifyToken from the Authorization header
-    const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
+    const spotifyToken = req.headers.authorization;
     const playlistId = req.params.playlistId;
 
     if (!spotifyToken) {
