@@ -1,0 +1,21 @@
+@startuml AccessSequenceDiagram
+title Access Sequence Diagram
+'actor User, Spotify, database
+actor User
+participant "Spinterest Site" as Site
+database Database
+participant "Spotify API" as Spotify
+
+User -> Site: Directs to Login Page
+Site -> User: Login Page
+User -> Site: Enters Username and Password
+Site -> Database: Queries for User
+Database -> Database: Validates User
+Database -> Site: Returns JWT
+Site -> Site: Stores JWT in Local Storage
+Site -> Spotify: Redirects to Spotify OAuth
+Spotify -> Site: Returns User's OAuth Code
+Site -> Database: Updates User's Spotify ID and Refresh Token
+Database -> Site: Returns Successful Update Status
+Site -> User: Redirects to Dashboard
+@enduml
