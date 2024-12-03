@@ -1,21 +1,23 @@
-import { FunctionComponent } from 'react';
+import React, { FunctionComponent } from 'react';
 import { Button, Typography } from '@mui/material';
+import axios from 'axios';
 
 export const SpotifyLoginButton: FunctionComponent = () => {
   const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
-  const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
+  const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/profile&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
 
   return (
     <Button
       sx={{
         color: 'white',
+        bgcolor: 'green',
         '&:hover': {
-          bgcolor: '#3F51B5',
+          bgcolor: 'lightgreen',
         },
       }}
       href={AUTH_URL}
     >
-      <Typography sx={{ textTransform: 'none' }}>Login with Spotify</Typography>
+      <Typography sx={{ textTransform: 'none' }}>Connect to Spotify</Typography>
     </Button>
   );
 };
@@ -50,6 +52,25 @@ export const fetchAuthToken = async (code: string) => {
       body: new URLSearchParams(authOptions.form).toString(),
     });
     const data = await response.json();
+    console.log('Data:', data);
+    const profileOptions = {
+      url: 'https://api.spotify.com/v1/me',
+      headers: {
+        Authorization: `Bearer ${data.access_token}`,
+      },
+      json: true,
+    };
+    const profileData = await fetch(profileOptions.url, {
+      headers: profileOptions.headers,
+    });
+    const id = await profileData.json().then((data) => data.id);
+    const updateResponse = axios.put(
+      `http://localhost:8000/api/user/${localStorage.getItem('username')}`,
+      {
+        spotifyId: id,
+        refreshToken: data.refresh_token,
+      }
+    );
     window.localStorage.setItem('spotify_token', data.access_token);
     window.localStorage.setItem('spotify_refresh_token', data.refresh_token);
   } catch (error) {

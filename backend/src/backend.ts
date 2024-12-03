@@ -2,9 +2,19 @@ import express from 'express';
 import cors from 'cors';
 import { getDbConnection } from './utils/connection';
 import routes from './routes/index.js';
-import { config } from 'dotenv';
+import dotenv from 'dotenv';
+dotenv.config(); // Load .env variables
 
-config();
+// dotenv.config({ path: '../.env.local' });
+// console.log('Loaded TOKEN_SECRET:', process.env.TOKEN_SECRET);
+
+const result = dotenv.config({ path: '.env.local' });
+
+if (result.error) {
+  console.error('Failed to load .env.local file:', result.error);
+} else {
+  console.log('Environment variables loaded:', result.parsed);
+}
 
 const app = express();
 const PORT = process.env.PORT || 8000;

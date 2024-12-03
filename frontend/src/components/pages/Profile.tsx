@@ -1,5 +1,9 @@
 import { FunctionComponent, useState, useEffect } from 'react';
-import { getRefreshedToken, logout } from '../data/SpotifyAuth';
+import {
+  getRefreshedToken,
+  logout,
+  SpotifyLoginButton,
+} from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 import {
   Search as SearchIcon,
@@ -101,6 +105,10 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
+
+              {/* Editable status blurb */}
+              <EditableBlurb />
+
               <Button
                 sx={{ mt: 2 }}
                 variant="contained"
@@ -111,9 +119,6 @@ export const Profile: FunctionComponent = () => {
               >
                 Logout
               </Button>
-
-              {/* Editable status blurb */}
-              <EditableBlurb />
             </>
           ) : (
             <>

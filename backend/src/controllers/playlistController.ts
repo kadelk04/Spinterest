@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { IPlaylist } from '../models/Playlist';
+import { authenticateUser } from '../middleware/auth';
 
 /**
  * Retrieve all playlists

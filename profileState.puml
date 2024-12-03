@@ -1,0 +1,37 @@
+@startuml profileState
+title Profile State Diagram
+
+  [*] --> Unlinked
+  Unlinked --> Linked: Link Spotify Account
+  Linked --> Unlinked: Unlink Spotify Account
+
+  state Unlinked {
+    [*] --> NotLoggedInNoSpotify
+    NotLoggedInNoSpotify: Username shown
+    NotLoggedInNoSpotify --> LoggedInNoSpotify: Log In
+    LoggedInNoSpotify --> NotLoggedInNoSpotify: Log Out
+    LoggedInNoSpotify: Username shown
+    LoggedInNoSpotify: Bio shown
+    LoggedInNoSpotify: Edit bio available
+    LoggedInNoSpotify --> EditNoSpotify: Edit
+    EditNoSpotify: Edit bio available
+    EditNoSpotify --> LoggedInNoSpotify: Save
+  }
+
+  state Linked {
+    [*] --> NotLoggedIn
+    NotLoggedIn: Username shown
+    NotLoggedIn: Profile picture shown
+    NotLoggedIn --> LoggedIn: Log In
+    LoggedIn --> NotLoggedIn: Log Out
+    LoggedIn: Username shown
+    LoggedIn: Bio shown
+    LoggedIn: Pinned music shown
+    LoggedIn: Favorite music shown
+    LoggedIn --> Edit: If owner
+    Edit: Edit bio, favorites, and pins available
+    Edit --> LoggedIn: Save
+  }
+  Unlinked --> [*]
+  Linked --> [*]
+@enduml
