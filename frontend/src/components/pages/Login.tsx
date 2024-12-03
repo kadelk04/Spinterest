@@ -42,8 +42,7 @@ export const Login = () => {
         },
         body: JSON.stringify({ username, password }),
       });
-      console.log('this worked');
-      console.log('Response:', response.statusText);
+      console.log('Made it here');
       if (response.ok) {
         const data = await response.json();
         // Store the token securely, e.g., in localStorage or a secure cookie
@@ -105,6 +104,7 @@ export const Login = () => {
                 label="Username"
                 name="username"
                 value={username}
+                error={error !== ''}
                 onChange={(e) => setUsername(e.target.value)}
                 autoComplete="username"
                 autoFocus
@@ -131,6 +131,7 @@ export const Login = () => {
                 id="password"
                 autoComplete="current-password"
                 value={password}
+                error={error !== ''}
                 onChange={(e) => setPassword(e.target.value)}
                 sx={{
                   bgcolor: 'rgba(237, 231, 246, 0.4)',
@@ -144,6 +145,9 @@ export const Login = () => {
                   },
                 }}
               />
+              <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                {error}
+              </Typography>
 
               <Box
                 sx={{
