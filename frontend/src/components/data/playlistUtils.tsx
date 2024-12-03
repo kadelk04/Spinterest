@@ -5,11 +5,10 @@ import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
 export interface Widget {
   id: string;
   cover: string;
-  // owner: Owner;
   owner: string;
   title: string;
   genres: string[];
-  component: React.ReactNode;
+  component: React.ReactElement;
 }
 
 export interface WidgetData {
@@ -73,14 +72,14 @@ export const fetchPlaylists = async (
 
     console.log('Playlists:', data);
 
-    const widgetsData: WidgetData[] = data.items.map(
-      (playlist: PlaylistData) => ({
+    const widgetsData: WidgetData[] = data.items
+      .filter((playlist: PlaylistData) => playlist)
+      .map((playlist: PlaylistData) => ({
         id: playlist.id,
-        cover: playlist.images?.[0]?.url || '',
+        cover: playlist.images[0].url || '',
         owner: playlist.owner,
         title: playlist.name,
-      })
-    );
+      }));
 
     return widgetsData;
   } catch (error) {
@@ -111,7 +110,7 @@ export const buildWidgets = async (
         `http://localhost:8000/api/spotify/playlists/${playlist.id}`,
         {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            authorization: `${localStorage.getItem('spotify_token')}`,
           },
         }
       );
@@ -163,6 +162,8 @@ export const buildWidgets = async (
             owner={playlist.owner.display_name}
             title={playlist.title}
             genres={topGenres}
+            dragHandleClass="drag-handle"
+            noDragClass="no-drag"
           />
         ),
       };

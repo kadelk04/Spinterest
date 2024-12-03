@@ -1,28 +1,73 @@
-import React from 'react';
-import { Box, Typography, Card, CardContent, Stack, Chip } from '@mui/material';
-import { AddOutlined, FavoriteBorderOutlined } from '@mui/icons-material';
+import { useState } from 'react';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Stack,
+  Chip,
+  IconButton,
+} from '@mui/material';
+import {
+  AddOutlined,
+  FavoriteBorderOutlined,
+  DragIndicator,
+} from '@mui/icons-material';
+
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 
 export const PlaylistWidget = ({
   cover,
   title,
   owner,
   genres,
+  dragHandleClass,
+  noDragClass,
 }: {
   cover: string | File;
   title: string;
   owner: string;
   genres: string[];
+  dragHandleClass: string;
+  noDragClass: string;
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
   return (
     <Card
       sx={{
         width: '250px',
-        height: '400px',
+        height: '420px',
         backgroundColor: '#FEF7FF',
         borderRadius: '20px',
+        transition: 'transform 0.3s, box-shadow 0.3s',
+        '&:hover': {
+          transform: 'scale(1.05)',
+          boxShadow:
+            '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+        },
       }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
-      <CardContent sx={{ padding: 0 }}>
+      {isHovered && (
+        <IconButton
+          className={dragHandleClass}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 1)',
+            },
+          }}
+        >
+          <DragIndicator />
+        </IconButton>
+      )}
+      <CardContent className={noDragClass} sx={{ padding: 0 }}>
+        {/* <DragIndicator/> */}
         {typeof cover === 'string' ? (
           <Box
             component="img"
@@ -51,6 +96,7 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
+              border: '1px solid red',
             }}
           >
             {title}
@@ -62,30 +108,76 @@ export const PlaylistWidget = ({
             {owner}
           </Typography>
         </Box>
-        <Box sx={{ padding: 2 }}>
+        <Box
+          sx={{
+            paddingTop: 1,
+            border: '1px solid #ccc',
+          }}
+        >
           {/* only horizontal space if not on new line */}
           <Stack
             direction="row"
             spacing={1}
             sx={{
-              flexWrap: 'wrap',
+              // flexWrap: 'wrap',
+              flexWrap: 'nowrap', // Prevent wrapping
+              overflowX: 'auto', // Allow horizontal scrolling
+              scrollbarWidth: 'thin', // Optional: Make the scrollbar less intrusive
+              '&::-webkit-scrollbar': {
+                height: '6px', // Optional: Adjust scrollbar height for better UX
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: '#ccc', // Optional: Style the scrollbar
+                borderRadius: '4px',
+              },
               justifyContent: 'flex-start',
               width: '100%',
-              height: '64px',
+              height: '30px',
+              // overflow: 'hidden',
+              // textOverflow: 'ellipsis',
+              // whiteSpace: 'nowrap',
             }}
           >
             {genres.map((genre) => (
-              <Chip key={genre} label={genre} size="small" color="primary" />
+              <Chip
+                sx={{ fontSize: '8pt' }}
+                key={genre}
+                label={genre}
+                size="small"
+                color="primary"
+              />
             ))}
           </Stack>
         </Box>
         <Stack
           direction="row"
           spacing={2}
-          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
+          sx={{
+            justifyContent: 'flex-end',
+            marginTop: '10%',
+            width: '100%',
+          }}
         >
-          <FavoriteBorderOutlined></FavoriteBorderOutlined>
-          <AddOutlined></AddOutlined>
+          <FavoriteBorderOutlined
+            sx={{
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow:
+                  '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+              },
+            }}
+          ></FavoriteBorderOutlined>
+          <AddOutlined
+            sx={{
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow:
+                  '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+              },
+            }}
+          ></AddOutlined>
         </Stack>
       </CardContent>
     </Card>
