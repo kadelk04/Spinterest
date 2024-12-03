@@ -195,8 +195,12 @@ const EditableBlurb: FunctionComponent = () => {
   const [clicked, setClicked] = useState(false);
 
   const handleIconClick = () => {
-    setIsEditable((prev) => !prev); // Toggle the editable state
-    setClicked((prev) => !prev); //Swiches the Icons
+    if (isEditable) {
+      // Log the value when saving
+      console.log('Status:', text);
+    }
+    setIsEditable((prev) => !prev);
+    setClicked((prev) => !prev);
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,9 +228,18 @@ const EditableBlurb: FunctionComponent = () => {
 
 const EditableAbout: FunctionComponent = () => {
   const [isEditable, setIsEditable] = useState(false);
+  const [location, setLocation] = useState('');
+  const [links, setLinks] = useState('');
+  const [biography, setBiography] = useState('');
 
   const handleIconClick = () => {
-    setIsEditable((prev) => !prev); // Toggle the editable state
+    if (isEditable) {
+      // Log the values when saving
+      console.log('Location:', location);
+      console.log('Links:', links);
+      console.log('Biography:', biography);
+    }
+    setIsEditable((prev) => !prev);
   };
 
   return (
@@ -245,6 +258,8 @@ const EditableAbout: FunctionComponent = () => {
             <TextField
               id="location"
               label="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
               disabled={!isEditable}
               InputProps={{
                 startAdornment: (
@@ -260,6 +275,8 @@ const EditableAbout: FunctionComponent = () => {
             <TextField
               id="links"
               label="Links"
+              value={links}
+              onChange={(e) => setLinks(e.target.value)}
               disabled={!isEditable}
               InputProps={{
                 startAdornment: (
@@ -276,6 +293,8 @@ const EditableAbout: FunctionComponent = () => {
               id="biography"
               label="User Bio"
               multiline
+              value={biography}
+              onChange={(e) => setBiography(e.target.value)}
               fullWidth
               maxRows={3}
               disabled={!isEditable}
