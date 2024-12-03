@@ -231,6 +231,12 @@ const EditableAbout: FunctionComponent = () => {
   const [location, setLocation] = useState('');
   const [links, setLinks] = useState('');
   const [biography, setBiography] = useState('');
+  const [favgen1, setText1] = useState('');
+  const [favgen2, setText2] = useState('');
+  const [fava1, setText3] = useState('');
+  const [fava2, setText4] = useState('');
+  const [favalb1, setText5] = useState('');
+  const [favalb2, setText6] = useState('');
 
   const handleIconClick = () => {
     if (isEditable) {
@@ -238,6 +244,12 @@ const EditableAbout: FunctionComponent = () => {
       console.log('Location:', location);
       console.log('Links:', links);
       console.log('Biography:', biography);
+      console.log('Favourite Genre:', favgen1);
+      console.log('Favourite Genre 2:', favgen2);
+      console.log('Favourite Arist:', fava1);
+      console.log('Favourite Artist 2:', fava2);
+      console.log('Favourite Album:', favalb1);
+      console.log('Favourite Album 2:', favalb2);
     }
     setIsEditable((prev) => !prev);
   };
@@ -318,45 +330,57 @@ const EditableAbout: FunctionComponent = () => {
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
+              id="favgen1"
               fullWidth
               placeholder="Favorite Genre"
               variant="outlined"
               sx={{ mb: 2 }}
+              onChange={(e) => setText1(e.target.value)}
               disabled={!isEditable}
             />
             <TextField
+              id="fava1"
               fullWidth
               placeholder="Favorite Artist"
               variant="outlined"
               sx={{ mb: 2 }}
+              onChange={(e) => setText3(e.target.value)}
               disabled={!isEditable}
             />
             <TextField
+              id="favalb1"
               fullWidth
               placeholder="Album #1"
               variant="outlined"
+              onChange={(e) => setText5(e.target.value)}
               disabled={!isEditable}
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
+              id="favgen2"
               fullWidth
               placeholder="Favorite Genre"
               variant="outlined"
               sx={{ mb: 2 }}
+              onChange={(e) => setText2(e.target.value)}
               disabled={!isEditable}
             />
             <TextField
+              id="fava2"
               fullWidth
               placeholder="Favorite Artist"
               variant="outlined"
               sx={{ mb: 2 }}
+              onChange={(e) => setText4(e.target.value)}
               disabled={!isEditable}
             />
             <TextField
+              id="favalb2"
               fullWidth
               placeholder="Album #2"
               variant="outlined"
+              onChange={(e) => setText6(e.target.value)}
               disabled={!isEditable}
             />
           </Grid>
