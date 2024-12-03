@@ -68,6 +68,7 @@ export const Dashboard = () => {
         // onLayoutChange={onLayoutChange}
         draggableHandle=".drag-handle"
         draggableCancel=".no-drag"
+        isResizable={false}
       >
         {widgets.map((widget) => (
           <div
