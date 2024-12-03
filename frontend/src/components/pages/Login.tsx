@@ -73,7 +73,7 @@ export const Login = () => {
       <Grid container spacing={2}>
         <Grid size={6}>
           <SignupModal open={open} setOpen={setOpen} navigate={navigate} />
-          <SpotifyLoginButton />
+          {/* <SpotifyLoginButton /> */}
           <Box
             sx={{
               mt: 8,
