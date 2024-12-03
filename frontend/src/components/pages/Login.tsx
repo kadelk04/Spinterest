@@ -42,7 +42,6 @@ export const Login = () => {
         },
         body: JSON.stringify({ username, password }),
       });
-      console.log('Made it here');
       if (response.ok) {
         const data = await response.json();
         // Store the token securely, e.g., in localStorage or a secure cookie
@@ -148,19 +147,6 @@ export const Login = () => {
               <Typography variant="body2" color="error" sx={{ mt: 1 }}>
                 {error}
               </Typography>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  my: 2,
-                }}
-              >
-                <Link href="#" variant="body2" sx={{ textDecoration: 'none' }}>
-                  Forgot password?
-                </Link>
-              </Box>
 
               {/* <Button
                 fullWidth
