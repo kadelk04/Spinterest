@@ -25,6 +25,7 @@ import {
   IconButton,
   Icon,
 } from '@mui/material';
+import axios from 'axios';
 
 interface SpotifyProfile {
   display_name: string;
@@ -199,11 +200,42 @@ const EditableBlurb: FunctionComponent = () => {
   const [text, setText] = useState('status');
   const [clicked, setClicked] = useState(false);
 
-  const handleIconClick = () => {
+  interface ProfileStatusResponse {
+    status: string;
+  }
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const response = await axios.get<ProfileStatusResponse>(
+          '/api/getProfileStatus'
+        );
+        const data = response.data;
+        setText(data.status);
+      } catch (error) {
+        console.error('Error fetching status:', error);
+      }
+    };
+
+    fetchStatus();
+  }, []);
+
+  const handleIconClick = async () => {
     if (isEditable) {
-      // Log the value when saving
+      // Log the value when savinag
       console.log('Status:', text);
     }
+
+    const updatedStatus = text;
+
+    //updating the Status field
+    try {
+      await axios.post('/api/logProfileInput', updatedStatus);
+      alert('Status saved!');
+    } catch (error) {
+      console.error('Error: Status not saved', error);
+    }
+
     setIsEditable((prev) => !prev);
     setClicked((prev) => !prev);
   };
@@ -213,6 +245,7 @@ const EditableBlurb: FunctionComponent = () => {
   };
 
   return (
+    //'/api/logProfileInput'
     <TextField
       id="blurb"
       label="status"
@@ -243,7 +276,7 @@ const EditableAbout: FunctionComponent = () => {
   const [favalb1, setText5] = useState('');
   const [favalb2, setText6] = useState('');
 
-  const handleIconClick = () => {
+  const handleIconClick = async () => {
     if (isEditable) {
       // Log the values when saving
       console.log('Location:', location);
@@ -256,8 +289,67 @@ const EditableAbout: FunctionComponent = () => {
       console.log('Favourite Album:', favalb1);
       console.log('Favourite Album 2:', favalb2);
     }
+
+    const updatedData = {
+      location,
+      links,
+      biography,
+      favgen1,
+      favgen2,
+      fava1,
+      fava2,
+      favalb1,
+      favalb2,
+    };
+
+    try {
+      await axios.post('/api/logProfileInput', updatedData);
+      alert('About and Favorite saved!');
+    } catch (error) {
+      console.error('Error: About and Favorite not saved', error);
+    }
+
     setIsEditable((prev) => !prev);
   };
+
+  interface AbtFavResponse {
+    location: string;
+    links: string;
+    biography: string;
+    favgen1: string;
+    favgen2: string;
+    fava1: string;
+    fava2: string;
+    favalb1: string;
+    favalb2: string;
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Replace with your backend API endpoint to get the saved data
+        const responseAbtFav = await axios.get<AbtFavResponse>(
+          '/api/logProfileInput'
+        );
+        const dataFields = responseAbtFav.data;
+
+        // Set the state with the fetched data
+        setLocation(dataFields.location);
+        setLinks(dataFields.links);
+        setBiography(dataFields.biography);
+        setText1(dataFields.favgen1);
+        setText2(dataFields.favgen2);
+        setText3(dataFields.fava1);
+        setText4(dataFields.fava2);
+        setText5(dataFields.favalb1);
+        setText6(dataFields.favalb2);
+      } catch (error) {
+        console.error('Error fetching dataFields:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Box sx={{ p: 4 }}>
