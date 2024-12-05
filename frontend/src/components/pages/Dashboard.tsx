@@ -61,7 +61,7 @@ export const Dashboard = () => {
         className="layout"
         layouts={layouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 6, md: 4, sm: 2, xs: 1, xxs: 1 }}
+        cols={{ lg: 6, md: 4, sm: 3, xs: 2, xxs: 2 }}
         // cols={6}
         rowHeight={420}
         width={windowWidth}
