@@ -10,18 +10,15 @@ import mongoose from 'mongoose';
 
 export async function registerUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body; // from form
-  console.log('in regiserUser');
   const User = getModel<IUser>('User');
   console.log(req.body);
   if (!username || !password) {
     res.status(400).send('Bad request: Invalid input data.');
   } else {
-    console.log('in registerUser');
-
     // Check if the username already exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      res.status(400).json({ error: 'Username already taken' });
+      res.status(400).json({ message: 'Username already taken' });
       return;
     } else {
       console.log('gonna bcrypt');
@@ -87,7 +84,7 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
 
     console.log('User:', user);
     if (!user) {
-      res.status(400).send('Invalid username or password.');
+      res.status(401).send({ message: 'Invalid username or password.' });
       return;
     }
 
@@ -97,7 +94,7 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
     console.log('Password valid:', isPasswordValid);
 
     if (!isPasswordValid) {
-      res.status(400).send('Invalid username or password.');
+      res.status(401).send({ message: 'Invalid username or password.' });
       return;
     }
 

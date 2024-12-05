@@ -49,7 +49,8 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
         console.log('yay going to profile');
         window.location.href = AUTH_URL;
       } else {
-        setError(`Failed to sign up: ${response.statusText}`);
+        const errorMessage = await response.json().then((data) => data.message);
+        setError(`Failed to sign up: ${errorMessage}`);
       }
     } catch (error) {
       setError(`Failed to sign up: ${error}`);
