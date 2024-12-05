@@ -112,6 +112,7 @@ export const Login = () => {
               label="Username"
               name="username"
               value={username}
+              error={error !== ''}
               onChange={(e) => setUsername(e.target.value)}
               autoFocus
               slotProps={{
@@ -142,6 +143,7 @@ export const Login = () => {
               type="password"
               id="password"
               value={password}
+              error={error !== ''}
               onChange={(e) => setPassword(e.target.value)}
               slotProps={{
                 inputLabel: {
@@ -184,7 +186,9 @@ export const Login = () => {
                 Sign In
               </Typography>
             </Button>
-
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
             <Box sx={{ textAlign: 'center', mt: 2 }}>
               <Typography
                 variant="body2"
