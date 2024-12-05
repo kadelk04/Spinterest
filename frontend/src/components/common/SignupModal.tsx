@@ -6,6 +6,7 @@ import {
   Box,
   Typography,
   Paper,
+  Divider,
 } from '@mui/material';
 import { AUTH_URL, SpotifyLoginButton } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
@@ -87,14 +88,24 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
             backgroundColor: 'background.paper',
           }}
         >
-          <Typography variant="h4" component="h2" gutterBottom>
-            Sign Up
+          <Typography
+            variant="h4"
+            component="h2"
+            gutterBottom
+            sx={{ fontWeight: '800', mb: 5 }}
+          >
+            Sign Up to Spinterest
           </Typography>
           <TextField
             label="Username"
             fullWidth
             margin="normal"
             required={true}
+            slotProps={{
+              inputLabel: {
+                required: false,
+              },
+            }}
             onChange={(e) => setUsername(e.target.value)}
           />
           <TextField
@@ -103,6 +114,11 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
             fullWidth
             margin="normal"
             required={true}
+            slotProps={{
+              inputLabel: {
+                required: false,
+              },
+            }}
             onChange={(e) => setPassword(e.target.value)}
           />
           <TextField
@@ -111,6 +127,11 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
             fullWidth
             margin="normal"
             required={true}
+            slotProps={{
+              inputLabel: {
+                required: false,
+              },
+            }}
             onChange={(e) => setVerifyPassword(e.target.value)}
           />
           {/* <SpotifyLoginButton /> */}
@@ -127,7 +148,7 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
               color="primary"
               onClick={handleSignupClick}
               disabled={loading}
-              sx={{ marginRight: 2 }}
+              sx={{ marginRight: 2, textTransform: 'none' }}
             >
               Sign Up
             </Button>
@@ -135,6 +156,7 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
               variant="outlined"
               color="error"
               onClick={() => setOpen(false)}
+              sx={{ textTransform: 'none' }}
             >
               Cancel
             </Button>
