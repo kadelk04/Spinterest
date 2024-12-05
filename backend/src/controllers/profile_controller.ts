@@ -35,6 +35,8 @@ profileController.post('/logProfileInput', (req: Request, res: Response) => {
     // Log each field if it exists
     if (profileData.status) {
       console.log(`Status: ${profileData.status}`);
+    } else {
+      console.log('Status is undefined or not provided');
     }
     if (profileData.location) {
       console.log(`Location: ${profileData.location}`);

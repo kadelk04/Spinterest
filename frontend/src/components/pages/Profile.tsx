@@ -200,43 +200,52 @@ const EditableBlurb: FunctionComponent = () => {
     status: string;
   }
 
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await axios.get<ProfileStatusResponse>(
-          'http://localhost:8000/api/logProfileInput'
-        );
-        const data = response.data;
-        setText(data.status);
-      } catch (error) {
-        console.error('Error fetching status:', error);
+  const fetchStatus = async () => {
+    try {
+      const response = await axios.get<ProfileStatusResponse>(
+        'http://localhost:8000/api/logProfileInput'
+      );
+      if (response.data && response.data.status !== undefined) {
+        setText(response.data.status);
+      } else {
+        console.warn('Received unexpected data structure:', response.data);
+        setText(''); // Set to a default value if necessary
       }
-    };
-
-    fetchStatus();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching status:', error);
+      setText(''); // Safeguard in case of an error
+    }
+  };
 
   const handleIconClick = async () => {
     if (isEditable) {
-      // Log the value when savinag
+      // Log the value when saving
       console.log('Status:', text);
     }
 
     const updatedStatus = text;
 
-    //updating the Status field
+    // Updating the Status field
     try {
-      await axios.post(
+      const response = await axios.post(
         'http://localhost:8000/api/logProfileInput',
-        updatedStatus
+        { status: updatedStatus } // Send status as an object
       );
-      alert('Status saved!');
+
+      // Log the response for debugging
+      console.log('Status update response:', response.data);
+
+      if (response.status === 200) {
+        alert('Status saved!');
+        setClicked(true); // Indicate that the save button has been clicked
+      } else {
+        console.error('Error: Unexpected response from server', response);
+      }
     } catch (error) {
       console.error('Error: Status not saved', error);
     }
 
     setIsEditable((prev) => !prev);
-    setClicked((prev) => !prev);
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
