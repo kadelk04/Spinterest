@@ -191,10 +191,6 @@ export const Profile: FunctionComponent = () => {
   );
 };
 
-//Editable Status Field
-//making this more universal function to edit other textfields
-//set a character to limit
-// TODO: connect back to the backend for user profile
 const EditableBlurb: FunctionComponent = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [text, setText] = useState('status');
@@ -208,7 +204,7 @@ const EditableBlurb: FunctionComponent = () => {
     const fetchStatus = async () => {
       try {
         const response = await axios.get<ProfileStatusResponse>(
-          '/api/getProfileStatus'
+          'http://localhost:8000/api/logProfileInput'
         );
         const data = response.data;
         setText(data.status);
@@ -230,7 +226,10 @@ const EditableBlurb: FunctionComponent = () => {
 
     //updating the Status field
     try {
-      await axios.post('/api/logProfileInput', updatedStatus);
+      await axios.post(
+        'http://localhost:8000/api/logProfileInput',
+        updatedStatus
+      );
       alert('Status saved!');
     } catch (error) {
       console.error('Error: Status not saved', error);
@@ -245,7 +244,6 @@ const EditableBlurb: FunctionComponent = () => {
   };
 
   return (
-    //'/api/logProfileInput'
     <TextField
       id="blurb"
       label="status"
@@ -303,7 +301,10 @@ const EditableAbout: FunctionComponent = () => {
     };
 
     try {
-      await axios.post('/api/logProfileInput', updatedData);
+      await axios.post(
+        'http://localhost:8000/api/logProfileInput',
+        updatedData
+      );
       alert('About and Favorite saved!');
     } catch (error) {
       console.error('Error: About and Favorite not saved', error);
@@ -327,9 +328,8 @@ const EditableAbout: FunctionComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Replace with your backend API endpoint to get the saved data
         const responseAbtFav = await axios.get<AbtFavResponse>(
-          '/api/logProfileInput'
+          'http://localhost:8000/api/logProfileInput'
         );
         const dataFields = responseAbtFav.data;
 

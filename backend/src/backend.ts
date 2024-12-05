@@ -3,6 +3,7 @@ import cors from 'cors';
 import { getDbConnection } from './utils/connection';
 import routes from './routes/index.js';
 import dotenv from 'dotenv';
+import profileController from './controllers/profile_controller';
 dotenv.config(); // Load .env variables
 
 // dotenv.config({ path: '../.env.local' });
@@ -26,6 +27,9 @@ app.use(express.json());
 // Initialize DB and start server
 const startServer = async () => {
   await getDbConnection();
+
+  // Profile-Controller
+  app.use('/api', profileController);
 
   // Routes
   app.use('/api', routes);

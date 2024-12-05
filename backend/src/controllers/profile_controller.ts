@@ -1,11 +1,14 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, Router } from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 
 const app = express();
-const port = 5000;
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());
+app.use(cors());
+
+const profileController = Router();
 
 // Interface to define the shape of profile input data
 interface ProfileInput {
@@ -21,7 +24,7 @@ interface ProfileInput {
   favalb2?: string;
 }
 
-app.post('/api/logProfileInput', (req: Request, res: Response) => {
+profileController.post('/logProfileInput', (req: Request, res: Response) => {
   try {
     const profileData: ProfileInput = req.body;
 
@@ -70,6 +73,4 @@ app.post('/api/logProfileInput', (req: Request, res: Response) => {
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Backend server running at http://localhost:${port}`);
-});
+export default profileController;
