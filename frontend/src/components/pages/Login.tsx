@@ -11,6 +11,7 @@ import logo from '../../assets/logo.png';
 import { SignupModal } from '../common/SignupModal';
 
 import '@fontsource/open-sans';
+import { PlaylistResponse } from '../data/playlistUtils';
 
 export const Login = () => {
   const [open, setOpen] = useState(false);
@@ -18,11 +19,62 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  interface PlaylistDoc {
+    title: string;
+    cover: string;
+    spotifyId: string;
+    songs: string;
+    creator: string;
+  }
+
+  const loadPlaylists = async () => {
+    const spotifyToken = localStorage.getItem('spotify_token');
+    if (!spotifyToken) {
+      console.error('No Spotify token found');
+      return;
+    }
+    const playlists = await axios.get<PlaylistResponse>(
+      'http://localhost:8000/api/spotify/playlists',
+      {
+        params: {
+          spotifyToken: spotifyToken,
+        },
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
+      }
+    );
+
+    const dataMap: PlaylistDoc[] = playlists.data.items.map((playlist) => ({
+      title: playlist.name,
+      cover: playlist.images[0].url,
+      spotifyId: playlist.id,
+      songs: playlist.tracks.href,
+      creator: playlist.owner.display_name,
+    }));
+
+    dataMap.forEach((playlist) => {
+      axios.post('http://localhost:8000/api/playlist', {
+        title: playlist.title,
+        cover: playlist.cover,
+        spotifyId: playlist.spotifyId,
+        songs: playlist.songs,
+        creator: playlist.creator,
+      });
+    });
+  };
   useEffect(() => {
     const fetchData = async () => {
       const { code } = getInfoFromUrl();
       if (!code) return;
       await fetchAuthToken(code);
+      const firstLogin = new URLSearchParams(window.location.search).get(
+        'firstlogin'
+      );
+      if (firstLogin) {
+        await loadPlaylists();
+      }
       navigate('/dashboard');
     };
     fetchData();
@@ -143,6 +195,7 @@ export const Login = () => {
               type="password"
               id="password"
               value={password}
+              autoComplete="current-password"
               error={error !== ''}
               onChange={(e) => setPassword(e.target.value)}
               slotProps={{

@@ -23,7 +23,7 @@ export const Dashboard = () => {
       setWidgets(widgets);
     });
   }, []);
-  console.log('Widgets:', widgets);
+  // console.log('Widgets:', widgets);
   const layouts = getLayouts(widgets);
 
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
