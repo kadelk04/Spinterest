@@ -206,7 +206,7 @@ const EditableBlurb: FunctionComponent = () => {
 
   const fetchStatus = async () => {
     try {
-      const username = localStorage.getItem('username'); // Get username from localStorage (or other storage)
+      const username = localStorage.getItem('username');
 
       if (!username) {
         console.error('No username found');
@@ -217,7 +217,7 @@ const EditableBlurb: FunctionComponent = () => {
         'http://localhost:8000/profile/logProfileInput',
         { params: { username } }
       );
-      if (response.data && response.data.status !== undefined) {
+      if (response.data?.status) {
         setText(response.data.status);
       } else {
         console.warn('Received unexpected data:', response.data);
@@ -230,40 +230,34 @@ const EditableBlurb: FunctionComponent = () => {
   };
 
   const handleIconClick = async () => {
-    if (isEditable) {
-      // Log the value when saving
-      console.log('Status:', text);
-    }
+    if (clicked) {
+      // Save only when SaveAltIcon is active
+      const updatedStatus = text;
+      const username = localStorage.getItem('username');
 
-    const updatedStatus = text;
-    const username = localStorage.getItem('username');
-
-    if (!username) {
-      console.error('No username found');
-      return;
-    }
-
-    // Updating the Status field
-    try {
-      const response = await axios.post(
-        'http://localhost:8000/profile/logProfileInput',
-        { status: updatedStatus, username } // Send status as an object
-      );
-
-      // Log the response for debugging
-      console.log('Status update response:', response.data);
-
-      if (response.status === 200) {
-        alert('Status saved!');
-      } else {
-        console.error('Error: Unexpected response from server', response);
+      if (!username) {
+        console.error('No username found');
+        return;
       }
-    } catch (error) {
-      console.error('Error: Status not saved', error);
+
+      try {
+        const response = await axios.post(
+          'http://localhost:8000/profile/logProfileInput',
+          { status: updatedStatus, username }
+        );
+
+        if (response.status === 200) {
+          console.log('Status saved!');
+        } else {
+          console.error('Error: Unexpected response from server', response);
+        }
+      } catch (error) {
+        console.error('Error: Status not saved', error);
+      }
     }
 
-    setIsEditable((prev) => !prev);
-    setClicked((prev) => !prev);
+    setClicked(!clicked);
+    setIsEditable(!clicked);
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -290,6 +284,17 @@ const EditableBlurb: FunctionComponent = () => {
 };
 
 const EditableAbout: FunctionComponent = () => {
+  interface AbtFavResponse {
+    location: string;
+    links: string;
+    biography: string;
+    favorites: {
+      genre: string[];
+      artist: string[];
+      album: string[];
+    };
+  }
+
   const [isEditable, setIsEditable] = useState(false);
   const [location, setLocation] = useState('');
   const [links, setLinks] = useState('');
@@ -301,37 +306,80 @@ const EditableAbout: FunctionComponent = () => {
   const [favalb1, setText5] = useState('');
   const [favalb2, setText6] = useState('');
 
-  const handleIconClick = async () => {
-    if (isEditable) {
-      // Log the values when saving
-      console.log('Location:', location);
-      console.log('Links:', links);
-      console.log('Biography:', biography);
-      console.log('Favourite Genre:', favgen1);
-      console.log('Favourite Genre 2:', favgen2);
-      console.log('Favourite Arist:', fava1);
-      console.log('Favourite Artist 2:', fava2);
-      console.log('Favourite Album:', favalb1);
-      console.log('Favourite Album 2:', favalb2);
-    }
+  useEffect(() => {
+    fetchData();
+  }, []);
 
+  const fetchData = async () => {
+    try {
+      const username = localStorage.getItem('username');
+
+      if (!username) {
+        console.error('No username found');
+        return;
+      }
+
+      const responseAbtFav = await axios.get<AbtFavResponse>(
+        'http://localhost:8000/profile/logProfileInput',
+        { params: { username } }
+      );
+
+      const dataFields = responseAbtFav.data;
+
+      // Log the fetched data to verify
+      console.log('Fetched Data:', dataFields);
+
+      // Set the state with the fetched data
+      setLocation(dataFields.location);
+      setLinks(dataFields.links);
+      setBiography(dataFields.biography);
+      setText1(dataFields.favorites?.genre[0] || '');
+      setText2(dataFields.favorites?.genre[1] || '');
+      setText3(dataFields.favorites?.artist[0] || '');
+      setText4(dataFields.favorites?.artist[1] || '');
+      setText5(dataFields.favorites?.album[0] || '');
+      setText6(dataFields.favorites?.album[1] || '');
+    } catch (error) {
+      console.error('Error fetching dataFields:', error);
+    }
+  };
+
+  const handleIconClick = async () => {
     const updatedData = {
       location,
       links,
       biography,
-      favgen1,
-      favgen2,
-      fava1,
-      fava2,
-      favalb1,
-      favalb2,
+      favgen1: favgen1 || '', // Fallback to empty string if undefined
+      favgen2: favgen2 || '',
+      fava1: fava1 || '',
+      fava2: fava2 || '',
+      favalb1: favalb1 || '',
+      favalb2: favalb2 || '',
     };
 
+    const username = localStorage.getItem('username');
+    if (!username) {
+      console.error('No username found');
+      return;
+    }
+
+    if (isEditable) {
+      console.log('Location:', location);
+      console.log('Links:', links);
+      console.log('Biography:', biography);
+      console.log('Favorite Genre 1:', favgen1);
+      console.log('Favorite Genre 2:', favgen2);
+      console.log('Favorite Artist 1:', fava1);
+      console.log('Favorite Artist 2:', fava2);
+      console.log('Favorite Album 1:', favalb1);
+      console.log('Favorite Album 2:', favalb2);
+    }
+
     try {
-      await axios.post(
-        'http://localhost:8000/profile/logProfileInput',
-        updatedData
-      );
+      await axios.post('http://localhost:8000/profile/logProfileInput', {
+        updatedData,
+        username,
+      });
       alert('About and Favorite saved!');
     } catch (error) {
       console.error('Error: About and Favorite not saved', error);
@@ -339,44 +387,6 @@ const EditableAbout: FunctionComponent = () => {
 
     setIsEditable((prev) => !prev);
   };
-
-  interface AbtFavResponse {
-    location: string;
-    links: string;
-    biography: string;
-    favgen1: string;
-    favgen2: string;
-    fava1: string;
-    fava2: string;
-    favalb1: string;
-    favalb2: string;
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const responseAbtFav = await axios.get<AbtFavResponse>(
-          'http://localhost:8000/profile/logProfileInput'
-        );
-        const dataFields = responseAbtFav.data;
-
-        // Set the state with the fetched data
-        setLocation(dataFields.location);
-        setLinks(dataFields.links);
-        setBiography(dataFields.biography);
-        setText1(dataFields.favgen1);
-        setText2(dataFields.favgen2);
-        setText3(dataFields.fava1);
-        setText4(dataFields.fava2);
-        setText5(dataFields.favalb1);
-        setText6(dataFields.favalb2);
-      } catch (error) {
-        console.error('Error fetching dataFields:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   return (
     <Box sx={{ p: 4 }}>

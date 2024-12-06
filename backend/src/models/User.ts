@@ -10,7 +10,9 @@ export interface IUser {
   status?: string;
   bio?: string;
   location?: string;
+  links?: string;
   favorites: IFavorites;
+  favoritesId: mongoose.Types.ObjectId;
   annotatedPlaylists?: IPlaylist[];
 }
 
@@ -21,8 +23,9 @@ export const UserSchema = new mongoose.Schema({
   bio: String,
   status: String,
   location: String,
+  links: String,
   refreshToken: String,
-  favorites: { type: mongoose.Schema.Types.ObjectId, ref: 'Favorites' },
+  favoritesId: { type: mongoose.Schema.Types.ObjectId, ref: 'Favorites' },
   annotatedPlaylists: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
   ],

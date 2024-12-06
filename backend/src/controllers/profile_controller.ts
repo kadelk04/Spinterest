@@ -3,6 +3,7 @@ import { IUser } from '../models/User';
 import bodyParser from 'body-parser';
 import { getModel } from '../utils/connection';
 import cors from 'cors';
+import { IFavorites } from '../models/Favorites';
 
 const app = express();
 
@@ -12,27 +13,23 @@ app.use(cors());
 
 const profileController = Router();
 
-// Interface to define the shape of profile input data
-interface ProfileInput {
-  status?: string;
-  location?: string;
-  links?: string;
-  biography?: string;
-  favgen1?: string;
-  favgen2?: string;
-  fava1?: string;
-  fava2?: string;
-  favalb1?: string;
-  favalb2?: string;
-}
-
 profileController.post(
   '/logProfileInput',
   async (req: Request, res: Response) => {
     try {
-      const { username, ...profileData } = req.body;
+      const {
+        username,
+        favgen1,
+        favgen2,
+        fava1,
+        fava2,
+        favalb1,
+        favalb2,
+        ...profileData
+      } = req.body;
 
       const UserM = getModel<IUser>('User');
+      const FavoritesM = getModel<IFavorites>('Favorites');
       const user = await UserM.findOne({ username });
 
       if (!user) {
@@ -40,7 +37,34 @@ profileController.post(
         return;
       }
 
-      user.status = profileData.status;
+      //updating user profile data
+      for (const key in profileData) {
+        if (profileData[key] !== undefined) {
+          user[key as keyof IUser] = profileData[key];
+        }
+      }
+
+      //updating the favorites list
+      if (!user.favoritesId) {
+        const newFavs = new FavoritesM({
+          userId: user._id,
+          genre: [favgen1, favgen2].filter(Boolean),
+          artist: [fava1, fava2].filter(Boolean),
+          album: [favalb1, favalb2].filter(Boolean),
+        });
+        await newFavs.save();
+        user.favoritesId = newFavs._id;
+      } else {
+        await FavoritesM.findOneAndUpdate(
+          { _id: user.favorites },
+          {
+            genre: [favgen1, favgen2].filter(Boolean),
+            artist: [fava1, fava2].filter(Boolean),
+            album: [favalb1, favalb2].filter(Boolean),
+          },
+          { new: true }
+        );
+      }
 
       // Log all received data to the terminal
       console.log('Received Profile Input:');
@@ -82,6 +106,7 @@ profileController.post(
 
       // Send a success response
       await user?.save();
+
       res.status(200).json({ message: 'Profile input logged successfully' });
     } catch (error) {
       console.error('Error logging profile input:', error);
@@ -94,17 +119,24 @@ profileController.get(
   '/logProfileInput',
   async (req: Request, res: Response) => {
     try {
-      const username = req.query;
+      const username = req.query.username as string;
 
       const UserM = getModel<IUser>('User');
-      const user = await UserM.findOne({ username });
+      const user = await UserM.findOne({ username }).populate('favoritesId');
 
       if (!user) {
         res.status(404).send('User not found');
         return;
       }
 
-      res.status(200).json({ status: user.status }); // Send the status field as the response
+      // Sending data fields as the response
+      res.status(200).json({
+        status: user.status,
+        location: user.location,
+        links: user.links,
+        biography: user.bio,
+        favorites: user.favorites,
+      });
     } catch (error) {
       console.error('Error fetching profile input:', error);
       res.status(500).json({ message: 'Error fetching profile input' });
