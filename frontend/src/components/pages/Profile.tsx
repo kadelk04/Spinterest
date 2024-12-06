@@ -191,6 +191,7 @@ export const Profile: FunctionComponent = () => {
   );
 };
 
+//Updates the Editable Blurb
 const EditableBlurb: FunctionComponent = () => {
   const [isEditable, setIsEditable] = useState(false);
   const [text, setText] = useState('status');
@@ -283,6 +284,7 @@ const EditableBlurb: FunctionComponent = () => {
   );
 };
 
+// Updates the fields in the About and Favorite section
 const EditableAbout: FunctionComponent = () => {
   interface AbtFavResponse {
     location: string;
@@ -333,12 +335,12 @@ const EditableAbout: FunctionComponent = () => {
       setLocation(dataFields.location);
       setLinks(dataFields.links);
       setBiography(dataFields.biography);
-      setText1(dataFields.favorites?.genre[0] || '');
-      setText2(dataFields.favorites?.genre[1] || '');
-      setText3(dataFields.favorites?.artist[0] || '');
-      setText4(dataFields.favorites?.artist[1] || '');
-      setText5(dataFields.favorites?.album[0] || '');
-      setText6(dataFields.favorites?.album[1] || '');
+      setText1(dataFields.favorites.genre[0] || '');
+      setText2(dataFields.favorites.genre[1] || '');
+      setText3(dataFields.favorites.artist[0] || '');
+      setText4(dataFields.favorites.artist[1] || '');
+      setText5(dataFields.favorites.album[0] || '');
+      setText6(dataFields.favorites.album[1] || '');
     } catch (error) {
       console.error('Error fetching dataFields:', error);
     }
@@ -377,10 +379,9 @@ const EditableAbout: FunctionComponent = () => {
 
     try {
       await axios.post('http://localhost:8000/profile/logProfileInput', {
-        updatedData,
+        ...updatedData,
         username,
       });
-      alert('About and Favorite saved!');
     } catch (error) {
       console.error('Error: About and Favorite not saved', error);
     }
@@ -469,6 +470,7 @@ const EditableAbout: FunctionComponent = () => {
               placeholder="Favorite Genre"
               variant="outlined"
               sx={{ mb: 2 }}
+              value={favgen1}
               onChange={(e) => setText1(e.target.value)}
               disabled={!isEditable}
             />
@@ -478,6 +480,7 @@ const EditableAbout: FunctionComponent = () => {
               placeholder="Favorite Artist"
               variant="outlined"
               sx={{ mb: 2 }}
+              value={fava1}
               onChange={(e) => setText3(e.target.value)}
               disabled={!isEditable}
             />
@@ -486,6 +489,7 @@ const EditableAbout: FunctionComponent = () => {
               fullWidth
               placeholder="Album #1"
               variant="outlined"
+              value={favalb1}
               onChange={(e) => setText5(e.target.value)}
               disabled={!isEditable}
             />
@@ -497,6 +501,7 @@ const EditableAbout: FunctionComponent = () => {
               placeholder="Favorite Genre"
               variant="outlined"
               sx={{ mb: 2 }}
+              value={favgen2}
               onChange={(e) => setText2(e.target.value)}
               disabled={!isEditable}
             />
@@ -506,6 +511,7 @@ const EditableAbout: FunctionComponent = () => {
               placeholder="Favorite Artist"
               variant="outlined"
               sx={{ mb: 2 }}
+              value={fava2}
               onChange={(e) => setText4(e.target.value)}
               disabled={!isEditable}
             />
@@ -514,6 +520,7 @@ const EditableAbout: FunctionComponent = () => {
               fullWidth
               placeholder="Album #2"
               variant="outlined"
+              value={favalb2}
               onChange={(e) => setText6(e.target.value)}
               disabled={!isEditable}
             />

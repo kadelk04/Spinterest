@@ -44,6 +44,8 @@ profileController.post(
         }
       }
 
+      console.log(profileData);
+
       //updating the favorites list
       if (!user.favoritesId) {
         const newFavs = new FavoritesM({
@@ -56,7 +58,7 @@ profileController.post(
         user.favoritesId = newFavs._id;
       } else {
         await FavoritesM.findOneAndUpdate(
-          { _id: user.favorites },
+          { _id: user.favoritesId },
           {
             genre: [favgen1, favgen2].filter(Boolean),
             artist: [fava1, fava2].filter(Boolean),
@@ -104,7 +106,6 @@ profileController.post(
         console.log(`Favorite Album 2: ${profileData.favalb2}`);
       }
 
-      // Send a success response
       await user?.save();
 
       res.status(200).json({ message: 'Profile input logged successfully' });
@@ -135,7 +136,7 @@ profileController.get(
         location: user.location,
         links: user.links,
         biography: user.bio,
-        favorites: user.favorites,
+        favorites: user.favoritesId,
       });
     } catch (error) {
       console.error('Error fetching profile input:', error);
