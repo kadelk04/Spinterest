@@ -29,7 +29,7 @@ const startServer = async () => {
   await getDbConnection();
 
   // Profile-Controller
-  app.use('/api', profileController);
+  app.use('/profile', profileController);
 
   // Routes
   app.use('/api', routes);

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { IUser } from '../models/User';
+import { getFriends } from '../controllers/spotifyController';
 
 /**
  * Retrieve a user by their username
@@ -128,3 +129,18 @@ export const getAllUsers = async (req: Request, res: Response) => {
     res.status(500).send('Error fetching users');
   }
 };
+
+// export const getAllFriends = async (req: Request, res: Response) => {
+//   try {
+//       // Replace this URL with the endpoint that fetches friends from Spotify
+//       const response = await axios.get('https://api.spotify.com/v1/me/friends', {
+//           headers: {
+//               Authorization: `Bearer ${accessToken}`,
+//           },
+//       });
+//       return response.data.friends; // Adjust based on the API response structure
+//   } catch (error) {
+//       console.error('Error fetching friends:', error.message);
+//       throw new Error('Failed to fetch friends from Spotify');
+//   }
+// };

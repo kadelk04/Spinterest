@@ -200,20 +200,32 @@ const EditableBlurb: FunctionComponent = () => {
     status: string;
   }
 
+  useEffect(() => {
+    fetchStatus();
+  }, []);
+
   const fetchStatus = async () => {
     try {
+      const username = localStorage.getItem('username'); // Get username from localStorage (or other storage)
+
+      if (!username) {
+        console.error('No username found');
+        return;
+      }
+
       const response = await axios.get<ProfileStatusResponse>(
-        'http://localhost:8000/api/logProfileInput'
+        'http://localhost:8000/profile/logProfileInput',
+        { params: { username } }
       );
       if (response.data && response.data.status !== undefined) {
         setText(response.data.status);
       } else {
-        console.warn('Received unexpected data structure:', response.data);
-        setText(''); // Set to a default value if necessary
+        console.warn('Received unexpected data:', response.data);
+        setText('');
       }
     } catch (error) {
       console.error('Error fetching status:', error);
-      setText(''); // Safeguard in case of an error
+      setText('');
     }
   };
 
@@ -224,12 +236,18 @@ const EditableBlurb: FunctionComponent = () => {
     }
 
     const updatedStatus = text;
+    const username = localStorage.getItem('username');
+
+    if (!username) {
+      console.error('No username found');
+      return;
+    }
 
     // Updating the Status field
     try {
       const response = await axios.post(
-        'http://localhost:8000/api/logProfileInput',
-        { status: updatedStatus } // Send status as an object
+        'http://localhost:8000/profile/logProfileInput',
+        { status: updatedStatus, username } // Send status as an object
       );
 
       // Log the response for debugging
@@ -237,7 +255,6 @@ const EditableBlurb: FunctionComponent = () => {
 
       if (response.status === 200) {
         alert('Status saved!');
-        setClicked(true); // Indicate that the save button has been clicked
       } else {
         console.error('Error: Unexpected response from server', response);
       }
@@ -246,6 +263,7 @@ const EditableBlurb: FunctionComponent = () => {
     }
 
     setIsEditable((prev) => !prev);
+    setClicked((prev) => !prev);
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -311,7 +329,7 @@ const EditableAbout: FunctionComponent = () => {
 
     try {
       await axios.post(
-        'http://localhost:8000/api/logProfileInput',
+        'http://localhost:8000/profile/logProfileInput',
         updatedData
       );
       alert('About and Favorite saved!');
@@ -338,7 +356,7 @@ const EditableAbout: FunctionComponent = () => {
     const fetchData = async () => {
       try {
         const responseAbtFav = await axios.get<AbtFavResponse>(
-          'http://localhost:8000/api/logProfileInput'
+          'http://localhost:8000/profile/logProfileInput'
         );
         const dataFields = responseAbtFav.data;
 
