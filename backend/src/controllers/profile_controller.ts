@@ -1,6 +1,8 @@
 import express, { Request, Response, Router } from 'express';
+import { IUser } from '../models/User';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { getModel } from '../utils/connection';
 
 const app = express();
 
@@ -26,7 +28,9 @@ interface ProfileInput {
 
 profileController.post('/logProfileInput', (req: Request, res: Response) => {
   try {
-    const profileData: ProfileInput = req.body;
+    const { username, ...profileData } = req.body;
+
+    const userM = getModel<IUser>('User');
 
     // Log all received data to the terminal
     console.log('Received Profile Input:');
