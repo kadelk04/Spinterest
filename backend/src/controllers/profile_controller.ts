@@ -1,9 +1,9 @@
 import express, { Request, Response, Router } from 'express';
 import { IUser } from '../models/User';
-import bodyParser from 'body-parser';
 import { getModel } from '../utils/connection';
-import cors from 'cors';
 import { IFavorites } from '../models/Favorites';
+import cors from 'cors';
+import bodyParser from 'body-parser';
 
 const app = express();
 
@@ -40,7 +40,11 @@ profileController.post(
       //updating user profile data
       for (const key in profileData) {
         if (profileData[key] !== undefined) {
-          user[key as keyof IUser] = profileData[key];
+          if (key === 'biography') {
+            user.bio = profileData[key]; //saving bio
+          } else {
+            user[key as keyof IUser] = profileData[key];
+          }
         }
       }
 
