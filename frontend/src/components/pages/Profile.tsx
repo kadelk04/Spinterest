@@ -24,6 +24,10 @@ import {
   Grid,
   IconButton,
   Icon,
+  ListItem,
+  List,
+  ListItemAvatar,
+  ListItemText,
 } from '@mui/material';
 import axios from 'axios';
 
@@ -32,10 +36,20 @@ interface SpotifyProfile {
   images: { url: string }[];
 }
 
+// Extend the existing interface
+interface Friend {
+  id: string;
+  name: string;
+  images?: { url: string }[];
+}
+
 export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [loadingFriends, setLoadingFriends] = useState(true);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -69,9 +83,39 @@ export const Profile: FunctionComponent = () => {
           display_name: data.display_name,
           images: data.images || [],
         };
+        console.log('Profile Data Fetched:', profileData);
         setProfile(profileData);
+
+        // Fetch friends
+        const friendsResponse = await fetch(
+          'https://api.spotify.com/v1/me/following?type=user',
+          {
+            headers: {
+              Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+            },
+          }
+        );
+
+        console.log('awaiting dfkj');
+        const friendsData = await friendsResponse.json();
+        console.log('sgdfhg');
+        console.log(friendsData);
+        if (friendsData.artists) {
+          const formattedFriends = friendsData.artists.items.map(
+            (artist: any) => ({
+              id: artist.id,
+              name: artist.name,
+              images: artist.images,
+            })
+          );
+          console.log('Friends Fetched:', formattedFriends);
+          setFriends(formattedFriends);
+        }
+
+        setLoadingFriends(false);
       } catch (error) {
-        console.error('Error fetching profile', error);
+        console.error('Error fetching profile or friends', error);
+        setLoadingFriends(false);
       }
     };
 
@@ -140,30 +184,75 @@ export const Profile: FunctionComponent = () => {
         <Paper
           sx={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'flex-start',
             bgcolor: '#ECE6F0',
             borderRadius: 2,
             width: { xs: '100%', md: '90%' },
             height: 300,
             p: 2,
+            overflowY: 'auto',
           }}
         >
-          <TextField
-            id="search-friends"
-            label="Friends"
-            fullWidth
-            sx={{ flex: 1 }}
-            InputProps={{
-              endAdornment: (
-                <IconButton>
-                  <SearchIcon />
-                </IconButton>
-              ),
+          <Box
+            sx={{
+              display: 'flex',
+              width: '100%',
+              alignItems: 'center',
+              mb: 2,
             }}
-          />
-          <IconButton>
-            <SettingsIcon sx={{ ml: 1 }} />
-          </IconButton>
+          >
+            <TextField
+              id="search-friends"
+              label="Friends"
+              fullWidth
+              sx={{ flex: 1, mr: 1 }}
+              InputProps={{
+                endAdornment: (
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                ),
+              }}
+            />
+            <IconButton>
+              <SettingsIcon />
+            </IconButton>
+          </Box>
+
+          {loadingFriends ? (
+            <Typography>Loading friends...</Typography>
+          ) : (
+            <List
+              sx={{
+                width: '100%',
+                maxHeight: 200,
+                overflowY: 'auto',
+              }}
+            >
+              {friends.map((friend) => (
+                <ListItem key={friend.id} disablePadding>
+                  <ListItemAvatar>
+                    <Avatar
+                      src={
+                        friend.images && friend.images.length > 0
+                          ? friend.images[0].url
+                          : undefined
+                      }
+                      sx={{ width: 40, height: 40 }}
+                    />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={friend.name}
+                    primaryTypographyProps={{
+                      variant: 'body2',
+                      sx: { ml: 1 },
+                    }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Paper>
       </Box>
 
