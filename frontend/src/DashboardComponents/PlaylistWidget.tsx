@@ -96,7 +96,7 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
-              border: '1px solid red',
+              //border: '1px solid red',
             }}
           >
             {title}
@@ -111,7 +111,9 @@ export const PlaylistWidget = ({
         <Box
           sx={{
             paddingTop: 1,
-            border: '1px solid #ccc',
+            paddingLeft: 1,
+            paddingRight: 1,
+            //border: '1px solid #ccc',
           }}
         >
           {/* only horizontal space if not on new line */}
