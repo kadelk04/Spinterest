@@ -115,7 +115,7 @@ export const buildWidgets = async (
         }
       );
 
-      // console.log('Playlist in playlistUtils:', response.data);
+      console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
       // console.log('Tracks:', tracks);
 

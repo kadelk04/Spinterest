@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   AUTH_URL,
   fetchAuthToken,
@@ -46,13 +47,15 @@ export const Login = () => {
       }
     );
 
-    const dataMap: PlaylistDoc[] = playlists.data.items.map((playlist) => ({
-      title: playlist.name,
-      cover: playlist.images[0].url,
-      spotifyId: playlist.id,
-      songs: playlist.tracks.href,
-      creator: playlist.owner.display_name,
-    }));
+    const dataMap: PlaylistDoc[] = playlists.data.items
+      .filter((playlist) => playlist !== null)
+      .map((playlist) => ({
+        title: playlist.name,
+        cover: playlist.images[0].url,
+        spotifyId: playlist.id,
+        songs: playlist.tracks.href,
+        creator: localStorage.getItem('username') || '',
+      }));
 
     dataMap.forEach((playlist) => {
       axios.post('http://localhost:8000/api/playlist', {
@@ -69,10 +72,10 @@ export const Login = () => {
       const { code } = getInfoFromUrl();
       if (!code) return;
       await fetchAuthToken(code);
-      const firstLogin = new URLSearchParams(window.location.search).get(
-        'firstlogin'
-      );
+      const firstLogin = localStorage.getItem('firstlogin') === 'true';
       if (firstLogin) {
+        console.log('First login');
+        localStorage.removeItem('firstlogin');
         await loadPlaylists();
       }
       navigate('/dashboard');

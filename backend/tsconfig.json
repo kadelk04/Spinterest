@@ -5,9 +5,14 @@
     "moduleResolution": "node",
     "esModuleInterop": true,
     "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true
+    "rootDir": ".",
+    "strict": true,
+    "types": ["jest", "node", "supertest"],
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "composite": true,
+    "noEmit": false
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "**/*.test.ts"],
+  "exclude": ["node_modules", "dist"]
 }

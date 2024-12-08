@@ -47,7 +47,8 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
         );
         setOpen(false);
         console.log('yay going to profile');
-        window.location.href = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify&firstlogin=true`;
+        localStorage.setItem('firstlogin', 'true');
+        window.location.href = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
       } else {
         const errorMessage = await response.json().then((data) => data.message);
         setError(`Failed to sign up: ${errorMessage}`);
