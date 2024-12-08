@@ -12,33 +12,28 @@ export async function registerUser(req: Request, res: Response): Promise<void> {
   const { username, password } = req.body; // from form
   const User = getModel<IUser>('User');
   console.log(req.body);
-  if (!username || !password) {
-    res.status(400).send('Bad request: Invalid input data.');
+  // Check if the username already exists
+  const existingUser = await User.findOne({ username });
+  if (existingUser) {
+    res.status(400).json({ message: 'Username already taken' });
+    return;
   } else {
-    // Check if the username already exists
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      res.status(400).json({ message: 'Username already taken' });
-      return;
-    } else {
-      console.log('gonna bcrypt');
-      bcrypt
-        .genSalt(10)
-        .then((salt) => bcrypt.hash(password, salt))
-        .then((hashedPassword) => {
-          const newUser = new User({ username, password: hashedPassword });
-          newUser.save().then(() => {
-            generateAccessToken(username).then((token) => {
-              console.log('Token:', token);
-              res.status(201).send({ token: token });
-            });
+    console.log('gonna bcrypt');
+    bcrypt
+      .genSalt(10)
+      .then((salt) => bcrypt.hash(password, salt))
+      .then((hashedPassword) => {
+        User.create({ username, password: hashedPassword }).then(() => {
+          generateAccessToken(username).then((token) => {
+            console.log('Token:', token);
+            res.status(201).send({ token: token });
           });
-        })
-        .catch((error) => {
-          console.error('Error during registration:', error);
-          res.status(500).send('Internal server error');
         });
-    }
+      })
+      .catch((error) => {
+        console.error('Error during registration:', error);
+        res.status(500).send('Internal server error');
+      });
   }
 }
 
