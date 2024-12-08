@@ -12,6 +12,8 @@ import {
   AddOutlined,
   FavoriteBorderOutlined,
   DragIndicator,
+  PushPinOutlined,
+  PushPin,
 } from '@mui/icons-material';
 
 import 'react-grid-layout/css/styles.css';
@@ -32,7 +34,11 @@ export const PlaylistWidget = ({
   dragHandleClass: string;
   noDragClass: string;
 }) => {
+  const [clicked, setClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const handlePinClick = async () => {
+    setClicked((prev) => !prev);
+  };
   return (
     <Card
       sx={{
@@ -158,6 +164,19 @@ export const PlaylistWidget = ({
             width: '100%',
           }}
         >
+          <IconButton
+            onClick={handlePinClick}
+            sx={{
+              transition: 'transform 0.3s, box-shadow 0.3s',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow:
+                  '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
+              },
+            }}
+          >
+            {clicked ? <PushPin /> : <PushPinOutlined />}
+          </IconButton>
           <FavoriteBorderOutlined
             sx={{
               transition: 'transform 0.3s, box-shadow 0.3s',

@@ -1,15 +1,7 @@
-import express, { Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { IUser } from '../models/User';
 import { getModel } from '../utils/connection';
 import { IFavorites } from '../models/Favorites';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-
-const app = express();
-
-// Middleware to parse JSON bodies
-app.use(bodyParser.json());
-app.use(cors());
 
 const profileController = Router();
 
@@ -41,7 +33,7 @@ profileController.post(
       for (const key in profileData) {
         if (profileData[key] !== undefined) {
           if (key === 'biography') {
-            user.bio = profileData[key]; //saving bio
+            user.bio = profileData[key]; //ensuring bio is saved
           } else {
             user[key as keyof IUser] = profileData[key];
           }

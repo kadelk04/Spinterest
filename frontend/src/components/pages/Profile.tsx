@@ -621,6 +621,9 @@ const EditableAbout: FunctionComponent = () => {
 };
 
 // Pinned Music Section Component
+/*
+1. fetch call for getting playlist
+*/
 const PinnedMusicSection: FunctionComponent = () => (
   <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
     <Typography variant="h5" sx={{ mb: 2 }}>

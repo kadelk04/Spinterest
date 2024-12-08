@@ -88,6 +88,16 @@ export const fetchPlaylists = async (
   }
 };
 
+// Pinning playlist and adding to local storage
+export const togglePinPlaylist = async () => {
+  //TODO: logic to pin playlist
+};
+
+export const fetchPinPlaylist = async () => {
+  //TODO: fetching the pinned playlist
+  //const response = await axios.get();
+};
+
 export const buildWidgets = async (
   playlists: WidgetData[],
   accessToken: string
