@@ -88,14 +88,41 @@ export const fetchPlaylists = async (
   }
 };
 
-// Pinning playlist and adding to local storage
-export const togglePinPlaylist = async () => {
-  //TODO: logic to pin playlist
+// Pinning playlist
+export const togglePinPlaylist = async (playlistId: string) => {
+  try {
+    const response = await axios.put(
+      'http://localhost:8000/api/spotify/pin-playlists/${playlistId}'
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling pinned music:', error);
+    return [];
+  }
 };
 
 export const fetchPinPlaylist = async () => {
   //TODO: fetching the pinned playlist
-  //const response = await axios.get();
+  try {
+    const response = await axios.get(
+      'http://localhost:8000/api/spotify/playlists'
+    );
+    if (!response.data || !Array.isArray(response.data)) {
+      throw new Error('Invalid playlist data received');
+    }
+
+    // Transform the data to match the PlaylistWidget interface
+    const pinnedPlaylists: Playlist[] = response.data.map((playlist) => ({
+      ...playlist,
+      isPinned: true,
+      // Ensure all required fields are present
+      cover: playlist.cover || '/default-cover.jpg',
+      genres: playlist.genres || [],
+    }));
+  } catch (error) {
+    console.error('Error fetching pinned playlists:', error);
+    throw error;
+  }
 };
 
 export const buildWidgets = async (

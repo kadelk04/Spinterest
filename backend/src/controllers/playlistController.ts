@@ -144,3 +144,53 @@ export const getPlaylistsByUsername = async (req: Request, res: Response) => {
     res.status(500).send('Error fetching playlists');
   }
 };
+
+/**
+ * Pinning music by playlist ID
+ * @param req
+ * @param res
+ * @returns
+ */
+export const pinPlaylistById = async (req: Request, res: Response) => {
+  try {
+    if (!req.params.playlistId) {
+      res.status(400).send('Invalid request');
+      return;
+    }
+    const PlaylistModel = getModel<IPlaylist>('Playlist');
+    const playlist = await PlaylistModel.findById(req.params.playlistId);
+    if (!playlist) {
+      res.status(404).send('Playlist not found');
+      return;
+    }
+
+    const newPinStatus = !playlist.isPinned;
+    playlist.isPinned = newPinStatus;
+    await playlist.save();
+
+    res.status(200).send({
+      message: `Playlist ${newPinStatus ? 'pinned' : 'unpinned'}`,
+      playlist,
+    });
+  } catch (err) {
+    console.error('Error pinning playlist:', err);
+    res.status(500).send('Error pinning playlist');
+  }
+};
+
+/**
+ * Retrieve pinned playlist
+ * @param req
+ * @param res
+ * @returns
+ */
+export const getPinnedPlaylist = async (req: Request, res: Response) => {
+  try {
+    const PlaylistModel = getModel<IPlaylist>('Playlist');
+    const pinnedPlaylists = await PlaylistModel.find({ isPinned: true });
+    res.status(200).send(pinnedPlaylists);
+  } catch (err) {
+    console.error('Error fetching pinned playlists:', err);
+    res.status(500).send('Error fetching pinned playlists');
+  }
+};
