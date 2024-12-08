@@ -47,3 +47,34 @@ REACT_APP_CLIENT_SECRET=<the_client_secret>
 ### ESLint Rules
 
 - No custom rules enforced.
+
+## Coverage
+
+-------------------------|---------|----------|---------|---------|-------------------
+File | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-------------------------|---------|----------|---------|---------|-------------------
+All files | 92.06 | 94.01 | 90.62 | 92.06 |
+src | 0 | 0 | 0 | 0 |
+backend.ts | 0 | 0 | 0 | 0 | 1-38
+src/controllers | 100 | 95.5 | 100 | 100 |
+UserController.ts | 100 | 100 | 100 | 100 |
+favoritesController.ts | 100 | 100 | 100 | 100 |
+playlistController.ts | 100 | 100 | 100 | 100 |
+spotifyController.ts | 100 | 88.23 | 100 | 100 | 54,189,213-214
+src/middleware | 96.15 | 92.3 | 100 | 96.15 |
+auth.ts | 96.15 | 92.3 | 100 | 96.15 | 44-47,56
+src/models | 100 | 100 | 100 | 100 |
+Favorites.ts | 100 | 100 | 100 | 100 |
+Playlist.ts | 100 | 100 | 100 | 100 |
+User.ts | 100 | 100 | 100 | 100 |
+src/routes | 100 | 100 | 100 | 100 |
+index.ts | 100 | 100 | 100 | 100 |
+src/routes/api | 98.87 | 100 | 100 | 98.87 |
+loginRoutes.ts | 90 | 100 | 100 | 90 | 7
+playlistRoutes.ts | 100 | 100 | 100 | 100 |
+spotifyRoutes.ts | 100 | 100 | 100 | 100 |
+userRoutes.ts | 100 | 100 | 100 | 100 |
+src/utils | 33.33 | 100 | 0 | 33.33 |
+connection.ts | 33.33 | 100 | 0 | 33.33 | 14-38,41-45
+-------------------------|---------|----------|---------|---------|-------------------
+@ 8 Dec 2024 15:12:00 PST

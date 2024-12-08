@@ -79,7 +79,7 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
 
     console.log('User:', user);
     if (!user) {
-      res.status(401).send({ message: 'Invalid username or password.' });
+      res.status(401).json({ message: 'Invalid username or password' });
       return;
     }
 
@@ -100,7 +100,7 @@ export async function loginUser(req: Request, res: Response): Promise<void> {
     res.status(200).json({ token });
   } catch (error) {
     console.error('Error during login:', error);
-    res.status(500).send('Internal server error.');
+    res.status(500).json({ message: 'Internal server error' });
   }
 }
 

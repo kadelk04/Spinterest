@@ -9,5 +9,6 @@ export default {
   collectCoverage: true,
   collectCoverageFrom: ['**/backend/**/*.{ts,tsx}'],
   coverageDirectory: 'coverage',
+  coverageReporters: [['text', { file: 'coverage.txt' }]],
   coverageProvider: 'v8',
 };
