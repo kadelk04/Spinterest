@@ -31,15 +31,7 @@ export const addFavorite = async (req: Request, res: Response) => {
   try {
     const FavoritesModel = getModel<IFavorites>('Favorites');
     const { userId, song, artist, genre } = req.body;
-
-    if (!userId || (!song && !artist && !genre)) {
-      res.status(400).send('Invalid request');
-    }
-    const favorite = new FavoritesModel({ userId, song, artist, genre });
-    await favorite.save().catch((err) => {
-      console.error('Error saving favorite:', err);
-      throw err;
-    });
+    await FavoritesModel.create({ userId, song, artist, genre });
     res.status(201).send('Favorite added');
   } catch (err) {
     console.error('Error adding favorite:', err);
@@ -57,11 +49,6 @@ export const removeFavorite = async (req: Request, res: Response) => {
   try {
     const FavoritesModel = getModel<IFavorites>('Favorites');
     const { userId, song, artist, genre } = req.body;
-
-    if (!userId || (!song && !artist && !genre)) {
-      res.status(400).send('Invalid request');
-    }
-
     const favorite = await FavoritesModel.findOneAndDelete({
       userId,
       song,
@@ -70,8 +57,8 @@ export const removeFavorite = async (req: Request, res: Response) => {
     }).exec();
     if (!favorite) {
       res.status(404).send('Favorite not found');
+      return;
     }
-
     res.status(200).send('Favorite removed');
   } catch (err) {
     console.error('Error removing favorite:', err);
@@ -89,11 +76,6 @@ export const updateFavorite = async (req: Request, res: Response) => {
   try {
     const FavoritesModel = getModel<IFavorites>('Favorites');
     const { userId, oldFavorite, newFavorite } = req.body;
-
-    if (!userId || !oldFavorite || !newFavorite) {
-      res.status(400).send('Invalid request');
-    }
-
     const favorite = await FavoritesModel.findOneAndUpdate(
       { userId, ...oldFavorite },
       { ...newFavorite },
@@ -102,6 +84,7 @@ export const updateFavorite = async (req: Request, res: Response) => {
 
     if (!favorite) {
       res.status(404).send('Favorite not found');
+      return;
     }
 
     res.status(200).send('Favorite updated');
