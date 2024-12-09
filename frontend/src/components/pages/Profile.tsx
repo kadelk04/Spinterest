@@ -1,10 +1,12 @@
 import { FunctionComponent, useState, useEffect } from 'react';
 import {
+  getAccessToken,
   getRefreshedToken,
   logout,
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
+import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -625,39 +627,100 @@ const EditableAbout: FunctionComponent = () => {
 1. create useEffec for this section
 
 */
-const PinnedMusicSection: FunctionComponent = () => (
-  <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
-    <Typography variant="h5" sx={{ mb: 2 }}>
-      PINNED MUSIC
-    </Typography>
-    <TextField
-      fullWidth
-      placeholder="Pinned Music"
-      variant="outlined"
-      sx={{
-        mb: 2,
-        '& .MuiOutlinedInput-root': {
-          bgcolor: '#F5EFF7',
-          '&:hover fieldset': {
-            borderColor: '#000000',
+const PinnedMusicSection: FunctionComponent = () => {
+  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+
+  useEffect(() => {
+    const fetchPlaylistsData = async () => {
+      try {
+        const accessToken = getAccessToken(); // Retrieve access token
+        if (!accessToken) {
+          console.error('Access token is missing');
+          return;
+        }
+
+        const playlists = await fetchPlaylists(accessToken); // Fetch playlists
+
+        // Debug statement to log playlist names
+        console.log(
+          'Fetched playlists:',
+          playlists.map((playlist) => playlist.title)
+        );
+
+        setPinnedPlaylists(playlists);
+      } catch (error) {
+        console.error('Failed to fetch playlists:', error);
+      }
+    };
+
+    fetchPlaylistsData();
+  }, []); // Empty dependency array ensures this runs only once on component mount
+
+  return (
+    <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        PINNED MUSIC
+      </Typography>
+      <TextField
+        fullWidth
+        placeholder="Pinned Music"
+        variant="outlined"
+        sx={{
+          mb: 2,
+          '& .MuiOutlinedInput-root': {
+            bgcolor: '#F5EFF7',
+            '&:hover fieldset': {
+              borderColor: '#000000',
+            },
           },
-        },
-      }}
-    />
-    <Grid container spacing={2}>
-      {[...Array(6)].map((_, i) => (
-        <Grid item xs={4} key={i}>
-          <Paper
-            sx={{
-              paddingTop: '100%',
-              position: 'relative',
-              bgcolor: '#FEF7FF',
-            }}
-          />
-        </Grid>
-      ))}
-    </Grid>
-  </Paper>
-);
+        }}
+      />
+      <Grid container spacing={2}>
+        {pinnedPlaylists.length > 0 ? (
+          pinnedPlaylists.map((playlist, i) => (
+            <Grid item xs={4} key={playlist.id}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  paddingTop: '100%',
+                  bgcolor: '#FEF7FF',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundImage: `url(${playlist.cover})`,
+                  border: '1px solid #ddd',
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    textAlign: 'center',
+                    padding: '4px',
+                    fontSize: '12px',
+                  }}
+                >
+                  {playlist.title}
+                </Typography>
+              </Box>
+            </Grid>
+          ))
+        ) : (
+          <Typography
+            variant="body2"
+            sx={{ mt: 2, textAlign: 'center', width: '100%' }}
+          >
+            No pinned playlists available.
+          </Typography>
+        )}
+      </Grid>
+    </Paper>
+  );
+};
 
 export default Profile;

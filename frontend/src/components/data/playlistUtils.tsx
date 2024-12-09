@@ -101,27 +101,36 @@ export const togglePinPlaylist = async (playlistId: string) => {
   }
 };
 
-export const fetchPinPlaylist = async () => {
-  //TODO: fetching the pinned playlist
+export const fetchPinPlaylist = async (): Promise<WidgetData[]> => {
   try {
-    const response = await axios.get(
-      'http://localhost:8000/api/spotify/playlists'
+    // API call to fetch pinned playlists
+    const response = await axios.get<PlaylistResponse>(
+      'http://localhost:8000/api/spotify/pin-playlists',
+      {
+        headers: {
+          authorization: `${localStorage.getItem('jwttoken')}`,
+        },
+      }
     );
-    if (!response.data || !Array.isArray(response.data)) {
-      throw new Error('Invalid playlist data received');
-    }
 
-    // Transform the data to match the PlaylistWidget interface
-    const pinnedPlaylists: Playlist[] = response.data.map((playlist) => ({
-      ...playlist,
-      isPinned: true,
-      // Ensure all required fields are present
-      cover: playlist.cover || '/default-cover.jpg',
-      genres: playlist.genres || [],
-    }));
+    const data = response.data;
+
+    console.log('Pinned Playlists:', data);
+
+    // Transforming data into WidgetData format
+    const pinnedPlaylists: WidgetData[] = data.items.map(
+      (playlist: PlaylistData) => ({
+        id: playlist.id,
+        cover: playlist.images[0]?.url || '',
+        owner: playlist.owner,
+        title: playlist.name,
+      })
+    );
+
+    return pinnedPlaylists;
   } catch (error) {
     console.error('Error fetching pinned playlists:', error);
-    throw error;
+    return [];
   }
 };
 

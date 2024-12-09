@@ -110,7 +110,11 @@ export const updateProfilePgInfo = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'Profile input logged successfully' });
   } catch (error) {
-    console.error('Error logging profile input:', error);
+    if (error instanceof Error) {
+      console.error('Error logging profile input:', error.message);
+    } else {
+      console.error('An unexpected error occurred:', error);
+    }
     res.status(500).json({ message: 'Error processing profile input' });
   }
 };

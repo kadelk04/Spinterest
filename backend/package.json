@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc",
     "dev": "NODE_OPTIONS='--loader ts-node/esm --experimental-specifier-resolution=node' nodemon",
-    "start": "node dist/backend.js"
+    "start": "node dist/backend.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --roots src/tests",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --roots src/tests --watch"
   },
   "author": "",
   "license": "ISC",
@@ -20,14 +22,21 @@
     "nodemon": "^3.1.7"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-typescript": "^7.26.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.0.0",
+    "babel-jest": "^29.7.0",
     "cross-env": "^7.0.3",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.7",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.7.2"
   }
 }
