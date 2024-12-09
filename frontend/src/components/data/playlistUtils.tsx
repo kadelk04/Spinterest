@@ -16,6 +16,7 @@ export interface WidgetData {
   cover: string;
   owner: Owner;
   title: string;
+  isPinned?: boolean;
 }
 
 export interface Owner {
@@ -53,8 +54,6 @@ interface ArtistResponse {
 export const fetchPlaylists = async (
   accessToken: string
 ): Promise<WidgetData[]> => {
-  // calls the getplaylists endpoint to get the playlists from the user's spotify account
-  // returns an array of Widgets that the dashboard can use to display the playlists
   try {
     const response = await axios.get<PlaylistResponse>(
       'http://localhost:8000/api/spotify/playlists',
@@ -70,13 +69,11 @@ export const fetchPlaylists = async (
 
     const data = response.data;
 
-    console.log('Playlists:', data);
-
     const widgetsData: WidgetData[] = data.items
       .filter((playlist: PlaylistData) => playlist)
       .map((playlist: PlaylistData) => ({
         id: playlist.id,
-        cover: playlist.images[0].url || '',
+        cover: playlist.images[0]?.url || '',
         owner: playlist.owner,
         title: playlist.name,
       }));
@@ -88,36 +85,45 @@ export const fetchPlaylists = async (
   }
 };
 
-// Pinning playlist
+// Improved togglePinPlaylist function with more robust error handling
 export const togglePinPlaylist = async (playlistId: string) => {
   try {
     const response = await axios.put(
-      'http://localhost:8000/api/spotify/pin-playlists/${playlistId}'
+      `http://localhost:8000/api/spotify/pin-playlists/${playlistId}`,
+      {},
+      {
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
+      }
     );
+
+    // Log the response for debugging
+    console.log('Toggle Pin Response:', response.data);
+
     return response.data;
   } catch (error) {
     console.error('Error toggling pinned music:', error);
-    return [];
+    throw error; // Re-throw to allow caller to handle
   }
 };
 
 export const fetchPinPlaylist = async (): Promise<WidgetData[]> => {
   try {
-    // API call to fetch pinned playlists
     const response = await axios.get<PlaylistResponse>(
       'http://localhost:8000/api/spotify/pin-playlists',
       {
         headers: {
-          authorization: `${localStorage.getItem('jwttoken')}`,
+          authorization: localStorage.getItem('jwttoken'),
         },
       }
     );
 
     const data = response.data;
 
-    console.log('Pinned Playlists:', data);
+    // Log fetched pinned playlists for debugging
+    console.log('Fetched Pinned Playlists:', data);
 
-    // Transforming data into WidgetData format
     const pinnedPlaylists: WidgetData[] = data.items.map(
       (playlist: PlaylistData) => ({
         id: playlist.id,

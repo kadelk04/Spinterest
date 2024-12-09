@@ -6,7 +6,13 @@ import {
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
+import { PushPin, PushPinOutlined } from '@mui/icons-material';
+import {
+  fetchPlaylists,
+  fetchPinPlaylist,
+  togglePinPlaylist,
+  WidgetData,
+} from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -629,32 +635,45 @@ const EditableAbout: FunctionComponent = () => {
 */
 const PinnedMusicSection: FunctionComponent = () => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+  const [allPlaylists, setAllPlaylists] = useState<WidgetData[]>([]);
 
-  useEffect(() => {
-    const fetchPlaylistsData = async () => {
-      try {
-        const accessToken = getAccessToken(); // Retrieve access token
-        if (!accessToken) {
-          console.error('Access token is missing');
-          return;
-        }
-
-        const playlists = await fetchPlaylists(accessToken); // Fetch playlists
-
-        // Debug statement to log playlist names
-        console.log(
-          'Fetched playlists:',
-          playlists.map((playlist) => playlist.title)
-        );
-
-        setPinnedPlaylists(playlists);
-      } catch (error) {
-        console.error('Failed to fetch playlists:', error);
+  // Centralized function to fetch and set playlists
+  const loadPlaylists = async () => {
+    try {
+      const accessToken = localStorage.getItem('spotify_token');
+      if (!accessToken) {
+        console.error('Access token is missing');
+        return;
       }
-    };
 
-    fetchPlaylistsData();
-  }, []); // Empty dependency array ensures this runs only once on component mount
+      // Fetch all playlists
+      const playlists = await fetchPlaylists(accessToken);
+      setAllPlaylists(playlists);
+
+      // Fetch pinned playlists
+      const pinnedPlaylists = await fetchPinPlaylist();
+      setPinnedPlaylists(pinnedPlaylists);
+    } catch (error) {
+      console.error('Failed to fetch playlists:', error);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    loadPlaylists();
+  }, []);
+
+  const handlePinToggle = async (playlist: WidgetData) => {
+    try {
+      // Toggle pin status on backend
+      await togglePinPlaylist(playlist.id);
+
+      // Reload playlists to ensure sync with backend
+      await loadPlaylists();
+    } catch (error) {
+      console.error('Failed to toggle playlist pin:', error);
+    }
+  };
 
   return (
     <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
@@ -663,7 +682,7 @@ const PinnedMusicSection: FunctionComponent = () => {
       </Typography>
       <TextField
         fullWidth
-        placeholder="Pinned Music"
+        placeholder="Search Pinned Music"
         variant="outlined"
         sx={{
           mb: 2,
@@ -675,9 +694,11 @@ const PinnedMusicSection: FunctionComponent = () => {
           },
         }}
       />
+
+      {/* Pinned Playlists Section */}
       <Grid container spacing={2}>
         {pinnedPlaylists.length > 0 ? (
-          pinnedPlaylists.map((playlist, i) => (
+          pinnedPlaylists.map((playlist) => (
             <Grid item xs={4} key={playlist.id}>
               <Box
                 sx={{
@@ -691,6 +712,18 @@ const PinnedMusicSection: FunctionComponent = () => {
                   borderRadius: 2,
                 }}
               >
+                <IconButton
+                  onClick={() => handlePinToggle(playlist)}
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    color: 'white',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <PushPin />
+                </IconButton>
                 <Typography
                   variant="subtitle2"
                   sx={{
@@ -718,6 +751,60 @@ const PinnedMusicSection: FunctionComponent = () => {
             No pinned playlists available.
           </Typography>
         )}
+      </Grid>
+
+      {/* Other Playlists Section */}
+      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+        Other Playlists
+      </Typography>
+      <Grid container spacing={2}>
+        {allPlaylists
+          .filter((p) => !pinnedPlaylists.some((pp) => pp.id === p.id))
+          .map((playlist) => (
+            <Grid item xs={4} key={playlist.id}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  paddingTop: '100%',
+                  bgcolor: '#FEF7FF',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundImage: `url(${playlist.cover})`,
+                  border: '1px solid #ddd',
+                  borderRadius: 2,
+                }}
+              >
+                <IconButton
+                  onClick={() => handlePinToggle(playlist)}
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    color: 'white',
+                    backgroundColor: 'rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <PushPinOutlined />
+                </IconButton>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    textAlign: 'center',
+                    padding: '4px',
+                    fontSize: '12px',
+                  }}
+                >
+                  {playlist.title}
+                </Typography>
+              </Box>
+            </Grid>
+          ))}
       </Grid>
     </Paper>
   );
