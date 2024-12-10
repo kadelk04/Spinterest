@@ -85,62 +85,6 @@ export const fetchPlaylists = async (
   }
 };
 
-// Improved togglePinPlaylist function with more robust error handling
-export const togglePinPlaylist = async (playlistId: string) => {
-  try {
-    const response = await axios.put(
-      `http://localhost:8000/api/spotify/pin-playlists/${playlistId}`,
-      {},
-      {
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
-      }
-    );
-
-    // Log the response for debugging
-    console.log('Toggle Pin Response:', response.data);
-
-    return response.data;
-  } catch (error) {
-    console.error('Error toggling pinned music:', error);
-    throw error; // Re-throw to allow caller to handle
-  }
-};
-
-//will be improved in the next quarter
-export const fetchPinPlaylist = async (): Promise<WidgetData[]> => {
-  try {
-    const response = await axios.get<PlaylistResponse>(
-      'http://localhost:8000/api/spotify/pin-playlists',
-      {
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
-      }
-    );
-
-    const data = response.data;
-
-    // Log fetched pinned playlists for debugging
-    console.log('Fetched Pinned Playlists:', data);
-
-    const pinnedPlaylists: WidgetData[] = data.items.map(
-      (playlist: PlaylistData) => ({
-        id: playlist.id,
-        cover: playlist.images[0]?.url || '',
-        owner: playlist.owner,
-        title: playlist.name,
-      })
-    );
-
-    return pinnedPlaylists;
-  } catch (error) {
-    console.error('Error fetching pinned playlists:', error);
-    return [];
-  }
-};
-
 export const buildWidgets = async (
   playlists: WidgetData[],
   accessToken: string

@@ -636,141 +636,39 @@ const EditableAbout: FunctionComponent = () => {
 };
 
 // Pinned Music Section Component
-/*
-1. create useEffec for this section
-
-*/
-const PinnedMusicSection: FunctionComponent = () => {
-  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-  const [allPlaylists, setAllPlaylists] = useState<WidgetData[]>([]);
-
-  // Centralized function to fetch and set playlists
-  const loadPlaylists = async () => {
-    try {
-      const accessToken = localStorage.getItem('spotify_token');
-      if (!accessToken) {
-        console.error('Access token is missing');
-        return;
-      }
-
-      // Fetch all playlists
-      const playlists = await fetchPlaylists(accessToken);
-      setAllPlaylists(playlists);
-    } catch (error) {
-      console.error('Failed to fetch playlists:', error);
-    }
-  };
-
-  // Initial load
-  useEffect(() => {
-    loadPlaylists();
-  }, []);
-
-  return (
-    <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        PINNED MUSIC
-      </Typography>
-      <TextField
-        fullWidth
-        placeholder="Search Pinned Music"
-        variant="outlined"
-        sx={{
-          mb: 2,
-          '& .MuiOutlinedInput-root': {
-            bgcolor: '#F5EFF7',
-            '&:hover fieldset': {
-              borderColor: '#000000',
-            },
+const PinnedMusicSection: FunctionComponent = () => (
+  <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
+    <Typography variant="h5" sx={{ mb: 2 }}>
+      PINNED MUSIC
+    </Typography>
+    <TextField
+      fullWidth
+      placeholder="Pinned Music"
+      variant="outlined"
+      sx={{
+        mb: 2,
+        '& .MuiOutlinedInput-root': {
+          bgcolor: '#F5EFF7',
+          '&:hover fieldset': {
+            borderColor: '#000000',
           },
-        }}
-      />
-
-      {/* Pinned Playlists Section */}
-      <Grid container spacing={2}>
-        {pinnedPlaylists.length > 0 ? (
-          pinnedPlaylists.map((playlist) => (
-            <Grid item xs={4} key={playlist.id}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingTop: '100%',
-                  bgcolor: '#FEF7FF',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundImage: `url(${playlist.cover})`,
-                  border: '1px solid #ddd',
-                  borderRadius: 2,
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    color: '#fff',
-                    textAlign: 'center',
-                    padding: '4px',
-                    fontSize: '12px',
-                  }}
-                >
-                  {playlist.title}
-                </Typography>
-              </Box>
-            </Grid>
-          ))
-        ) : (
-          <Typography
-            variant="body2"
-            sx={{ mt: 2, textAlign: 'center', width: '100%' }}
-          ></Typography>
-        )}
-      </Grid>
-
-      {/* Other Playlists Section */}
-      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}></Typography>
-      <Grid container spacing={2}>
-        {allPlaylists
-          .filter((p) => !pinnedPlaylists.some((pp) => pp.id === p.id))
-          .map((playlist) => (
-            <Grid item xs={4} key={playlist.id}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingTop: '100%',
-                  bgcolor: '#FEF7FF',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundImage: `url(${playlist.cover})`,
-                  border: '1px solid #ddd',
-                  borderRadius: 2,
-                }}
-              >
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    color: '#fff',
-                    textAlign: 'center',
-                    padding: '4px',
-                    fontSize: '12px',
-                  }}
-                >
-                  {playlist.title}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-      </Grid>
-    </Paper>
-  );
-};
+        },
+      }}
+    />
+    <Grid container spacing={2}>
+      {[...Array(6)].map((_, i) => (
+        <Grid item xs={4} key={i}>
+          <Paper
+            sx={{
+              paddingTop: '100%',
+              position: 'relative',
+              bgcolor: '#FEF7FF',
+            }}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  </Paper>
+);
 
 export default Profile;
