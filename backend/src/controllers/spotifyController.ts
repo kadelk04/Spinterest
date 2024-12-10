@@ -98,11 +98,6 @@ export const getPlaylistTracks = async (
     const spotifyToken = req.headers.authorization;
     const playlistId = req.params.playlistId;
 
-    if (!spotifyToken) {
-      res.status(400).send('Spotify token is missing');
-      return;
-    }
-
     // Make request to Spotify API to get playlist tracks
     const response = await axios.get(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
@@ -194,11 +189,6 @@ export const getArtistInfo = async (
     const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
     const artistId = req.params.artistId;
 
-    if (!spotifyToken) {
-      res.status(400).send('Spotify token is missing');
-      return;
-    }
-
     const response = await axios.get(
       `https://api.spotify.com/v1/artists/${artistId}`,
       {
@@ -222,11 +212,6 @@ export const getMultipleArtistInfo = async (
   try {
     const spotifyToken = req.headers.authorization?.split(' ')[1]; // Splits "Bearer token"
     const artistIds = (req.query.ids as string)?.split(',');
-
-    if (!spotifyToken) {
-      res.status(400).send('Spotify token is missing');
-      return;
-    }
 
     const response = await axios.get(
       `https://api.spotify.com/v1/artists?ids=${artistIds.join(',')}`,

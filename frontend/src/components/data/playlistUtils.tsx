@@ -27,7 +27,7 @@ export interface PlaylistData {
   images: Image[];
   owner: Owner;
   name: string;
-  tracks: any[];
+  tracks: { href: string; total: number };
 }
 
 interface Playlist {
@@ -38,7 +38,7 @@ interface Image {
   url: string;
 }
 
-interface PlaylistResponse {
+export interface PlaylistResponse {
   items: PlaylistData[];
 }
 
@@ -115,9 +115,9 @@ export const buildWidgets = async (
         }
       );
 
-      // console.log('Playlist in playlistUtils:', response.data);
+      console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
-      console.log('Tracks:', tracks);
+      // console.log('Tracks:', tracks);
 
       const artists = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
@@ -147,7 +147,7 @@ export const buildWidgets = async (
       );
 
       const topGenres = await getTopGenres(genres);
-      console.log('topGenres', topGenres);
+      // console.log('topGenres', topGenres);
 
       return {
         id: playlist.id,
@@ -169,7 +169,7 @@ export const buildWidgets = async (
       };
     })
   );
-  console.log('widgets', widgets);
+  // console.log('widgets', widgets);
   return widgets;
 };
 
