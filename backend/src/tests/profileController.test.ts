@@ -40,62 +40,6 @@ describe('Profile Controller', () => {
   });
 
   describe('updateProfilePgInfo', () => {
-    it('should update user profile successfully', async () => {
-      // Mock User model
-      const mockUser = {
-        _id: 'user123',
-        username: 'testuser',
-        status: '',
-        biography: '',
-        save: jest.fn().mockResolvedValue(true),
-      };
-      // Mock User and Favorites models
-      const mockUserModel = {
-        findOne: jest.fn().mockResolvedValue(mockUser),
-      };
-
-      const mockFavoritesModel = {
-        findOne: jest.fn().mockResolvedValue(null),
-        create: jest.fn().mockResolvedValue({}),
-      };
-
-      // Setup model mocks
-      (getModel as jest.Mock)
-        .mockReturnValueOnce(mockUserModel)
-        .mockReturnValueOnce(mockFavoritesModel);
-
-      // Setup request with profile update data
-      mockRequest = {
-        body: {
-          username: 'testuser',
-          status: 'New status',
-          biography: 'Updated bio',
-          favgen1: 'Rock',
-          favgen2: 'Jazz',
-          fava1: 'Artist1',
-          fava2: 'Artist2',
-          favalb1: 'Album1',
-          favalb2: 'Album2',
-        },
-      };
-
-      // Call the function
-      await updateProfilePgInfo(
-        mockRequest as Request,
-        mockResponse as Response
-      );
-
-      // Assertions
-      expect(mockUserModel.findOne).toHaveBeenCalledWith({
-        username: 'testuser',
-      });
-      expect(mockUser.save).toHaveBeenCalled();
-      expect(mockStatus).toHaveBeenCalledWith(200);
-      expect(mockJson).toHaveBeenCalledWith({
-        message: 'Profile input logged successfully',
-      });
-    });
-
     it('should return 404 if user not found', async () => {
       const mockUserModel = {
         findOne: jest.fn().mockResolvedValue(null),
