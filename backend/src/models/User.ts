@@ -14,6 +14,7 @@ export interface IUser {
   favorites: IFavorites;
   favoritesId: mongoose.Types.ObjectId;
   annotatedPlaylists?: IPlaylist[];
+  pinnedPlaylists?: string[];
 }
 
 export const UserSchema = new mongoose.Schema({
@@ -29,4 +30,5 @@ export const UserSchema = new mongoose.Schema({
   annotatedPlaylists: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
   ],
+  pinnedPlaylists: [{ type: String }],
 });

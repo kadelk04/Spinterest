@@ -6,7 +6,7 @@ import {
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
+import { fetchPinPlaylist, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -623,38 +623,41 @@ const EditableAbout: FunctionComponent = () => {
 };
 
 // Pinned Music Section Component
-/*
-1. create useEffec for this section
-
-*/
 const PinnedMusicSection: FunctionComponent = () => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+  const username = localStorage.getItem('username');
 
   useEffect(() => {
-    const fetchPlaylistsData = async () => {
-      try {
-        const accessToken = getAccessToken(); // Retrieve access token
-        if (!accessToken) {
-          console.error('Access token is missing');
-          return;
-        }
+    if (!username) {
+      console.error('No username found');
+      return;
+    }
+    fetchPlaylistsData(username);
+  }, [username]);
 
-        const playlists = await fetchPlaylists(accessToken); // Fetch playlists
-
-        // Debug statement to log playlist names
-        console.log(
-          'Fetched playlists:',
-          playlists.map((playlist) => playlist.title)
-        );
-
-        setPinnedPlaylists(playlists);
-      } catch (error) {
-        console.error('Failed to fetch playlists:', error);
+  const fetchPlaylistsData = async (username: string) => {
+    try {
+      const accessToken = getAccessToken(); // Retrieve access token
+      if (!accessToken) {
+        console.error('Access token is missing');
+        return;
       }
-    };
 
-    fetchPlaylistsData();
-  }, []); // Empty dependency array ensures this runs only once on component mount
+      console.log('Username from localStorage:', username); // Debugging log
+
+      const playlists = await fetchPinPlaylist(username); // Fetch playlists
+
+      // Debug statement to log playlist names
+      console.log(
+        'Fetched playlists:',
+        playlists.map((playlist) => playlist.title)
+      );
+
+      setPinnedPlaylists(playlists);
+    } catch (error) {
+      console.error('Failed to fetch playlists:', error);
+    }
+  };
 
   return (
     <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
