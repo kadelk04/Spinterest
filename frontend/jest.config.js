@@ -1,10 +1,11 @@
 module.exports = {
+  preset: 'react-native',
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+    '^.+\\.jsx?$': 'babel-jest',
+    '^.+\\.tsx?$': 'babel-jest',
   },
-  transformIgnorePatterns: ['/node_modules/(?!axios)/'],
-  moduleNameMapper: {
-    axios: 'axios/dist/node/axios.cjs',
-  },
+  moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
 };
