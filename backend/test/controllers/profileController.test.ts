@@ -2,14 +2,13 @@ import { Request, Response } from 'express';
 import {
   updateProfilePgInfo,
   getProfilePgInfo,
-} from '../controllers/profileController';
-import { getModel } from '../utils/connection';
-import { FavoritesSchema } from '../models/Favorites';
+} from '../../src/controllers/profileController';
+import { getModel } from '../../src/utils/connection';
 
 // Use `FavoritesM` wherever needed in your controller logic
 
 // Mock the getModel utility
-jest.mock('../utils/connection', () => ({
+jest.mock('../../src/utils/connection', () => ({
   getModel: jest.fn(),
 }));
 
