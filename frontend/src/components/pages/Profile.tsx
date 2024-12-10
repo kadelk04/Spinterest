@@ -499,8 +499,8 @@ const EditableAbout: FunctionComponent = () => {
               label="Location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              disabled={!isEditable}
               InputProps={{
+                readOnly: !isEditable,
                 startAdornment: (
                   <Icon>
                     <LocationOnIcon />
@@ -512,12 +512,12 @@ const EditableAbout: FunctionComponent = () => {
 
           <Grid item xs={12} sm={6} md={4}>
             <TextField
-              id="links"
-              label="Links"
+              id="spotify"
+              label="Spotify"
               value={links}
               onChange={(e) => setLinks(e.target.value)}
-              disabled={!isEditable}
               InputProps={{
+                readOnly: !isEditable,
                 startAdornment: (
                   <Icon>
                     <MusicNoteIcon />
@@ -536,8 +536,8 @@ const EditableAbout: FunctionComponent = () => {
               onChange={(e) => setBiography(e.target.value)}
               fullWidth
               maxRows={3}
-              disabled={!isEditable}
               InputProps={{
+                readOnly: !isEditable,
                 startAdornment: (
                   <Icon>
                     <AccountCircleIcon />
@@ -564,7 +564,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={favgen1}
               onChange={(e) => setText1(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="fava1"
@@ -574,7 +576,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={fava1}
               onChange={(e) => setText3(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="favalb1"
@@ -583,7 +587,9 @@ const EditableAbout: FunctionComponent = () => {
               variant="outlined"
               value={favalb1}
               onChange={(e) => setText5(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -595,7 +601,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={favgen2}
               onChange={(e) => setText2(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="fava2"
@@ -605,7 +613,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={fava2}
               onChange={(e) => setText4(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="favalb2"
@@ -614,7 +624,9 @@ const EditableAbout: FunctionComponent = () => {
               variant="outlined"
               value={favalb2}
               onChange={(e) => setText6(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
           </Grid>
         </Grid>
