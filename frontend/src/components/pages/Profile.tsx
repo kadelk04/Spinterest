@@ -7,12 +7,7 @@ import {
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 import { PushPin, PushPinOutlined } from '@mui/icons-material';
-import {
-  fetchPlaylists,
-  fetchPinPlaylist,
-  togglePinPlaylist,
-  WidgetData,
-} from '../data/playlistUtils';
+import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -649,10 +644,6 @@ const PinnedMusicSection: FunctionComponent = () => {
       // Fetch all playlists
       const playlists = await fetchPlaylists(accessToken);
       setAllPlaylists(playlists);
-
-      // Fetch pinned playlists
-      const pinnedPlaylists = await fetchPinPlaylist();
-      setPinnedPlaylists(pinnedPlaylists);
     } catch (error) {
       console.error('Failed to fetch playlists:', error);
     }
@@ -662,18 +653,6 @@ const PinnedMusicSection: FunctionComponent = () => {
   useEffect(() => {
     loadPlaylists();
   }, []);
-
-  const handlePinToggle = async (playlist: WidgetData) => {
-    try {
-      // Toggle pin status on backend
-      await togglePinPlaylist(playlist.id);
-
-      // Reload playlists to ensure sync with backend
-      await loadPlaylists();
-    } catch (error) {
-      console.error('Failed to toggle playlist pin:', error);
-    }
-  };
 
   return (
     <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
@@ -712,18 +691,6 @@ const PinnedMusicSection: FunctionComponent = () => {
                   borderRadius: 2,
                 }}
               >
-                <IconButton
-                  onClick={() => handlePinToggle(playlist)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <PushPin />
-                </IconButton>
                 <Typography
                   variant="subtitle2"
                   sx={{
@@ -747,16 +714,12 @@ const PinnedMusicSection: FunctionComponent = () => {
           <Typography
             variant="body2"
             sx={{ mt: 2, textAlign: 'center', width: '100%' }}
-          >
-            No pinned playlists available.
-          </Typography>
+          ></Typography>
         )}
       </Grid>
 
       {/* Other Playlists Section */}
-      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-        Other Playlists
-      </Typography>
+      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}></Typography>
       <Grid container spacing={2}>
         {allPlaylists
           .filter((p) => !pinnedPlaylists.some((pp) => pp.id === p.id))
@@ -774,18 +737,6 @@ const PinnedMusicSection: FunctionComponent = () => {
                   borderRadius: 2,
                 }}
               >
-                <IconButton
-                  onClick={() => handlePinToggle(playlist)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <PushPinOutlined />
-                </IconButton>
                 <Typography
                   variant="subtitle2"
                   sx={{
