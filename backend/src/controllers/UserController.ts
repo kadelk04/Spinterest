@@ -11,10 +11,6 @@ import { getFriends } from '../controllers/spotifyController';
  */
 export const getUserByUsername = async (req: Request, res: Response) => {
   try {
-    if (!req.params.username) {
-      res.status(400).send('Invalid request');
-      return;
-    }
     const UserModel = getModel<IUser>('User');
     const user = await UserModel.findOne({ username: req.params.username });
     if (!user) {
@@ -36,22 +32,14 @@ export const getUserByUsername = async (req: Request, res: Response) => {
  */
 export const updateUserByUsername = async (req: Request, res: Response) => {
   try {
-    if (!req.params.username || !req.body) {
-      res.status(400).send('Invalid request');
-      return;
-    }
     const UserModel = getModel<IUser>('User');
     const user = await UserModel.findOne({ username: req.params.username });
     if (!user) {
       res.status(404).send('User not found');
       return;
     }
-    try {
-      await user.updateOne(req.body);
-      res.status(200).send('User updated');
-    } catch (err) {
-      res.status(500).send('Error updating user: ' + err);
-    }
+    await user.updateOne(req.body);
+    res.status(200).send('User updated');
   } catch (err) {
     console.error(err);
     res.status(500).send('Error updating user');
@@ -66,22 +54,14 @@ export const updateUserByUsername = async (req: Request, res: Response) => {
  */
 export const deleteUserByUsername = async (req: Request, res: Response) => {
   try {
-    if (!req.params.username) {
-      res.status(400).send('Invalid request');
-      return;
-    }
     const UserModel = getModel<IUser>('User');
     const user = await UserModel.findOne({ username: req.params.username });
     if (!user) {
       res.status(404).send('User not found');
       return;
     }
-    try {
-      await user.deleteOne();
-      res.status(200).send('User deleted');
-    } catch (err) {
-      res.status(500).send('Error deleting user: ' + err);
-    }
+    await user.deleteOne();
+    res.status(200).send('User deleted');
   } catch (err) {
     console.error(err);
     res.status(500).send('Error deleting user');
@@ -96,17 +76,9 @@ export const deleteUserByUsername = async (req: Request, res: Response) => {
  */
 export const addUser = async (req: Request, res: Response) => {
   try {
-    if (!req.body.username || !req.body.password) {
-      res.status(400).send('Invalid request');
-    }
     const UserModel = getModel<IUser>('User');
-    const user = new UserModel(req.body);
-    try {
-      await user.save();
-      res.status(201).send('User created');
-    } catch (err) {
-      res.status(500).send('Error creating user: ' + err);
-    }
+    await UserModel.create(req.body);
+    res.status(201).send('User created');
   } catch (err) {
     console.error(err);
     res.status(500).send('Error creating user');

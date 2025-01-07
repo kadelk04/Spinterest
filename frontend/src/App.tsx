@@ -11,6 +11,7 @@ import { Theme } from './components/common/Theme';
 import '@fontsource/roboto';
 import PrivateRoute from './components/common/PrivateRoute';
 import { grey } from '@mui/material/colors';
+import '@fontsource/open-sans';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);

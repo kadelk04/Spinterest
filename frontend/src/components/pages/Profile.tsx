@@ -6,7 +6,8 @@ import {
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPinPlaylist, WidgetData } from '../data/playlistUtils';
+import { PushPin, PushPinOutlined } from '@mui/icons-material';
+import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -498,8 +499,8 @@ const EditableAbout: FunctionComponent = () => {
               label="Location"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              disabled={!isEditable}
               InputProps={{
+                readOnly: !isEditable,
                 startAdornment: (
                   <Icon>
                     <LocationOnIcon />
@@ -511,12 +512,12 @@ const EditableAbout: FunctionComponent = () => {
 
           <Grid item xs={12} sm={6} md={4}>
             <TextField
-              id="links"
-              label="Links"
+              id="spotify"
+              label="Spotify"
               value={links}
               onChange={(e) => setLinks(e.target.value)}
-              disabled={!isEditable}
               InputProps={{
+                readOnly: !isEditable,
                 startAdornment: (
                   <Icon>
                     <MusicNoteIcon />
@@ -535,8 +536,8 @@ const EditableAbout: FunctionComponent = () => {
               onChange={(e) => setBiography(e.target.value)}
               fullWidth
               maxRows={3}
-              disabled={!isEditable}
               InputProps={{
+                readOnly: !isEditable,
                 startAdornment: (
                   <Icon>
                     <AccountCircleIcon />
@@ -563,7 +564,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={favgen1}
               onChange={(e) => setText1(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="fava1"
@@ -573,7 +576,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={fava1}
               onChange={(e) => setText3(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="favalb1"
@@ -582,7 +587,9 @@ const EditableAbout: FunctionComponent = () => {
               variant="outlined"
               value={favalb1}
               onChange={(e) => setText5(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
           </Grid>
           <Grid item xs={6}>
@@ -594,7 +601,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={favgen2}
               onChange={(e) => setText2(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="fava2"
@@ -604,7 +613,9 @@ const EditableAbout: FunctionComponent = () => {
               sx={{ mb: 2 }}
               value={fava2}
               onChange={(e) => setText4(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
             <TextField
               id="favalb2"
@@ -613,7 +624,9 @@ const EditableAbout: FunctionComponent = () => {
               variant="outlined"
               value={favalb2}
               onChange={(e) => setText6(e.target.value)}
-              disabled={!isEditable}
+              InputProps={{
+                readOnly: !isEditable,
+              }}
             />
           </Grid>
         </Grid>
@@ -623,168 +636,39 @@ const EditableAbout: FunctionComponent = () => {
 };
 
 // Pinned Music Section Component
-const PinnedMusicSection: FunctionComponent = () => {
-  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-
-  useEffect(() => {
-    const fetchPlaylistsData = async () => {
-      try {
-        const accessToken = getAccessToken(); // Retrieve access token
-        if (!accessToken) {
-          console.error('Access token is missing');
-          return;
-        }
-
-        const playlists = await fetchPlaylists(accessToken); // Fetch playlists
-
-        // Debug statement to log playlist names
-        console.log(
-          'Fetched playlists:',
-          playlists.map((playlist) => playlist.title)
-        );
-
-        setPinnedPlaylists(playlists);
-      } catch (error) {
-        console.error('Failed to fetch playlists:', error);
-      }
-    };
-
-    fetchPlaylistsData();
-  }, []); // Empty dependency array ensures this runs only once on component mount
-
-  return (
-    <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        PINNED MUSIC
-      </Typography>
-      <TextField
-        fullWidth
-        placeholder="Search Pinned Music"
-        variant="outlined"
-        sx={{
-          mb: 2,
-          '& .MuiOutlinedInput-root': {
-            bgcolor: '#F5EFF7',
-            '&:hover fieldset': {
-              borderColor: '#000000',
-            },
+const PinnedMusicSection: FunctionComponent = () => (
+  <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
+    <Typography variant="h5" sx={{ mb: 2 }}>
+      PINNED MUSIC
+    </Typography>
+    <TextField
+      fullWidth
+      placeholder="Pinned Music"
+      variant="outlined"
+      sx={{
+        mb: 2,
+        '& .MuiOutlinedInput-root': {
+          bgcolor: '#F5EFF7',
+          '&:hover fieldset': {
+            borderColor: '#000000',
           },
-        }}
-      />
-
-      {/* Pinned Playlists Section */}
-      <Grid container spacing={2}>
-        {pinnedPlaylists.length > 0 ? (
-          pinnedPlaylists.map((playlist) => (
-            <Grid item xs={4} key={playlist.id}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingTop: '100%',
-                  bgcolor: '#FEF7FF',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundImage: `url(${playlist.cover})`,
-                  border: '1px solid #ddd',
-                  borderRadius: 2,
-                }}
-              >
-                <IconButton
-                  onClick={() => handlePinToggle(playlist)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <PushPin />
-                </IconButton>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    color: '#fff',
-                    textAlign: 'center',
-                    padding: '4px',
-                    fontSize: '12px',
-                  }}
-                >
-                  {playlist.title}
-                </Typography>
-              </Box>
-            </Grid>
-          ))
-        ) : (
-          <Typography
-            variant="body2"
-            sx={{ mt: 2, textAlign: 'center', width: '100%' }}
-          >
-            No pinned playlists available.
-          </Typography>
-        )}
-      </Grid>
-
-      {/* Other Playlists Section */}
-      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-        Other Playlists
-      </Typography>
-      <Grid container spacing={2}>
-        {allPlaylists
-          .filter((p) => !pinnedPlaylists.some((pp) => pp.id === p.id))
-          .map((playlist) => (
-            <Grid item xs={4} key={playlist.id}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingTop: '100%',
-                  bgcolor: '#FEF7FF',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundImage: `url(${playlist.cover})`,
-                  border: '1px solid #ddd',
-                  borderRadius: 2,
-                }}
-              >
-                <IconButton
-                  onClick={() => handlePinToggle(playlist)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <PushPinOutlined />
-                </IconButton>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    color: '#fff',
-                    textAlign: 'center',
-                    padding: '4px',
-                    fontSize: '12px',
-                  }}
-                >
-                  {playlist.title}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-      </Grid>
-    </Paper>
-  );
-};
+        },
+      }}
+    />
+    <Grid container spacing={2}>
+      {[...Array(6)].map((_, i) => (
+        <Grid item xs={4} key={i}>
+          <Paper
+            sx={{
+              paddingTop: '100%',
+              position: 'relative',
+              bgcolor: '#FEF7FF',
+            }}
+          />
+        </Grid>
+      ))}
+    </Grid>
+  </Paper>
+);
 
 export default Profile;

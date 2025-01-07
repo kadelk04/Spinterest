@@ -18,11 +18,6 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import {
-  fetchPinPlaylist,
-  togglePinPlaylist,
-} from '../components/data/playlistUtils';
-import { WidgetData } from '../components/data/playlistUtils';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -43,33 +38,6 @@ export const PlaylistWidget = ({
 }) => {
   const [clicked, setClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-
-  const handlePinClick = async () => {
-    const username = localStorage.getItem('username');
-    if (!username) {
-      console.error('No username found');
-      return;
-    }
-
-    if (!playlistId) {
-      console.error('Playlist ID is undefined');
-      return;
-    }
-
-    try {
-      const updatedPlaylist = await togglePinPlaylist(username, playlistId);
-      try {
-        console.log((updatedPlaylist as { message: string }).message);
-      } catch (e) {
-        console.log((e as Error).message);
-      }
-
-      setClicked((prev) => !prev);
-    } catch (error) {
-      console.error('Error handling pin click:', error);
-    }
-  };
   return (
     <Card
       sx={{
@@ -133,7 +101,7 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
-              border: '1px solid red',
+              //border: '1px solid red',
             }}
           >
             {title}
@@ -148,7 +116,9 @@ export const PlaylistWidget = ({
         <Box
           sx={{
             paddingTop: 1,
-            border: '1px solid #ccc',
+            paddingLeft: 1,
+            paddingRight: 1,
+            //border: '1px solid #ccc',
           }}
         >
           {/* only horizontal space if not on new line */}
@@ -195,8 +165,7 @@ export const PlaylistWidget = ({
             width: '100%',
           }}
         >
-          <IconButton
-            onClick={handlePinClick}
+          <PushPinOutlined
             sx={{
               p: 0, // Remove padding
               m: 0, // Remove margin
@@ -207,9 +176,7 @@ export const PlaylistWidget = ({
                   '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
               },
             }}
-          >
-            {clicked ? <PushPin /> : <PushPinOutlined />}
-          </IconButton>
+          ></PushPinOutlined>
           <FavoriteBorderOutlined
             sx={{
               transition: 'transform 0.3s, box-shadow 0.3s',

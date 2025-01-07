@@ -12,4 +12,8 @@ router.use('/playlist', playlistRoutes);
 router.use('/spotify', spotifyRoutes);
 router.use('/login', loginRoutes);
 
+router.get('/', (req, res) => {
+  res.status(200).send('API is working');
+});
+
 export default router;

@@ -29,7 +29,7 @@ export interface PlaylistData {
   images: Image[];
   owner: Owner;
   name: string;
-  tracks: any[];
+  tracks: { href: string; total: number };
 }
 
 interface Playlist {
@@ -40,7 +40,7 @@ interface Image {
   url: string;
 }
 
-interface PlaylistResponse {
+export interface PlaylistResponse {
   items: PlaylistData[];
 }
 
@@ -86,100 +86,6 @@ export const fetchPlaylists = async (
   }
 };
 
-// Pinning playlist
-export const togglePinPlaylist = async (
-  username: string,
-  playlistId: string
-) => {
-  try {
-    const token = localStorage.getItem('jwttoken');
-    if (!token) {
-      throw new Error('JWT token is missing');
-    }
-
-    const response = await axios.put(
-      `http://localhost:8000/profile/pin-playlist/${username}/${playlistId}`,
-      {},
-      {
-        headers: { authorization: token },
-      }
-    );
-
-    return response.data;
-  } catch (error) {
-    console.error('Error toggling pinned playlist:', error);
-    throw error;
-  }
-};
-
-export const fetchPinPlaylist = async (
-  username: string
-): Promise<WidgetData[]> => {
-  try {
-    // Fetch pinned playlists from your backend
-    const response = await axios.get<PlaylistResponse>(
-      `http://localhost:8000/profile/pinned-playlists`,
-      { params: { user: username } }
-    );
-
-    const data = response.data;
-    console.log('Pinned Playlists:', data);
-
-    // Fetch cover image for each playlist from Spotify API
-    const pinnedPlaylists: WidgetData[] = await Promise.all(
-      data.items.map(async (playlist: PlaylistData) => {
-        // Fetch the playlist details from Spotify to get the cover image
-        const coverImage = await fetchSpotifyPlaylistCover(playlist.id);
-        console.log(`Playlist: ${playlist.name}, Cover Image: ${coverImage}`);
-
-        return {
-          id: playlist.id,
-          cover: coverImage || '',
-          owner: playlist.owner,
-          title: playlist.name,
-        };
-      })
-    );
-
-    return pinnedPlaylists;
-  } catch (error) {
-    console.error('Error fetching pinned playlists from user:', error);
-    return [];
-  }
-};
-
-// Helper function to fetch cover image from Spotify using playlistId
-const fetchSpotifyPlaylistCover = async (
-  playlistId: string
-): Promise<string> => {
-  try {
-    const accessToken = getAccessToken(); // Get Spotify access token
-    if (!accessToken) {
-      console.error('Access token is missing');
-      return '';
-    }
-
-    // Request the playlist details from Spotify API using playlistId
-    const response = await axios.get<PlaylistData>(
-      `http://localhost:8000/api/spotify/playlists/${playlistId}`,
-      {
-        params: {
-          spotifyToken: accessToken,
-        },
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
-      }
-    );
-
-    const coverImage = response.data.images[0]?.url || ''; // Fallback to empty string if no cover image available
-    return coverImage;
-  } catch (error) {
-    console.error('Error fetching playlist cover from Spotify:', error);
-    return ''; // Return empty string if there was an error
-  }
-};
-
 export const buildWidgets = async (
   playlists: WidgetData[],
   accessToken: string
@@ -207,9 +113,9 @@ export const buildWidgets = async (
         }
       );
 
-      // console.log('Playlist in playlistUtils:', response.data);
+      console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
-      console.log('Tracks:', tracks);
+      // console.log('Tracks:', tracks);
 
       const artists = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
@@ -239,7 +145,7 @@ export const buildWidgets = async (
       );
 
       const topGenres = await getTopGenres(genres);
-      console.log('topGenres', topGenres);
+      // console.log('topGenres', topGenres);
 
       return {
         id: playlist.id,
@@ -261,7 +167,7 @@ export const buildWidgets = async (
       };
     })
   );
-  console.log('widgets', widgets);
+  // console.log('widgets', widgets);
   return widgets;
 };
 
