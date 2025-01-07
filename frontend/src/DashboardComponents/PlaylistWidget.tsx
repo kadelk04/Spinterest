@@ -18,10 +18,14 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { togglePinPlaylist } from '../components/data/playlistUtils';
+import {
+  fetchPinPlaylist,
+  togglePinPlaylist,
+} from '../components/data/playlistUtils';
+import { WidgetData } from '../components/data/playlistUtils';
 
 export const PlaylistWidget = ({
-  key,
+  playlistId,
   cover,
   title,
   owner,
@@ -29,7 +33,7 @@ export const PlaylistWidget = ({
   dragHandleClass,
   noDragClass,
 }: {
-  key: string;
+  playlistId: string;
   cover: string | File;
   title: string;
   owner: string;
@@ -39,9 +43,22 @@ export const PlaylistWidget = ({
 }) => {
   const [clicked, setClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+
   const handlePinClick = async () => {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      console.error('No username found');
+      return;
+    }
+
+    if (!playlistId) {
+      console.error('Playlist ID is undefined');
+      return;
+    }
+
     try {
-      const updatedPlaylist = await togglePinPlaylist(key);
+      const updatedPlaylist = await togglePinPlaylist(username, playlistId);
       try {
         console.log((updatedPlaylist as { message: string }).message);
       } catch (e) {

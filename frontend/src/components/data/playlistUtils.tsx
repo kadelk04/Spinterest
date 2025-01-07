@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
+import { getAccessToken } from './SpotifyAuth';
 
 export interface Widget {
   id: string;
@@ -85,58 +86,97 @@ export const fetchPlaylists = async (
   }
 };
 
-// Improved togglePinPlaylist function with more robust error handling
-export const togglePinPlaylist = async (playlistId: string) => {
+// Pinning playlist
+export const togglePinPlaylist = async (
+  username: string,
+  playlistId: string
+) => {
   try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
     const response = await axios.put(
-      `http://localhost:8000/api/spotify/pin-playlists/${playlistId}`,
+      `http://localhost:8000/profile/pin-playlist/${username}/${playlistId}`,
       {},
       {
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
+        headers: { authorization: token },
       }
     );
-
-    // Log the response for debugging
-    console.log('Toggle Pin Response:', response.data);
 
     return response.data;
   } catch (error) {
-    console.error('Error toggling pinned music:', error);
-    throw error; // Re-throw to allow caller to handle
+    console.error('Error toggling pinned playlist:', error);
+    throw error;
   }
 };
 
-export const fetchPinPlaylist = async (): Promise<WidgetData[]> => {
+export const fetchPinPlaylist = async (
+  username: string
+): Promise<WidgetData[]> => {
   try {
+    // Fetch pinned playlists from your backend
     const response = await axios.get<PlaylistResponse>(
-      'http://localhost:8000/api/spotify/pin-playlists',
-      {
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
-      }
+      `http://localhost:8000/profile/pinned-playlists`,
+      { params: { user: username } }
     );
 
     const data = response.data;
+    console.log('Pinned Playlists:', data);
 
-    // Log fetched pinned playlists for debugging
-    console.log('Fetched Pinned Playlists:', data);
+    // Fetch cover image for each playlist from Spotify API
+    const pinnedPlaylists: WidgetData[] = await Promise.all(
+      data.items.map(async (playlist: PlaylistData) => {
+        // Fetch the playlist details from Spotify to get the cover image
+        const coverImage = await fetchSpotifyPlaylistCover(playlist.id);
+        console.log(`Playlist: ${playlist.name}, Cover Image: ${coverImage}`);
 
-    const pinnedPlaylists: WidgetData[] = data.items.map(
-      (playlist: PlaylistData) => ({
-        id: playlist.id,
-        cover: playlist.images[0]?.url || '',
-        owner: playlist.owner,
-        title: playlist.name,
+        return {
+          id: playlist.id,
+          cover: coverImage || '',
+          owner: playlist.owner,
+          title: playlist.name,
+        };
       })
     );
 
     return pinnedPlaylists;
   } catch (error) {
-    console.error('Error fetching pinned playlists:', error);
+    console.error('Error fetching pinned playlists from user:', error);
     return [];
+  }
+};
+
+// Helper function to fetch cover image from Spotify using playlistId
+const fetchSpotifyPlaylistCover = async (
+  playlistId: string
+): Promise<string> => {
+  try {
+    const accessToken = getAccessToken(); // Get Spotify access token
+    if (!accessToken) {
+      console.error('Access token is missing');
+      return '';
+    }
+
+    // Request the playlist details from Spotify API using playlistId
+    const response = await axios.get<PlaylistData>(
+      `http://localhost:8000/api/spotify/playlists/${playlistId}`,
+      {
+        params: {
+          spotifyToken: accessToken,
+        },
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
+      }
+    );
+
+    const coverImage = response.data.images[0]?.url || ''; // Fallback to empty string if no cover image available
+    return coverImage;
+  } catch (error) {
+    console.error('Error fetching playlist cover from Spotify:', error);
+    return ''; // Return empty string if there was an error
   }
 };
 
@@ -209,7 +249,7 @@ export const buildWidgets = async (
         genres: topGenres,
         component: (
           <PlaylistWidget
-            key={playlist.id}
+            playlistId={playlist.id}
             cover={playlist.cover}
             owner={playlist.owner.display_name}
             title={playlist.title}

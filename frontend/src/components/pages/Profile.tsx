@@ -6,13 +6,7 @@ import {
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { PushPin, PushPinOutlined } from '@mui/icons-material';
-import {
-  fetchPlaylists,
-  fetchPinPlaylist,
-  togglePinPlaylist,
-  WidgetData,
-} from '../data/playlistUtils';
+import { fetchPinPlaylist, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -629,51 +623,34 @@ const EditableAbout: FunctionComponent = () => {
 };
 
 // Pinned Music Section Component
-/*
-1. create useEffec for this section
-
-*/
 const PinnedMusicSection: FunctionComponent = () => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-  const [allPlaylists, setAllPlaylists] = useState<WidgetData[]>([]);
 
-  // Centralized function to fetch and set playlists
-  const loadPlaylists = async () => {
-    try {
-      const accessToken = localStorage.getItem('spotify_token');
-      if (!accessToken) {
-        console.error('Access token is missing');
-        return;
-      }
-
-      // Fetch all playlists
-      const playlists = await fetchPlaylists(accessToken);
-      setAllPlaylists(playlists);
-
-      // Fetch pinned playlists
-      const pinnedPlaylists = await fetchPinPlaylist();
-      setPinnedPlaylists(pinnedPlaylists);
-    } catch (error) {
-      console.error('Failed to fetch playlists:', error);
-    }
-  };
-
-  // Initial load
   useEffect(() => {
-    loadPlaylists();
-  }, []);
+    const fetchPlaylistsData = async () => {
+      try {
+        const accessToken = getAccessToken(); // Retrieve access token
+        if (!accessToken) {
+          console.error('Access token is missing');
+          return;
+        }
 
-  const handlePinToggle = async (playlist: WidgetData) => {
-    try {
-      // Toggle pin status on backend
-      await togglePinPlaylist(playlist.id);
+        const playlists = await fetchPlaylists(accessToken); // Fetch playlists
 
-      // Reload playlists to ensure sync with backend
-      await loadPlaylists();
-    } catch (error) {
-      console.error('Failed to toggle playlist pin:', error);
-    }
-  };
+        // Debug statement to log playlist names
+        console.log(
+          'Fetched playlists:',
+          playlists.map((playlist) => playlist.title)
+        );
+
+        setPinnedPlaylists(playlists);
+      } catch (error) {
+        console.error('Failed to fetch playlists:', error);
+      }
+    };
+
+    fetchPlaylistsData();
+  }, []); // Empty dependency array ensures this runs only once on component mount
 
   return (
     <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
