@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
   updateProfilePgInfo,
   getProfilePgInfo,
+  toggleVisibility,
 } from '../../src/controllers/profileController';
 import { getModel } from '../../src/utils/connection';
 
@@ -183,6 +184,69 @@ describe('Profile Controller', () => {
       expect(mockJson).toHaveBeenCalledWith({
         message: 'Error fetching profile input',
       });
+    });
+  });
+
+  describe('toggleVisibility', () => {
+    it('should return 404 if user not found', async () => {
+      const mockUserModel = {
+        findOne: jest.fn().mockResolvedValue(null),
+      };
+
+      (getModel as jest.Mock).mockReturnValue(mockUserModel);
+
+      mockRequest = {
+        body: {
+          username: 'nonexistentuser',
+        },
+      };
+
+      await toggleVisibility(mockRequest as Request, mockResponse as Response);
+
+      expect(mockStatus).toHaveBeenCalledWith(404);
+      expect(mockSend).toHaveBeenCalledWith('User not found');
+    });
+    it('should handle errors during visibility toggle', async () => {
+      const mockUserModel = {
+        findOne: jest.fn().mockRejectedValue(new Error('Database error')),
+      };
+
+      (getModel as jest.Mock).mockReturnValue(mockUserModel);
+
+      mockRequest = {
+        body: {
+          username: 'testuser',
+        },
+      };
+
+      await toggleVisibility(mockRequest as Request, mockResponse as Response);
+
+      expect(mockStatus).toHaveBeenCalledWith(500);
+      expect(mockJson).toHaveBeenCalledWith({
+        message: 'Error toggling visibility',
+      });
+    });
+    it('should toggle visibility successfully', async () => {
+      const mockUser = {
+        visibility: true,
+        save: jest.fn(),
+      };
+
+      const mockUserModel = {
+        findOne: jest.fn().mockResolvedValue(mockUser),
+      };
+      (getModel as jest.Mock).mockReturnValue(mockUserModel);
+
+      mockRequest = {
+        body: {
+          username: 'testuser',
+        },
+      };
+
+      await toggleVisibility(mockRequest as Request, mockResponse as Response);
+
+      expect(mockUser.visibility).toBe(false);
+      expect(mockUser.save).toHaveBeenCalled();
     });
   });
 });

@@ -15,6 +15,7 @@ export const updateProfilePgInfo = async (req: Request, res: Response) => {
   try {
     const {
       username,
+      visibility,
       favgen1,
       favgen2,
       fava1,
@@ -39,7 +40,7 @@ export const updateProfilePgInfo = async (req: Request, res: Response) => {
         if (key === 'biography') {
           user.bio = profileData[key]; //ensuring bio is saved
         } else {
-          user[key as keyof IUser] = profileData[key];
+          (user as any)[key] = profileData[key];
         }
       }
     }
@@ -148,5 +149,25 @@ export const getProfilePgInfo = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching profile input:', error);
     res.status(500).json({ message: 'Error fetching profile input' });
+  }
+};
+
+export const toggleVisibility = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.body;
+
+    const UserM = getModel<IUser>('User');
+    const user = await UserM.findOne({ username });
+
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    user.visibility = !user.visibility;
+    await user.save();
+  } catch (error) {
+    console.error('Error toggling visibility:', error);
+    res.status(500).json({ message: 'Error toggling visibility' });
   }
 };

@@ -5,6 +5,7 @@ import { IPlaylist } from './Playlist';
 export interface IUser {
   username: string;
   password: string;
+  visibility: boolean;
   spotifyId?: string;
   refreshToken?: string;
   status?: string;
@@ -19,6 +20,7 @@ export interface IUser {
 export const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
+  visibility: { type: Boolean, required: true },
   spotifyId: String,
   bio: String,
   status: String,
