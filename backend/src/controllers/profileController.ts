@@ -153,21 +153,21 @@ export const getProfilePgInfo = async (req: Request, res: Response) => {
 };
 
 export const toggleVisibility = async (req: Request, res: Response) => {
-  try {
-    const { username } = req.body;
+  const { username } = req.body;
 
-    const UserM = getModel<IUser>('User');
-    const user = await UserM.findOne({ username });
+  try {
+    const user = await getModel<IUser>('User').findOne({ username });
 
     if (!user) {
-      res.status(404).send('User not found');
-      return;
+      return res.status(404).send('User not found');
     }
 
     user.visibility = !user.visibility;
+
     await user.save();
+
+    res.status(200).json({ visibility: user.visibility });
   } catch (error) {
-    console.error('Error toggling visibility:', error);
     res.status(500).json({ message: 'Error toggling visibility' });
   }
 };
