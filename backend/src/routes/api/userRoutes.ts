@@ -4,6 +4,7 @@ import {
   getAllUsers,
   updateUserByUsername,
   saveUserSpotifyId,
+  getUserSpotifyId,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -26,6 +27,7 @@ router.put('/:username', updateUserByUsername);
 // Nested routes for user resources
 router.get('/:username/playlist', getPlaylistsByUsername);
 router.post('/:username/saveSpotifyId', saveUserSpotifyId);
+router.get('/:username/getSpotifyId', getUserSpotifyId);
 router.get('/:username/favorites', getUserFavorites);
 router.post('/:username/favorites', addFavorite);
 router.delete('/:username/favorites', removeFavorite);

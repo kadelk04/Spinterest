@@ -136,6 +136,20 @@ export const saveUserSpotifyId = async (req: Request, res: Response) => {
     res.status(500).send('Error saving Spotify ID');
   }
 };
+export const getUserSpotifyId = async (req: Request, res: Response) => {
+  try {
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.params.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send({ spotifyId: user.spotifyId });
+  } catch (err) {
+    console.error('Error fetching Spotify ID:', err);
+    res.status(500).send('Error fetching Spotify ID');
+  }
+};
 
 // export const getAllFriends = async (req: Request, res: Response) => {
 //   try {
