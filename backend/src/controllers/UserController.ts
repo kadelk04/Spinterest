@@ -102,24 +102,28 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+// helper function to use spotify API to get logged in user's spotifyId
+const fetchSpotifyId = async (accessToken: string): Promise<string> => {
+  const response = await fetch('https://api.spotify.com/v1/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Error fetching Spotify ID from Spotify API');
+  }
+
+  const data = await response.json();
+  return data.id;
+};
+
 export const saveUserSpotifyId = async (req: Request, res: Response) => {
-  let accessToken = req.params.accessToken;
+  const accessToken = req.params.accessToken;
+
   try {
     const UserModel = getModel<IUser>('User');
-
-    let response = await fetch('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      res.status(500).send('Error fetching Spotify ID');
-      return;
-    }
-
-    const data = await response.json();
-    const spotifyId = data.id;
+    const spotifyId = await fetchSpotifyId(accessToken);
 
     const user = await UserModel.findOne({ username: req.body.username });
     if (!user) {
@@ -130,21 +134,19 @@ export const saveUserSpotifyId = async (req: Request, res: Response) => {
     user.spotifyId = spotifyId;
     await user.save();
 
-    res.status(200).send('Spotify ID saved');
+    res.status(200).send('Spotify ID saved successfully');
   } catch (err) {
     console.error('Error saving Spotify ID:', err);
     res.status(500).send('Error saving Spotify ID');
   }
 };
+
 export const getUserSpotifyId = async (req: Request, res: Response) => {
+  const accessToken = req.params.accessToken;
+
   try {
-    const UserModel = getModel<IUser>('User');
-    const user = await UserModel.findOne({ username: req.params.username });
-    if (!user) {
-      res.status(404).send('User not found');
-      return;
-    }
-    res.status(200).send({ spotifyId: user.spotifyId });
+    const spotifyId = await fetchSpotifyId(accessToken);
+    res.status(200).send({ spotifyId });
   } catch (err) {
     console.error('Error fetching Spotify ID:', err);
     res.status(500).send('Error fetching Spotify ID');
