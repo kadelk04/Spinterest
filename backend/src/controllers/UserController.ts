@@ -102,7 +102,40 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserSpotifyId = async (req: Request, res: Response) => {};
+export const saveUserSpotifyId = async (req: Request, res: Response) => {
+  let accessToken = req.params.accessToken;
+  try {
+    const UserModel = getModel<IUser>('User');
+
+    let response = await fetch('https://api.spotify.com/v1/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      res.status(500).send('Error fetching Spotify ID');
+      return;
+    }
+
+    const data = await response.json();
+    const spotifyId = data.id;
+
+    const user = await UserModel.findOne({ username: req.body.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    user.spotifyId = spotifyId;
+    await user.save();
+
+    res.status(200).send('Spotify ID saved');
+  } catch (err) {
+    console.error('Error saving Spotify ID:', err);
+    res.status(500).send('Error saving Spotify ID');
+  }
+};
 
 // export const getAllFriends = async (req: Request, res: Response) => {
 //   try {
