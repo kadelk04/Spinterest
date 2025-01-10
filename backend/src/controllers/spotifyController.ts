@@ -13,20 +13,34 @@ export interface Owner {
 }
 
 export const getProfileInfo = async (req: Request, res: Response) => {
-  const payload = {
-    spotifyToken: req.body.spotifyToken,
-  };
+  let profile: string | undefined;
+
   try {
-    const response = await axios.get('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: `Bearer ${payload.spotifyToken}`,
-      },
-    });
-    res.status(200).send(response.data);
+    profile = req.params.username;
+    if (!profile) {
+      throw new Error('Profile parameter is missing');
+    }
+    console.log('req profile', profile);
+    res.status(200).send(profile);
   } catch (err) {
-    console.error('Error fetching profile info:', err);
-    res.status(500).send('Error fetching profile info');
+    console.error('Error setting profile:', err);
+    res.status(400).send('Invalid profile parameter');
   }
+
+  // const payload = {
+  //   spotifyToken: req.body.spotifyToken,
+  // };
+  // try {
+  //   const response = await axios.get('https://api.spotify.com/v1/me', {
+  //     headers: {
+  //       Authorization: `Bearer ${payload.spotifyToken}`,
+  //     },
+  //   });
+  //   res.status(200).send(response.data);
+  // } catch (err) {
+  //   console.error('Error fetching profile info:', err);
+  //   res.status(500).send('Error fetching profile info');
+  // }
 };
 
 export const getMyPlaylists = async (req: Request, res: Response) => {

@@ -89,36 +89,36 @@ export const Profile: FunctionComponent = () => {
         console.log('Profile Data Fetched:', profileData);
         setProfile(profileData);
 
-        // Fetch friends
-        const friendsResponse = await fetch(
-          'https://api.spotify.com/v1/me/following?type=user',
-          {
-            headers: {
-              Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-            },
-          }
-        );
+        //   // Fetch friends
+        //   const friendsResponse = await fetch(
+        //     'https://api.spotify.com/v1/me/following?type=user',
+        //     {
+        //       headers: {
+        //         Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+        //       },
+        //     }
+        //   );
 
-        console.log('awaiting dfkj');
-        const friendsData = await friendsResponse.json();
-        console.log('sgdfhg');
-        console.log(friendsData);
-        if (friendsData.artists) {
-          const formattedFriends = friendsData.artists.items.map(
-            (artist: any) => ({
-              id: artist.id,
-              name: artist.name,
-              images: artist.images,
-            })
-          );
-          console.log('Friends Fetched:', formattedFriends);
-          setFriends(formattedFriends);
-        }
+        //   console.log('awaiting dfkj');
+        //   const friendsData = await friendsResponse.json();
+        //   console.log('sgdfhg');
+        //   console.log(friendsData);
+        //   if (friendsData.artists) {
+        //     const formattedFriends = friendsData.artists.items.map(
+        //       (artist: any) => ({
+        //         id: artist.id,
+        //         name: artist.name,
+        //         images: artist.images,
+        //       })
+        //     );
+        //     console.log('Friends Fetched:', fx===ormattedFriends);
+        //     setFriends(formattedFriends);
+        //   }
 
-        setLoadingFriends(false);
+        //   setLoadingFriends(false);
       } catch (error) {
         console.error('Error fetching profile or friends', error);
-        setLoadingFriends(false);
+        //setLoadingFriends(false);
       }
     };
 

@@ -18,7 +18,8 @@ const router = Router();
 router.get('/', getAllUsers);
 router.post('/', registerUser);
 
-router.get('/:username', getUserByUsername);
+// this route is being replaced by /profile/:username route
+// router.get('/:username', getUserByUsername);
 router.put('/:username', updateUserByUsername);
 
 // Nested routes for user resources
