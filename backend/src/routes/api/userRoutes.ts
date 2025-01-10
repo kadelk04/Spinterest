@@ -24,6 +24,7 @@ router.put('/:username', updateUserByUsername);
 
 // Nested routes for user resources
 router.get('/:username/playlist', getPlaylistsByUsername);
+router.get('/:username/spotifyId', getUserSpotifyId);
 router.get('/:username/favorites', getUserFavorites);
 router.post('/:username/favorites', addFavorite);
 router.delete('/:username/favorites', removeFavorite);

@@ -56,24 +56,81 @@ export const Profile: FunctionComponent = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // const fetchProfile = async () => {
+    //   if (!accessToken && !refreshToken) return;
+
+    //   try {
+    //     let response = await fetch('https://api.spotify.com/v1/me', {
+    //       headers: {
+    //         Authorization: `Bearer ${accessToken}`,
+    //       },
+    //     });
+
+    //     if (response.status === 401 && refreshToken) {
+    //       await getRefreshedToken(refreshToken);
+    //       response = await fetch('https://api.spotify.com/v1/me', {
+    //         headers: {
+    //           Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+    //         },
+    //       });
+    //     }
+
+    //     const data = await response.json();
+    //     if (data.error) {
+    //       console.log(data);
+    //       console.error(data.error.message);
+    //       return;
+    //     }
+
+    //     const profileData: SpotifyProfile = {
+    //       display_name: data.display_name,
+    //       images: data.images || [],
+    //     };
+    //     console.log('Profile Data Fetched:', profileData);
+    //     setProfile(profileData);
+
+    //     //   // Fetch friends
+    //     //   const friendsResponse = await fetch(
+    //     //     'https://api.spotify.com/v1/me/following?type=user',
+    //     //     {
+    //     //       headers: {
+    //     //         Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+    //     //       },
+    //     //     }
+    //     //   );
+
+    //     //   console.log('awaiting dfkj');
+    //     //   const friendsData = await friendsResponse.json();
+    //     //   console.log('sgdfhg');
+    //     //   console.log(friendsData);
+    //     //   if (friendsData.artists) {
+    //     //     const formattedFriends = friendsData.artists.items.map(
+    //     //       (artist: any) => ({
+    //     //         id: artist.id,
+    //     //         name: artist.name,
+    //     //         images: artist.images,
+    //     //       })
+    //     //     );
+    //     //     console.log('Friends Fetched:', fx===ormattedFriends);
+    //     //     setFriends(formattedFriends);
+    //     //   }
+
+    //     //   setLoadingFriends(false);
+    //   } catch (error) {
+    //     console.error('Error fetching profile or friends', error);
+    //     //setLoadingFriends(false);
+    //   }
+    // };
     const fetchProfile = async () => {
-      if (!accessToken && !refreshToken) return;
+      if (!username) return;
 
       try {
-        let response = await fetch('https://api.spotify.com/v1/me', {
+        const response = await fetch(`/api/spotify/${username}/profile`, {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
           },
         });
-
-        if (response.status === 401 && refreshToken) {
-          await getRefreshedToken(refreshToken);
-          response = await fetch('https://api.spotify.com/v1/me', {
-            headers: {
-              Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-            },
-          });
-        }
 
         const data = await response.json();
         if (data.error) {
@@ -88,40 +145,10 @@ export const Profile: FunctionComponent = () => {
         };
         console.log('Profile Data Fetched:', profileData);
         setProfile(profileData);
-
-        //   // Fetch friends
-        //   const friendsResponse = await fetch(
-        //     'https://api.spotify.com/v1/me/following?type=user',
-        //     {
-        //       headers: {
-        //         Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-        //       },
-        //     }
-        //   );
-
-        //   console.log('awaiting dfkj');
-        //   const friendsData = await friendsResponse.json();
-        //   console.log('sgdfhg');
-        //   console.log(friendsData);
-        //   if (friendsData.artists) {
-        //     const formattedFriends = friendsData.artists.items.map(
-        //       (artist: any) => ({
-        //         id: artist.id,
-        //         name: artist.name,
-        //         images: artist.images,
-        //       })
-        //     );
-        //     console.log('Friends Fetched:', fx===ormattedFriends);
-        //     setFriends(formattedFriends);
-        //   }
-
-        //   setLoadingFriends(false);
       } catch (error) {
-        console.error('Error fetching profile or friends', error);
-        //setLoadingFriends(false);
+        console.error('Error fetching profile:', error);
       }
     };
-
     fetchProfile();
   }, [accessToken, refreshToken]);
 

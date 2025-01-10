@@ -102,6 +102,8 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const getUserSpotifyId = async (req: Request, res: Response) => {};
+
 // export const getAllFriends = async (req: Request, res: Response) => {
 //   try {
 //       // Replace this URL with the endpoint that fetches friends from Spotify

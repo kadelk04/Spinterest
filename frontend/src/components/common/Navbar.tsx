@@ -8,6 +8,7 @@ import ListItemText from '@mui/material/ListItemText';
 import { FunctionComponent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
+
 import {
   Dashboard as DashboardIcon,
   AccountCircle as ProfileIcon,
@@ -38,6 +39,7 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
       icon: <DashboardIcon />,
     },
     {
+      // this should direct to /profile/:username where username is the user's spotid
       href: '/profile',
       label: 'Profile',
       icon: <ProfileIcon />,
