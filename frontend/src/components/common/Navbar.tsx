@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import ListItem from '@mui/material/ListItem';
@@ -27,10 +27,34 @@ interface ItemProps {
 }
 export const Navbar: FunctionComponent<NavbarProps> = (props) => {
   const location = useLocation();
+  const [spotifyId, setSpotifyId] = useState<string | null>(null);
+  //const [username, setUsername] = useState<string>("");
   let signedIn = localStorage.getItem('spotify_token');
-  useEffect(() => {
-    signedIn = localStorage.getItem('spotify_token');
-  }, [location.pathname]);
+  let username = localStorage.getItem('username');
+
+  // useEffect(() => {
+  //   const fetchSpotId = async () => {
+  //     try {
+  //       const response = await fetch(`/api/user/getSpotifyId`, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({ accessToken: signedIn }),
+  //       });
+  //       if (!response.ok) {
+  //         throw new Error('Failed to save Spotify ID');
+  //       }
+  //       const data = await response.json();
+  //       setSpotifyId(data.spotifyId);
+  //       console.log('Spotify ID fetched successfully:', data.spotifyId);
+  //     } catch (error) {
+  //       console.error('Error fetching Spotify ID:', error);
+  //     }
+  //   };
+  //   fetchSpotId();
+
+  // }, [location.pathname]);
 
   const loggedInItems: ItemProps[] = [
     {
@@ -39,8 +63,7 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
       icon: <DashboardIcon />,
     },
     {
-      // this should direct to /profile/:username where username is the user's spotid
-      href: '/profile',
+      href: `/profile/${username}`,
       label: 'Profile',
       icon: <ProfileIcon />,
     },

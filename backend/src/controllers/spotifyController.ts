@@ -13,6 +13,7 @@ export interface Owner {
 }
 
 export const getProfileInfo = async (req: Request, res: Response) => {
+  console.log('get profile info is being called');
   let profile: string | undefined;
 
   try {

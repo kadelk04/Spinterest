@@ -5,7 +5,7 @@ import {
   logout,
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PushPin, PushPinOutlined } from '@mui/icons-material';
 import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
@@ -52,106 +52,162 @@ export const Profile: FunctionComponent = () => {
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
 
   const navigate = useNavigate();
+  const username = window.location.pathname.split('/').pop();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!accessToken && !refreshToken) return;
+  // useEffect(() => {
+  //   const fetchProfile = async () => {
+  //     if (!accessToken && !refreshToken) return;
 
-      try {
-        let response = await fetch('https://api.spotify.com/v1/me', {
+  //     try {
+  //       let response = await fetch('https://api.spotify.com/v1/me', {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //       });
+
+  //       if (response.status === 401 && refreshToken) {
+  //         await getRefreshedToken(refreshToken);
+  //         response = await fetch('https://api.spotify.com/v1/me', {
+  //           headers: {
+  //             Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+  //           },
+  //         });
+  //       }
+
+  //       const data = await response.json();
+  //       if (data.error) {
+  //         console.log(data);
+  //         console.error(data.error.message);
+  //         return;
+  //       }
+
+  //       const profileData: SpotifyProfile = {
+  //         display_name: data.display_name,
+  //         images: data.images || [],
+  //       };
+  //       console.log('Profile Data Fetched:', profileData);
+  //       setProfile(profileData);
+
+  //       // Fetch friends
+  //       const friendsResponse = await fetch(
+  //         'https://api.spotify.com/v1/me/following?type=user',
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+  //           },
+  //         }
+  //       );
+
+  //       console.log('awaiting dfkj');
+  //       const friendsData = await friendsResponse.json();
+  //       console.log('sgdfhg');
+  //       console.log(friendsData);
+  //       if (friendsData.artists) {
+  //         const formattedFriends = friendsData.artists.items.map(
+  //           (artist: any) => ({
+  //             id: artist.id,
+  //             name: artist.name,
+  //             images: artist.images,
+  //           })
+  //         );
+  //         console.log('Friends Fetched:', formattedFriends);
+  //         setFriends(formattedFriends);
+  //       }
+
+  //       setLoadingFriends(false);
+  //     } catch (error) {
+  //       console.error('Error fetching profile or friends', error);
+  //       setLoadingFriends(false);
+  //     }
+  //   };
+
+  //   fetchProfile();
+  // }, [accessToken, refreshToken]);
+
+  const fetchProfile = async () => {
+    if (!accessToken && !refreshToken) return;
+
+    // get your username
+
+    // check if your spotify id (in db) is the same spotify id as the profile you are trying to view
+    try {
+      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to get user data');
+      }
+      const userData = await response.json();
+      console.log('User Data:', userData);
+      const userSpotifyId = userData.spotifyId;
+
+      // from that response data get spotify id
+
+      // check if that spotify id is yours
+
+      // Fetch the profile's Spotify ID from Spotify API
+      let profileResponse = await fetch(`https://api.spotify.com/v1/me`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      console.log('profile response', profileResponse);
+
+      if (profileResponse.status === 401 && refreshToken) {
+        await getRefreshedToken(refreshToken);
+        profileResponse = await fetch('https://api.spotify.com/v1/me', {
           headers: {
-            Authorization: `Bearer ${accessToken}`,
+            Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
           },
         });
-
-        if (response.status === 401 && refreshToken) {
-          await getRefreshedToken(refreshToken);
-          response = await fetch('https://api.spotify.com/v1/me', {
-            headers: {
-              Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-            },
-          });
-        }
-
-        const data = await response.json();
-        if (data.error) {
-          console.log(data);
-          console.error(data.error.message);
-          return;
-        }
-
-        const profileData: SpotifyProfile = {
-          display_name: data.display_name,
-          images: data.images || [],
-        };
-        console.log('Profile Data Fetched:', profileData);
-        setProfile(profileData);
-
-        //   // Fetch friends
-        //   const friendsResponse = await fetch(
-        //     'https://api.spotify.com/v1/me/following?type=user',
-        //     {
-        //       headers: {
-        //         Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-        //       },
-        //     }
-        //   );
-
-        //   console.log('awaiting dfkj');
-        //   const friendsData = await friendsResponse.json();
-        //   console.log('sgdfhg');
-        //   console.log(friendsData);
-        //   if (friendsData.artists) {
-        //     const formattedFriends = friendsData.artists.items.map(
-        //       (artist: any) => ({
-        //         id: artist.id,
-        //         name: artist.name,
-        //         images: artist.images,
-        //       })
-        //     );
-        //     console.log('Friends Fetched:', fx===ormattedFriends);
-        //     setFriends(formattedFriends);
-        //   }
-
-        //   setLoadingFriends(false);
-      } catch (error) {
-        console.error('Error fetching profile or friends', error);
-        //setLoadingFriends(false);
       }
-    };
-    // const fetchProfile = async () => {
-    //   if (!username) return;
+      const profileData = await profileResponse.json();
+      const profileSpotifyId = profileData.id;
 
-    //   try {
-    //     const response = await fetch(`/api/spotify/${username}/profile`, {
-    //       headers: {
-    //         'Content-Type': 'application/json',
-    //         Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-    //       },
-    //     });
+      // Check if the profile's Spotify ID matches the user's Spotify ID
+      if (profileSpotifyId === userSpotifyId) {
+        setIsOwnProfile(true);
+        console.log('Profile Data Fetched:', profileData);
+        setProfile({
+          display_name: profileData.display_name,
+          images: profileData.images || [],
+        });
+      } else {
+        setIsOwnProfile(false);
+        // Fetch the other user's profile data
+        const otherProfileResponse = await fetch(
+          `https://api.spotify.com/v1/users/${userSpotifyId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
 
-    //     const data = await response.json();
-    //     if (data.error) {
-    //       console.log(data);
-    //       console.error(data.error.message);
-    //       return;
-    //     }
+        const otherProfileData = await otherProfileResponse.json();
+        console.log('Other Profile Data Fetched:', otherProfileData);
+        setProfile({
+          display_name: otherProfileData.display_name,
+          images: otherProfileData.images || [],
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile', error);
+      setLoadingFriends(false);
+    }
 
-    //     const profileData: SpotifyProfile = {
-    //       display_name: data.display_name,
-    //       images: data.images || [],
-    //     };
-    //     console.log('Profile Data Fetched:', profileData);
-    //     setProfile(profileData);
-    //   } catch (error) {
-    //     console.error('Error fetching profile:', error);
-    //   }
-    // };
+    // if it is the same render your profile
+    // else, render profile in viewer view
+  };
+
+  useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken]);
-
+  }, [accessToken, refreshToken, username]);
   return (
     <Box
       sx={{
@@ -451,15 +507,15 @@ const EditableAbout: FunctionComponent = () => {
       console.log('Fetched Data:', dataFields);
 
       // Set the state with the fetched data
-      setLocation(dataFields.location);
-      setLinks(dataFields.links);
-      setBiography(dataFields.biography);
-      setText1(dataFields.favorites.genre[0] || '');
-      setText2(dataFields.favorites.genre[1] || '');
-      setText3(dataFields.favorites.artist[0] || '');
-      setText4(dataFields.favorites.artist[1] || '');
-      setText5(dataFields.favorites.album[0] || '');
-      setText6(dataFields.favorites.album[1] || '');
+      // setLocation(dataFields.location);
+      // setLinks(dataFields.links);
+      // setBiography(dataFields.biography);
+      // //setText1(dataFields.favorites.genre[0] || '');
+      // //setText2(dataFields.favorites.genre[1] || '');
+      // // setText3(dataFields.favorites.artist[0] || '');
+      // setText4(dataFields.favorites.artist[1] || '');
+      // setText5(dataFields.favorites.album[0] || '');
+      // setText6(dataFields.favorites.album[1] || '');
     } catch (error) {
       console.error('Error fetching dataFields:', error);
     }

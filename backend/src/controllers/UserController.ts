@@ -141,8 +141,15 @@ export const saveUserSpotifyId = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserSpotifyId = async (req: Request, res: Response) => {
-  const accessToken = req.params.accessToken;
+export const getUserSpotifyId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const accessToken = req.body;
+  if (!accessToken) {
+    console.error('No accessToken');
+    return;
+  }
 
   try {
     const spotifyId = await fetchSpotifyId(accessToken);
