@@ -6,7 +6,12 @@ import {
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate, useParams } from 'react-router-dom';
-import { PushPin, PushPinOutlined } from '@mui/icons-material';
+import {
+  PushPin,
+  PushPinOutlined,
+  Visibility,
+  VisibilityOff,
+} from '@mui/icons-material';
 import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
@@ -39,6 +44,20 @@ interface SpotifyProfile {
   images: { url: string }[];
 }
 
+interface User {
+  username: string;
+  isPrivate: boolean;
+  status: string;
+  bio: string;
+  location: string;
+  links: string;
+  favorites: {
+    genre: string[];
+    artist: string[];
+    album: string[];
+  };
+}
+
 // Extend the existing interface
 interface Friend {
   id: string;
@@ -53,6 +72,7 @@ export const Profile: FunctionComponent = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [userData, setUserData] = useState<User | null>(null);
 
   const navigate = useNavigate();
   const username = window.location.pathname.split('/').pop();
@@ -144,6 +164,7 @@ export const Profile: FunctionComponent = () => {
       }
       const userData = await response.json();
       console.log('User Data:', userData);
+      setUserData(userData);
       const userSpotifyId = userData.spotifyId;
 
       // from that response data get spotify id
@@ -236,9 +257,17 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
-
-              {/* Editable status blurb */}
-              <EditableBlurb />
+              {/* if is own profile, render profile visibility toggle */}
+              {isOwnProfile ? (
+                <Button
+                  variant="contained"
+                  startIcon={
+                    userData?.isPrivate ? <VisibilityOff /> : <Visibility />
+                  }
+                >
+                  {userData?.isPrivate ? 'Private' : 'Public'}
+                </Button>
+              ) : null}
 
               <Button
                 sx={{ mt: 2 }}
