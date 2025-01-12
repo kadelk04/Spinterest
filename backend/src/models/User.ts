@@ -36,13 +36,11 @@ export const UserSchema = new mongoose.Schema({
   following: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
-    unique: true,
     required: true,
   },
   followers: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
-    unique: true,
     required: true,
   },
 });
