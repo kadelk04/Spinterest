@@ -10,6 +10,7 @@ import {
   Paper,
   Avatar,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import FriendsComponent from './ProfileComponents/FriendsComponent';
 import AboutComponent from './ProfileComponents/AboutComponent';
 import PinnedMusicComponent from './ProfileComponents/PinnedMusicComponent';
@@ -17,6 +18,34 @@ import PinnedMusicComponent from './ProfileComponents/PinnedMusicComponent';
 interface SpotifyProfile {
   display_name: string;
   images: { url: string }[];
+}
+
+interface User {
+  username: string;
+  isPrivate: boolean;
+  status: string;
+  bio: string;
+  location: string;
+  links: string;
+  favorites: {
+    genre: string[];
+    artist: string[];
+    album: string[];
+  };
+}
+
+interface User {
+  username: string;
+  isPrivate: boolean;
+  status: string;
+  bio: string;
+  location: string;
+  links: string;
+  favorites: {
+    genre: string[];
+    artist: string[];
+    album: string[];
+  };
 }
 
 export interface Friend {
@@ -32,6 +61,7 @@ export const Profile: FunctionComponent = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [userData, setUserData] = useState<User | null>(null);
 
   const navigate = useNavigate();
   const username = window.location.pathname.split('/').pop();
@@ -53,6 +83,7 @@ export const Profile: FunctionComponent = () => {
       }
       const userData = await response.json();
       console.log('User Data:', userData);
+      setUserData(userData);
       const userSpotifyId = userData.spotifyId;
 
       // from that response data get spotify id
@@ -141,9 +172,17 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
-
-              {/* Editable status blurb */}
-              {/* <EditableBlurb /> */}
+              {/* if is own profile, render profile visibility toggle */}
+              {isOwnProfile ? (
+                <Button
+                  variant="contained"
+                  startIcon={
+                    userData?.isPrivate ? <VisibilityOff /> : <Visibility />
+                  }
+                >
+                  {userData?.isPrivate ? 'Private' : 'Public'}
+                </Button>
+              ) : null}
 
               <Button
                 sx={{ mt: 2 }}
