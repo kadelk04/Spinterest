@@ -1,4 +1,5 @@
 import { FunctionComponent, useState, useEffect } from 'react';
+import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
@@ -150,7 +151,7 @@ export const Profile: FunctionComponent = () => {
       };
 
       const response = await axios.put(
-        'http://localhost:8000/api/user',
+        `http://localhost:8000/api/user/${username}`,
         updatedUserData
       );
 
@@ -207,17 +208,18 @@ export const Profile: FunctionComponent = () => {
                   {userData?.isPrivate ? 'Private' : 'Public'}
                 </Button>
               ) : null}
-
-              <Button
-                sx={{ mt: 2 }}
-                variant="contained"
-                onClick={() => {
-                  logout();
-                  navigate('/login');
-                }}
-              >
-                Logout
-              </Button>
+              {isOwnProfile ? (
+                <Button
+                  sx={{ mt: 2 }}
+                  variant="contained"
+                  onClick={() => {
+                    logout();
+                    navigate('/login');
+                  }}
+                >
+                  Logout
+                </Button>
+              ) : null}
             </>
           ) : (
             <>
@@ -249,7 +251,7 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
           }}
         >
-          <AboutComponent />
+          <AboutComponent isOwnProfile={isOwnProfile} />
         </Paper>
 
         <PinnedMusicComponent />

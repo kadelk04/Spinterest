@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 import { FunctionComponent, useEffect, useState } from 'react';
 import {
   Search as SearchIcon,
@@ -29,7 +30,11 @@ interface AbtFavResponse {
   };
 }
 
-const AboutComponent: React.FC = () => {
+interface AboutComponentProps {
+  isOwnProfile: boolean;
+}
+
+const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
   const [isEditable, setIsEditable] = useState(false);
   const [location, setLocation] = useState('');
   const [links, setLinks] = useState('');
@@ -60,15 +65,15 @@ const AboutComponent: React.FC = () => {
       console.log('Fetched Data:', dataFields);
 
       // Set the state with the fetched data
-      // setLocation(dataFields.location);
-      // setLinks(dataFields.links);
-      // setBiography(dataFields.biography);
-      // //setText1(dataFields.favorites.genre[0] || '');
-      // //setText2(dataFields.favorites.genre[1] || '');
-      // // setText3(dataFields.favorites.artist[0] || '');
-      // setText4(dataFields.favorites.artist[1] || '');
-      // setText5(dataFields.favorites.album[0] || '');
-      // setText6(dataFields.favorites.album[1] || '');
+      setLocation(dataFields.location);
+      setLinks(dataFields.links);
+      setBiography(dataFields.biography);
+      setText1(dataFields.favorites.genre[0] || '');
+      setText2(dataFields.favorites.genre[1] || '');
+      setText3(dataFields.favorites.artist[0] || '');
+      setText4(dataFields.favorites.artist[1] || '');
+      setText5(dataFields.favorites.album[0] || '');
+      setText6(dataFields.favorites.album[1] || '');
     } catch (error) {
       console.error('Error fetching dataFields:', error);
     }
@@ -127,9 +132,11 @@ const AboutComponent: React.FC = () => {
       <Box sx={{ flex: 1, mb: 4 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5">ABOUT</Typography>
-          <IconButton onClick={handleIconClick}>
-            {isEditable ? <SaveAltIcon /> : <EditIcon />}
-          </IconButton>
+          {isOwnProfile ? (
+            <IconButton onClick={handleIconClick}>
+              {isEditable ? <SaveAltIcon /> : <EditIcon />}
+            </IconButton>
+          ) : null}
         </Box>
 
         <Grid container spacing={2} mt={2}>
