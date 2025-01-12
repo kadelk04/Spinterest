@@ -15,6 +15,8 @@ export interface IUser {
   favorites: IFavorites;
   favoritesId: mongoose.Types.ObjectId;
   annotatedPlaylists?: IPlaylist[];
+  following: mongoose.Types.ObjectId[];
+  followers: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = new mongoose.Schema({
@@ -35,10 +37,12 @@ export const UserSchema = new mongoose.Schema({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
     unique: true,
+    required: true,
   },
   followers: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
     unique: true,
+    required: true,
   },
 });

@@ -22,6 +22,7 @@ interface SpotifyProfile {
 }
 
 interface User {
+  _id: string;
   username: string;
   isPrivate: boolean;
   status: string;
@@ -33,20 +34,8 @@ interface User {
     artist: string[];
     album: string[];
   };
-}
-
-interface User {
-  username: string;
-  isPrivate: boolean;
-  status: string;
-  bio: string;
-  location: string;
-  links: string;
-  favorites: {
-    genre: string[];
-    artist: string[];
-    album: string[];
-  };
+  following: string[];
+  followers: string[];
 }
 
 export interface Friend {
@@ -62,6 +51,7 @@ export const Profile: FunctionComponent = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
 
   const navigate = useNavigate();
@@ -129,7 +119,21 @@ export const Profile: FunctionComponent = () => {
           }
         );
 
+        const myProfileResponse = await fetch(
+          `http://localhost:8000/api/user/spotify/${profileSpotifyId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
         const otherProfileData = await otherProfileResponse.json();
+
+        const myProfileData = await myProfileResponse.json();
+        const myMongoId = myProfileData._id;
+        setFollowing(myProfileData.following.includes(myMongoId));
+
         console.log('Other Profile Data Fetched:', otherProfileData);
         setProfile({
           display_name: otherProfileData.display_name,
@@ -162,6 +166,46 @@ export const Profile: FunctionComponent = () => {
       }
     } catch (error) {
       console.error('Error toggling profile visibility:', error);
+    }
+  };
+
+  const handleFollowToggle = async () => {
+    if (!accessToken && !refreshToken) return;
+
+    if (following) {
+      try {
+        const response = await axios.delete(
+          `http://localhost:8000/api/user/${username}/unfollow`,
+          {
+            headers: {
+              authorization: localStorage.getItem('jwttoken'),
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          setFollowing(false);
+        }
+      } catch (error) {
+        console.error('Error unfollowing user:', error);
+      }
+    } else {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/api/user/${username}/follow`,
+          {
+            headers: {
+              authorization: localStorage.getItem('jwttoken'),
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          setFollowing(true);
+        }
+      } catch (error) {
+        console.error('Error following user:', error);
+      }
     }
   };
 
@@ -221,8 +265,12 @@ export const Profile: FunctionComponent = () => {
                 </Button>
               ) : null}
               {!isOwnProfile ? (
-                <Button sx={{ mt: 2 }} variant="contained">
-                  Follow
+                <Button
+                  sx={{ mt: 2 }}
+                  variant="contained"
+                  onClick={handleFollowToggle}
+                >
+                  {following ? 'Unfollow' : 'Follow'}
                 </Button>
               ) : null}
             </>

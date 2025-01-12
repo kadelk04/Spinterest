@@ -9,6 +9,7 @@ import {
   getFollowers,
   getFollowing,
   removeFollower,
+  getUserBySpotifyId,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -26,6 +27,7 @@ router.post('/', registerUser);
 
 // this route is being replaced by /profile/:username route
 router.get('/:username', getUserByUsername);
+router.get('/spotify/:spotifyId', getUserBySpotifyId);
 router.put('/:username', updateUserByUsername);
 
 // Nested routes for user resources
@@ -38,9 +40,9 @@ router.delete('/:username/favorites', removeFavorite);
 router.patch('/:username/favorites', updateFavorite);
 
 // follow + unfollow routes
-router.put('/:username/follow', authenticateUser, addFollower);
+router.put('/:username/follow', addFollower);
 router.get('/:username/followers', getFollowers);
 router.get('/:username/following', getFollowing);
-router.delete('/:username/unfollow', authenticateUser, removeFollower);
+router.delete('/:username/unfollow', removeFollower);
 
 export default router;
