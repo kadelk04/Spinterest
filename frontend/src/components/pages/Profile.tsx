@@ -220,6 +220,11 @@ export const Profile: FunctionComponent = () => {
                   Logout
                 </Button>
               ) : null}
+              {!isOwnProfile ? (
+                <Button sx={{ mt: 2 }} variant="contained">
+                  Follow
+                </Button>
+              ) : null}
             </>
           ) : (
             <>

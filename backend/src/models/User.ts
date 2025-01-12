@@ -31,4 +31,14 @@ export const UserSchema = new mongoose.Schema({
   annotatedPlaylists: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
   ],
+  following: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: [],
+    unique: true,
+  },
+  followers: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: [],
+    unique: true,
+  },
 });

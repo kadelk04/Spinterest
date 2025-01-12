@@ -5,6 +5,10 @@ import {
   updateUserByUsername,
   saveUserSpotifyId,
   getUserSpotifyId,
+  addFollower,
+  getFollowers,
+  getFollowing,
+  removeFollower,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -32,5 +36,11 @@ router.get('/:username/favorites', getUserFavorites);
 router.post('/:username/favorites', addFavorite);
 router.delete('/:username/favorites', removeFavorite);
 router.patch('/:username/favorites', updateFavorite);
+
+// follow + unfollow routes
+router.put('/:username/follow', authenticateUser, addFollower);
+router.get('/:username/followers', getFollowers);
+router.get('/:username/following', getFollowing);
+router.delete('/:username/unfollow', authenticateUser, removeFollower);
 
 export default router;

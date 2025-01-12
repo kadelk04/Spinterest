@@ -174,3 +174,16 @@ export const getUserSpotifyId = async (
 //       throw new Error('Failed to fetch friends from Spotify');
 //   }
 // };
+
+export const addFollower = async (req: Request, res: Response) => {
+  return;
+};
+export const getFollowers = async (req: Request, res: Response) => {
+  return;
+};
+export const getFollowing = async (req: Request, res: Response) => {
+  return;
+};
+export const removeFollower = async (req: Request, res: Response) => {
+  return;
+};
