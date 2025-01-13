@@ -152,7 +152,7 @@ export const fetchPinPlaylist = async (
 };
 
 // Helper function to fetch cover image from Spotify using playlistId
-const fetchSpotifyPlaylistCover = async (
+export const fetchSpotifyPlaylistCover = async (
   playlistId: string
 ): Promise<string> => {
   try {

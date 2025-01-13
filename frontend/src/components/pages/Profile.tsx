@@ -6,7 +6,7 @@ import {
   SpotifyLoginButton,
 } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPinPlaylist, WidgetData } from '../data/playlistUtils';
+import { fetchSpotifyPlaylistCover, WidgetData } from '../data/playlistUtils';
 import {
   Search as SearchIcon,
   Settings as SettingsIcon,
@@ -643,15 +643,26 @@ const PinnedMusicSection: FunctionComponent = () => {
         return;
       }
 
-      console.log('Username from localStorage:', username); // Debugging log
-
-      const playlists = await fetchPinPlaylist(username); // Fetch playlists
-
-      // Debug statement to log playlist names
-      console.log(
-        'Fetched playlists:',
-        playlists.map((playlist) => playlist.title)
+      const response = await fetch(
+        `/api/profile/pinned-playlists/${username}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
+          },
+        }
       );
+
+      const { pinnedPlaylists } = await response.json();
+
+      const playlistPromises = pinnedPlaylists.map((playlistId: string) =>
+        fetchSpotifyPlaylistCover(playlistId).then((cover: string) => ({
+          id: playlistId,
+          cover,
+        }))
+      );
+
+      const playlists = await Promise.all(playlistPromises);
+      console.log('Fetched playlists with covers:', playlists);
 
       setPinnedPlaylists(playlists);
     } catch (error) {

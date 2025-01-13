@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -45,6 +45,8 @@ export const PlaylistWidget = ({
   const [isHovered, setIsHovered] = useState(false);
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
 
+  //TODO: create a fetchPinStatus
+
   const handlePinClick = async () => {
     const username = localStorage.getItem('username');
     if (!username) {
@@ -64,6 +66,8 @@ export const PlaylistWidget = ({
       } catch (e) {
         console.log((e as Error).message);
       }
+
+      // if playlist is in PinnedPlaylist, populate the filled icon
 
       setClicked((prev) => !prev);
     } catch (error) {

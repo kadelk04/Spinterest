@@ -185,15 +185,17 @@ export const pinPlaylist = async (req: Request, res: Response) => {
 
     // Check if playlist is already pinned
     const playlistIndex = user.pinnedPlaylists.findIndex(
-      (id) => id.toString() === playlistId.toString()
+      (id) => id != null && id.toString() === playlistId.toString()
     );
 
     if (playlistIndex >= 0) {
       console.log('Unpinning playlist');
       user.pinnedPlaylists.splice(playlistIndex, 1);
-    } else {
+    } else if (playlistId !== null) {
       console.log('Pinning playlist');
       user.pinnedPlaylists.push(playlistId);
+    } else {
+      console.error('Cannot pin null playlist');
     }
 
     // Save the user
@@ -218,7 +220,7 @@ export const pinPlaylist = async (req: Request, res: Response) => {
 export const getPinnedPlaylist = async (req: Request, res: Response) => {
   try {
     const UserModel = getModel<IUser>('User');
-    const username = req.query.user as string;
+    const { username } = req.params;
 
     // Validate input
     if (!username) {
@@ -226,15 +228,11 @@ export const getPinnedPlaylist = async (req: Request, res: Response) => {
       return;
     }
 
-    // Fetch user and populate pinned playlists
-    const user = await UserModel.findOne({ username }).populate({
-      path: 'pinnedPlaylists',
-      model: 'Playlist',
-      select: 'id title owner cover genres',
-    });
+    // Find user by username
+    const user = await UserModel.findOne({ username });
 
-    if (!user) {
-      res.status(404).send('User not found');
+    if (!user || !user.pinnedPlaylists || user.pinnedPlaylists.length === 0) {
+      res.status(404).send('No pinned playlists found');
       return;
     }
 
