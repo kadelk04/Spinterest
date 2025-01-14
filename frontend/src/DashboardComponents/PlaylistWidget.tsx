@@ -43,9 +43,35 @@ export const PlaylistWidget = ({
 }) => {
   const [clicked, setClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+  const [pinnedPlaylists, setPinnedPlaylists] = useState([]);
 
-  //TODO: create a fetchPinStatus
+  useEffect(() => {
+    const fetchPinnedPlaylist = async () => {
+      const username = localStorage.getItem('username');
+      if (!username) {
+        console.error('No username found');
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:8000/profile/pinned-playlists/${username}`,
+          {
+            headers: {
+              authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
+            },
+          }
+        );
+        const data = await response.json();
+        const pinnedPlaylists = data.pinnedPlaylists;
+        setPinnedPlaylists(pinnedPlaylists);
+        setClicked(pinnedPlaylists.includes(playlistId));
+      } catch (error) {
+        console.error('Error fetching pinned playlist.', error);
+      }
+    };
+    fetchPinnedPlaylist();
+  }, [playlistId]);
 
   const handlePinClick = async () => {
     const username = localStorage.getItem('username');
@@ -58,20 +84,12 @@ export const PlaylistWidget = ({
       console.error('Playlist ID is undefined');
       return;
     }
-
     try {
       const updatedPlaylist = await togglePinPlaylist(username, playlistId);
-      try {
-        console.log((updatedPlaylist as { message: string }).message);
-      } catch (e) {
-        console.log((e as Error).message);
-      }
-
-      // if playlist is in PinnedPlaylist, populate the filled icon
-
       setClicked((prev) => !prev);
-    } catch (error) {
-      console.error('Error handling pin click:', error);
+      console.log((updatedPlaylist as { message: string }).message);
+    } catch (e) {
+      console.log((e as Error).message);
     }
   };
   return (

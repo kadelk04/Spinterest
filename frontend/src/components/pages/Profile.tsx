@@ -644,7 +644,7 @@ const PinnedMusicSection: FunctionComponent = () => {
       }
 
       const response = await fetch(
-        `/api/profile/pinned-playlists/${username}`,
+        `http://localhost:8000/profile/pinned-playlists/${username}`,
         {
           headers: {
             authorization: `Bearer ${localStorage.getItem('jwttoken')}`,

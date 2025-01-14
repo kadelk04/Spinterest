@@ -175,7 +175,9 @@ export const fetchSpotifyPlaylistCover = async (
       }
     );
 
-    const coverImage = response.data.images[0]?.url || ''; // Fallback to empty string if no cover image available
+    const coverImage = response.data.images[0]?.url || '';
+    console.log('Fetched cover image for playlist:', playlistId, coverImage);
+
     return coverImage;
   } catch (error) {
     console.error('Error fetching playlist cover from Spotify:', error);
