@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -38,6 +38,37 @@ export const PlaylistWidget = ({
 }) => {
   const [clicked, setClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+
+  //TODO: create a fetchPinStatus
+
+  const handlePinClick = async () => {
+    const username = localStorage.getItem('username');
+    if (!username) {
+      console.error('No username found');
+      return;
+    }
+
+    if (!playlistId) {
+      console.error('Playlist ID is undefined');
+      return;
+    }
+
+    try {
+      const updatedPlaylist = await togglePinPlaylist(username, playlistId);
+      try {
+        console.log((updatedPlaylist as { message: string }).message);
+      } catch (e) {
+        console.log((e as Error).message);
+      }
+
+      // if playlist is in PinnedPlaylist, populate the filled icon
+
+      setClicked((prev) => !prev);
+    } catch (error) {
+      console.error('Error handling pin click:', error);
+    }
+  };
   return (
     <Card
       sx={{
