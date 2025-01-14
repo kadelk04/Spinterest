@@ -18,6 +18,7 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+import { togglePinPlaylist } from '../components/data/playlistUtils';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -214,7 +215,8 @@ export const PlaylistWidget = ({
             width: '100%',
           }}
         >
-          <PushPinOutlined
+          <IconButton
+            onClick={handlePinClick}
             sx={{
               p: 0, // Remove padding
               m: 0, // Remove margin
@@ -225,7 +227,9 @@ export const PlaylistWidget = ({
                   '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
               },
             }}
-          ></PushPinOutlined>
+          >
+            {clicked ? <PushPin /> : <PushPinOutlined />}
+          </IconButton>
           <FavoriteBorderOutlined
             sx={{
               transition: 'transform 0.3s, box-shadow 0.3s',

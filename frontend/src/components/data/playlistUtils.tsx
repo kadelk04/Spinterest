@@ -126,59 +126,19 @@ export const fetchPinPlaylist = async (
     console.log('Pinned Playlists:', data);
 
     // Fetch cover image for each playlist from Spotify API
-    const pinnedPlaylists: WidgetData[] = await Promise.all(
-      data.items.map(async (playlist: PlaylistData) => {
-        // Fetch the playlist details from Spotify to get the cover image
-        const coverImage = await fetchSpotifyPlaylistCover(playlist.id);
-        console.log(`Playlist: ${playlist.name}, Cover Image: ${coverImage}`);
-
-        return {
-          id: playlist.id,
-          cover: coverImage || '',
-          owner: playlist.owner,
-          title: playlist.name,
-        };
-      })
-    );
+    const pinnedPlaylists: WidgetData[] = data.items
+      .filter((playlist: PlaylistData) => playlist)
+      .map((playlist: PlaylistData) => ({
+        id: playlist.id,
+        cover: playlist.images[0]?.url || '',
+        owner: playlist.owner,
+        title: playlist.name,
+      }));
 
     return pinnedPlaylists;
   } catch (error) {
     console.error('Error fetching pinned playlists from user:', error);
     return [];
-  }
-};
-
-// Helper function to fetch cover image from Spotify using playlistId
-export const fetchSpotifyPlaylistCover = async (
-  playlistId: string
-): Promise<string> => {
-  try {
-    const accessToken = getAccessToken(); // Get Spotify access token
-    if (!accessToken) {
-      console.error('Access token is missing');
-      return '';
-    }
-
-    // Request the playlist details from Spotify API using playlistId
-    const response = await axios.get<PlaylistData>(
-      `http://localhost:8000/api/spotify/playlists/${playlistId}`,
-      {
-        params: {
-          spotifyToken: accessToken,
-        },
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
-      }
-    );
-
-    const coverImage = response.data.images[0]?.url || '';
-    console.log('Fetched cover image for playlist:', playlistId, coverImage);
-
-    return coverImage;
-  } catch (error) {
-    console.error('Error fetching playlist cover from Spotify:', error);
-    return ''; // Return empty string if there was an error
   }
 };
 

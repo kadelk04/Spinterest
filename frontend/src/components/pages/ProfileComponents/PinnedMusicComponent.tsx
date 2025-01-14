@@ -1,32 +1,9 @@
 import React from 'react';
-import { FunctionComponent, useEffect, useState } from 'react';
-import {
-  Search as SearchIcon,
-  Settings as SettingsIcon,
-  Edit as EditIcon,
-  LocationOn as LocationOnIcon,
-  AccountCircle as AccountCircleIcon,
-  MusicNote as MusicNoteIcon,
-  SaveAlt as SaveAltIcon,
-} from '@mui/icons-material';
-import {
-  Box,
-  Button,
-  TextField,
-  Typography,
-  Paper,
-  Avatar,
-  Grid,
-  IconButton,
-  Icon,
-  ListItem,
-  List,
-  ListItemAvatar,
-  ListItemText,
-} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, TextField, Typography, Paper, Grid } from '@mui/material';
 import {
   WidgetData,
-  fetchSpotifyPlaylistCover,
+  //fetchSpotifyPlaylistCover,
 } from '../../data/playlistUtils';
 
 const PinnedMusicComponent: React.FC = () => {
@@ -61,15 +38,19 @@ const PinnedMusicComponent: React.FC = () => {
       const { pinnedPlaylists } = await response.json();
 
       const playlistPromises = pinnedPlaylists.map((playlistId: string) =>
-        fetchSpotifyPlaylistCover(playlistId).then((cover: string) => ({
-          id: playlistId,
-          cover,
-        }))
+        fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
+          headers: {
+            authorization: `Bearer ${accessToken}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((playlistData) => ({
+            id: playlistId,
+            cover: playlistData.images[0]?.url || 'path/to/default-image.jpg', // Default image if no cover is found
+          }))
       );
 
       const playlists = await Promise.all(playlistPromises);
-      console.log('Fetched playlists with covers:', playlists);
-
       setPinnedPlaylists(playlists);
     } catch (error) {
       console.error('Failed to fetch playlists:', error);

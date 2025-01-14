@@ -2,7 +2,6 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchSpotifyPlaylistCover, WidgetData } from '../data/playlistUtils';
 import {
   Box,
   Button,
@@ -306,8 +305,9 @@ export const Profile: FunctionComponent = () => {
           }}
         >
           <AboutComponent isOwnProfile={isOwnProfile} />
-          <PinnedMusicComponent />
         </Paper>
+
+        <PinnedMusicComponent />
       </Box>
     </Box>
   );
