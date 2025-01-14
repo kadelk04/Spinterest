@@ -1,9 +1,10 @@
 import mongoose from 'mongoose';
 
 export interface IFavorites {
-  genre?: string[];
-  artist?: string[];
-  album?: string[];
+  userId: string;
+  genre?: string;
+  artist?: string;
+  album?: string;
 }
 
 export const FavoritesSchema = new mongoose.Schema({

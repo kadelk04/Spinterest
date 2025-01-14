@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   AUTH_URL,
   fetchAuthToken,
@@ -7,8 +8,11 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, TextField, Link } from '@mui/material';
 import Grid from '@mui/material/Grid2';
-import vinylImage from '../../assets/vinyl_login.webp';
+import logo from '../../assets/logo.png';
 import { SignupModal } from '../common/SignupModal';
+
+import '@fontsource/open-sans';
+import { PlaylistResponse } from '../data/playlistUtils';
 
 export const Login = () => {
   const [open, setOpen] = useState(false);
@@ -16,11 +20,64 @@ export const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  interface PlaylistDoc {
+    title: string;
+    cover: string;
+    spotifyId: string;
+    songs: string;
+    creator: string;
+  }
+
+  const loadPlaylists = async () => {
+    const spotifyToken = localStorage.getItem('spotify_token');
+    if (!spotifyToken) {
+      console.error('No Spotify token found');
+      return;
+    }
+    const playlists = await axios.get<PlaylistResponse>(
+      'http://localhost:8000/api/spotify/playlists',
+      {
+        params: {
+          spotifyToken: spotifyToken,
+        },
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
+      }
+    );
+
+    const dataMap: PlaylistDoc[] = playlists.data.items
+      .filter((playlist) => playlist !== null)
+      .map((playlist) => ({
+        title: playlist.name,
+        cover: playlist.images[0].url,
+        spotifyId: playlist.id,
+        songs: playlist.tracks.href,
+        creator: localStorage.getItem('username') || '',
+      }));
+
+    dataMap.forEach((playlist) => {
+      axios.post('http://localhost:8000/api/playlist', {
+        title: playlist.title,
+        cover: playlist.cover,
+        spotifyId: playlist.spotifyId,
+        songs: playlist.songs,
+        creator: playlist.creator,
+      });
+    });
+  };
   useEffect(() => {
     const fetchData = async () => {
       const { code } = getInfoFromUrl();
       if (!code) return;
       await fetchAuthToken(code);
+      const firstLogin = localStorage.getItem('firstlogin') === 'true';
+      if (firstLogin) {
+        console.log('First login');
+        localStorage.removeItem('firstlogin');
+        // await loadPlaylists();
+      }
       navigate('/dashboard');
     };
     fetchData();
@@ -42,8 +99,6 @@ export const Login = () => {
         },
         body: JSON.stringify({ username, password }),
       });
-      console.log('this worked');
-      console.log('Response:', response.statusText);
       if (response.ok) {
         const data = await response.json();
         // Store the token securely, e.g., in localStorage or a secure cookie
@@ -59,148 +114,157 @@ export const Login = () => {
     }
   };
 
-  // return (
-  //   // <div className={styles.LoginContainer}>
-  //   //     <Typography>Click to Login</Typography>
-  //   //     <SpotifyLoginButton />
-  //   // </div>
-  //   <Container component="main" maxWidth="xl">
-
-  //   </Container>
-  // );
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={2}>
-        <Grid size={6}>
-          <SignupModal open={open} setOpen={setOpen} navigate={navigate} />
-          <Box
+      <Grid size={2} justifyContent="center">
+        <SignupModal open={open} setOpen={setOpen} navigate={navigate} />
+        <Box
+          sx={{
+            mt: 8,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            p: 4,
+            bgcolor: 'background.default',
+            maxWidth: '70%',
+            mx: 'auto',
+          }}
+        >
+          <img
+            src={logo}
+            alt="vinyl record"
+            style={{ width: '100px', height: '100px' }}
+          />
+          <br />
+          <Typography
+            component="h1"
+            variant="h3"
             sx={{
-              mt: 8,
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              p: 4,
+              mb: 1,
+              fontWeight: '800',
             }}
           >
-            <Typography
-              component="h1"
-              variant="h3"
+            Welcome Back!
+          </Typography>
+
+          <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
+            Let's get back to those tunes.
+          </Typography>
+
+          <Box
+            component="form"
+            sx={{
+              maxWidth: '40%',
+              minWidth: '300px',
+              mt: 1,
+            }}
+          >
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="username"
+              label="Username"
+              name="username"
+              value={username}
+              error={error !== ''}
+              onChange={(e) => setUsername(e.target.value)}
+              autoFocus
+              slotProps={{
+                inputLabel: {
+                  required: false,
+                },
+              }}
               sx={{
-                mb: 1,
+                bgcolor: 'rgba(237, 231, 246, 0.4)',
+                fontWeight: 'bold',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'transparent',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(0, 0, 0, 0.23)',
+                  },
+                },
+              }}
+            />
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              value={password}
+              autoComplete="current-password"
+              error={error !== ''}
+              onChange={(e) => setPassword(e.target.value)}
+              slotProps={{
+                inputLabel: {
+                  required: false,
+                },
+              }}
+              sx={{
+                bgcolor: 'rgba(237, 231, 246, 0.4)',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: 'transparent',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: 'rgba(0, 0, 0, 0.23)',
+                  },
+                },
+              }}
+            />
+
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                my: 2,
+              }}
+            ></Box>
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              onClick={handleLoginClick}
+              sx={{
+                py: 1.5,
+                borderColor: 'transparent',
+                textTransform: 'none', // This will prevent automatic capitalization
               }}
             >
-              Welcome Back!
+              <Typography variant="body2" color="text.light" display="inline">
+                Sign In
+              </Typography>
+            </Button>
+            <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+              {error}
             </Typography>
-
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>
-              Let's get back to those tunes.
-            </Typography>
-
-            <Box component="form" sx={{ width: '100%', mt: 1 }}>
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="username"
-                label="Username"
-                name="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                autoComplete="username"
-                autoFocus
-                sx={{
-                  bgcolor: 'rgba(237, 231, 246, 0.4)',
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: 'transparent',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(0, 0, 0, 0.23)',
-                    },
-                  },
-                }}
-              />
-
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                sx={{
-                  bgcolor: 'rgba(237, 231, 246, 0.4)',
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: 'transparent',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: 'rgba(0, 0, 0, 0.23)',
-                    },
-                  },
-                }}
-              />
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  my: 2,
-                }}
+            <Box sx={{ textAlign: 'center', mt: 2 }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                display="inline"
               >
-                <Link href="#" variant="body2" sx={{ textDecoration: 'none' }}>
-                  Forgot password?
-                </Link>
-              </Box>
-
-              {/* <Button
-                fullWidth
-                variant="contained"
-                sx={{
-                  mt: 2,
-                  mb: 2,
-                  py: 1.5,
-                  bgcolor: '#5C6BC0',
-                  '&:hover': {
-                    bgcolor: '#3F51B5',
-                  },
-                }}
+                Don't have an account?{' '}
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                display="inline"
+                sx={{ textDecoration: 'underline' }} // Underline the text
+                onClick={() => setOpen(true)}
               >
-                Login
-              </Button> */}
-              <Button
-                fullWidth
-                variant="contained"
-                color="primary"
-                onClick={handleLoginClick}
-                sx={{
-                  mt: 2,
-                  py: 1.5,
-                  borderColor: 'transparent',
-                  textTransform: 'none', // This will prevent automatic capitalization
-                }}
-              >
-                <Typography variant="body2" color="text.light" display="inline">
-                  Sign In
-                </Typography>
-              </Button>
+                Sign up for Spinterest
+              </Typography>
+            </Box>
 
-              <Box sx={{ textAlign: 'center', mt: 2 }}>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  display="inline"
-                >
-                  Or sign up here!
-                </Typography>
-              </Box>
-
-              <Button
+            {/* <Button
                 fullWidth
                 variant="outlined"
                 sx={{
@@ -218,13 +282,9 @@ export const Login = () => {
                 onClick={() => setOpen(true)}
               >
                 Register
-              </Button>
-            </Box>
+              </Button> */}
           </Box>
-        </Grid>
-        <Grid size={6}>
-          <img src={vinylImage} alt="A description of the image" />
-        </Grid>
+        </Box>
       </Grid>
     </Box>
   );

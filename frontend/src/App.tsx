@@ -11,6 +11,7 @@ import { Theme } from './components/common/Theme';
 import '@fontsource/roboto';
 import PrivateRoute from './components/common/PrivateRoute';
 import { grey } from '@mui/material/colors';
+import '@fontsource/open-sans';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -42,7 +43,7 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile/:username" element={<Profile />} />
             </Routes>
           </Box>
         </Box>

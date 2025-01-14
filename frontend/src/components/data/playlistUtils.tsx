@@ -17,6 +17,7 @@ export interface WidgetData {
   cover: string;
   owner: Owner;
   title: string;
+  isPinned?: boolean;
 }
 
 export interface Owner {
@@ -28,7 +29,7 @@ export interface PlaylistData {
   images: Image[];
   owner: Owner;
   name: string;
-  tracks: any[];
+  tracks: { href: string; total: number };
 }
 
 interface Playlist {
@@ -39,7 +40,7 @@ interface Image {
   url: string;
 }
 
-interface PlaylistResponse {
+export interface PlaylistResponse {
   items: PlaylistData[];
 }
 
@@ -54,8 +55,6 @@ interface ArtistResponse {
 export const fetchPlaylists = async (
   accessToken: string
 ): Promise<WidgetData[]> => {
-  // calls the getplaylists endpoint to get the playlists from the user's spotify account
-  // returns an array of Widgets that the dashboard can use to display the playlists
   try {
     const response = await axios.get<PlaylistResponse>(
       'http://localhost:8000/api/spotify/playlists',
@@ -71,13 +70,11 @@ export const fetchPlaylists = async (
 
     const data = response.data;
 
-    console.log('Playlists:', data);
-
     const widgetsData: WidgetData[] = data.items
       .filter((playlist: PlaylistData) => playlist)
       .map((playlist: PlaylistData) => ({
         id: playlist.id,
-        cover: playlist.images[0].url || '',
+        cover: playlist.images[0]?.url || '',
         owner: playlist.owner,
         title: playlist.name,
       }));
@@ -212,9 +209,9 @@ export const buildWidgets = async (
         }
       );
 
-      // console.log('Playlist in playlistUtils:', response.data);
+      //console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
-      console.log('Tracks:', tracks);
+      // console.log('Tracks:', tracks);
 
       const artists = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
@@ -237,14 +234,14 @@ export const buildWidgets = async (
       const allArtistInfo = artistInfoResponses.flatMap(
         (response) => response.data
       );
-      console.log('allArtistInfo', allArtistInfo);
+      //console.log('allArtistInfo', allArtistInfo);
 
       const genres = allArtistInfo.flatMap((artistInfo: any) =>
         artistInfo.artists.flatMap((artist: any) => artist.genres)
       );
 
       const topGenres = await getTopGenres(genres);
-      console.log('topGenres', topGenres);
+      // console.log('topGenres', topGenres);
 
       return {
         id: playlist.id,
@@ -266,13 +263,13 @@ export const buildWidgets = async (
       };
     })
   );
-  console.log('widgets', widgets);
+  // console.log('widgets', widgets);
   return widgets;
 };
 
 // later it may be beneficial to create a better algorithm for getting the top genres
 export const getTopGenres = async (genres: string[]): Promise<string[]> => {
-  console.log('in getTopGenres');
+  //console.log('in getTopGenres');
   const genreCount: { [key: string]: number } = {};
 
   genres.forEach((genre) => {

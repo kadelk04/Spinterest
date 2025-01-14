@@ -28,15 +28,12 @@
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.0.0",
-    "babel-jest": "^29.7.0",
+    "@types/jest": "^29.5.14",
     "cross-env": "^7.0.3",
-    "jest": "^29.7.0",
     "nodemon": "^3.1.7",
-    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.0.0"
   }
 }

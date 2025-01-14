@@ -37,7 +37,7 @@ export const updateProfilePgInfo = async (req: Request, res: Response) => {
         if (key === 'biography') {
           user.bio = profileData[key]; //ensuring bio is saved
         } else {
-          user[key as keyof IUser] = profileData[key];
+          (user as any)[key] = profileData[key];
         }
       }
     }

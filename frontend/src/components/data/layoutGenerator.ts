@@ -15,8 +15,8 @@ export const getLayouts = (widgets: Widget[]): Layouts => {
   return {
     lg: generateLayout('lg', 6),
     md: generateLayout('md', 4),
-    sm: generateLayout('sm', 2),
-    xs: generateLayout('xs', 1),
-    xxs: generateLayout('xxs', 1),
+    sm: generateLayout('sm', 3),
+    xs: generateLayout('xs', 2),
+    xxs: generateLayout('xxs', 2),
   };
 };
