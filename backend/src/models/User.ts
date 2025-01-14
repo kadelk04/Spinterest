@@ -5,6 +5,7 @@ import { IPlaylist } from './Playlist';
 export interface IUser {
   username: string;
   password: string;
+  isPrivate: boolean;
   spotifyId?: string;
   refreshToken?: string;
   status?: string;
@@ -14,12 +15,14 @@ export interface IUser {
   favorites: IFavorites;
   favoritesId: mongoose.Types.ObjectId;
   annotatedPlaylists?: IPlaylist[];
-  pinnedPlaylists?: string[];
+  following: mongoose.Types.ObjectId[];
+  followers: mongoose.Types.ObjectId[];
 }
 
 export const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
+  isPrivate: { type: Boolean, required: true, default: false },
   spotifyId: String,
   bio: String,
   status: String,
@@ -30,5 +33,14 @@ export const UserSchema = new mongoose.Schema({
   annotatedPlaylists: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
   ],
-  pinnedPlaylists: [{ type: String }],
+  following: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: [],
+    required: true,
+  },
+  followers: {
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    default: [],
+    required: true,
+  },
 });
