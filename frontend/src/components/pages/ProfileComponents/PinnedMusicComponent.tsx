@@ -24,7 +24,58 @@ import {
   ListItemAvatar,
   ListItemText,
 } from '@mui/material';
+import {
+  WidgetData,
+  fetchSpotifyPlaylistCover,
+} from '../../data/playlistUtils';
+
 const PinnedMusicComponent: React.FC = () => {
+  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
+  const username = localStorage.getItem('username');
+
+  useEffect(() => {
+    if (!username) {
+      console.error('No username found');
+      return;
+    }
+    fetchPlaylistsData(username);
+  }, [username]);
+
+  const fetchPlaylistsData = async (username: string) => {
+    try {
+      const accessToken = window.localStorage.getItem('spotify_token');
+      if (!accessToken) {
+        console.error('Access token is missing');
+        return;
+      }
+
+      const response = await fetch(
+        `http://localhost:8000/profile/pinned-playlists/${username}`,
+        {
+          headers: {
+            authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
+          },
+        }
+      );
+
+      const { pinnedPlaylists } = await response.json();
+
+      const playlistPromises = pinnedPlaylists.map((playlistId: string) =>
+        fetchSpotifyPlaylistCover(playlistId).then((cover: string) => ({
+          id: playlistId,
+          cover,
+        }))
+      );
+
+      const playlists = await Promise.all(playlistPromises);
+      console.log('Fetched playlists with covers:', playlists);
+
+      setPinnedPlaylists(playlists);
+    } catch (error) {
+      console.error('Failed to fetch playlists:', error);
+    }
+  };
+
   return (
     <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
       <Typography variant="h5" sx={{ mb: 2 }}>
@@ -45,19 +96,51 @@ const PinnedMusicComponent: React.FC = () => {
         }}
       />
       <Grid container spacing={2}>
-        {[...Array(6)].map((_, i) => (
-          <Grid item xs={4} key={i}>
-            <Paper
-              sx={{
-                paddingTop: '100%',
-                position: 'relative',
-                bgcolor: '#FEF7FF',
-              }}
-            />
-          </Grid>
-        ))}
+        {pinnedPlaylists.length > 0 ? (
+          pinnedPlaylists.map((playlist, i) => (
+            <Grid item xs={4} key={playlist.id}>
+              <Box
+                sx={{
+                  position: 'relative',
+                  paddingTop: '100%',
+                  bgcolor: '#FEF7FF',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundImage: `url(${playlist.cover})`,
+                  border: '1px solid #ddd',
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: 'rgba(0,0,0,0.6)',
+                    color: '#fff',
+                    textAlign: 'center',
+                    padding: '4px',
+                    fontSize: '12px',
+                  }}
+                >
+                  {playlist.title}
+                </Typography>
+              </Box>
+            </Grid>
+          ))
+        ) : (
+          <Typography
+            variant="body2"
+            sx={{ mt: 2, textAlign: 'center', width: '100%' }}
+          >
+            No pinned playlists available.
+          </Typography>
+        )}
       </Grid>
     </Paper>
   );
 };
+
 export default PinnedMusicComponent;
