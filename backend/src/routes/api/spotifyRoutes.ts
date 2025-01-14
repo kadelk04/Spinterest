@@ -16,7 +16,8 @@ import { authenticateUser } from '../../middleware/auth';
 
 const router = Router();
 
-router.get('/profile', getProfileInfo);
+// changed /profile to be /profile/:username
+router.get('/profile/:username', getProfileInfo);
 router.get('/playlists', authenticateUser, getMyPlaylists);
 router.get('/friends', getFriends);
 router.get('/playlists/:playlistId', getPlaylistTracks);

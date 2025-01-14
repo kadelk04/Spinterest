@@ -112,7 +112,7 @@ export const buildWidgets = async (
         }
       );
 
-      console.log('Playlist in playlistUtils:', response.data);
+      //console.log('Playlist in playlistUtils:', response.data);
       const tracks = response.data.items;
       // console.log('Tracks:', tracks);
 
@@ -137,7 +137,7 @@ export const buildWidgets = async (
       const allArtistInfo = artistInfoResponses.flatMap(
         (response) => response.data
       );
-      console.log('allArtistInfo', allArtistInfo);
+      //console.log('allArtistInfo', allArtistInfo);
 
       const genres = allArtistInfo.flatMap((artistInfo: any) =>
         artistInfo.artists.flatMap((artist: any) => artist.genres)
@@ -172,7 +172,7 @@ export const buildWidgets = async (
 
 // later it may be beneficial to create a better algorithm for getting the top genres
 export const getTopGenres = async (genres: string[]): Promise<string[]> => {
-  console.log('in getTopGenres');
+  //console.log('in getTopGenres');
   const genreCount: { [key: string]: number } = {};
 
   genres.forEach((genre) => {
