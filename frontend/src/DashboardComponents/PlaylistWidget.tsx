@@ -18,7 +18,6 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { togglePinPlaylist } from '../components/data/playlistUtils';
 
 export const PlaylistWidget = ({
   key,
@@ -39,20 +38,6 @@ export const PlaylistWidget = ({
 }) => {
   const [clicked, setClicked] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const handlePinClick = async () => {
-    try {
-      const updatedPlaylist = await togglePinPlaylist(key);
-      try {
-        console.log((updatedPlaylist as { message: string }).message);
-      } catch (e) {
-        console.log((e as Error).message);
-      }
-
-      setClicked((prev) => !prev);
-    } catch (error) {
-      console.error('Error handling pin click:', error);
-    }
-  };
   return (
     <Card
       sx={{
@@ -180,8 +165,7 @@ export const PlaylistWidget = ({
             width: '100%',
           }}
         >
-          <IconButton
-            onClick={handlePinClick}
+          <PushPinOutlined
             sx={{
               p: 0, // Remove padding
               m: 0, // Remove margin
@@ -192,9 +176,7 @@ export const PlaylistWidget = ({
                   '0 0 16px rgba(128, 0, 128, 0.2), 0 0 16px rgba(128, 0, 128, 0.2)', // More defined highlight on the right and left borders
               },
             }}
-          >
-            {clicked ? <PushPin /> : <PushPinOutlined />}
-          </IconButton>
+          ></PushPinOutlined>
           <FavoriteBorderOutlined
             sx={{
               transition: 'transform 0.3s, box-shadow 0.3s',
