@@ -199,13 +199,25 @@ export const getUserSpotifyId = async (
 export const addFollower = async (req: Request, res: Response) => {
   try {
     const UserModel = getModel<IUser>('User');
-    const user = await UserModel.findOne({ username: req.params.username });
-    if (!user) {
+    const userToFollow = await UserModel.findOne({
+      username: req.params.username,
+    });
+    // follower is the id of the user (you) that is requesting to follow
+    const follower = await UserModel.findOne({ username: req.body.follower });
+    console.log('userToFollow:', userToFollow?.username);
+    console.log('follower:', follower?.username);
+    if (!userToFollow) {
       res.status(404).send('User not found');
       return;
     }
-    user.followers.push(req.body.follower);
-    await user.save();
+    if (!follower) {
+      res.status(404).send('Follower not found');
+      return;
+    }
+    userToFollow.followers.push(follower.id);
+    follower.following.push(userToFollow.id);
+    await follower.save();
+    await userToFollow.save();
     res.status(200).send('Follower added');
   } catch (err) {
     console.error(err);
@@ -232,15 +244,29 @@ export const getFollowing = async (req: Request, res: Response) => {
 };
 export const removeFollower = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.username });
-  if (!user) {
+  const userToUnfollow = await UserModel.findOne({
+    username: req.params.username,
+  });
+  const unfollower = await UserModel.findOne({
+    username: req.body.unfollower,
+  });
+  if (!userToUnfollow) {
     res.status(404).send('User not found');
     return;
   }
-  const index = user.followers.indexOf(req.body.follower);
-  if (index > -1) {
-    user.followers.splice(index, 1);
+  if (!unfollower) {
+    res.status(404).send('Unfollower not found');
+    return;
   }
-  await user.save();
+  const index = userToUnfollow.followers.indexOf(unfollower.id);
+  if (index > -1) {
+    userToUnfollow.followers.splice(index, 1);
+  }
+  const followingIndex = unfollower.following.indexOf(userToUnfollow.id);
+  if (followingIndex > -1) {
+    unfollower.following.splice(followingIndex, 1);
+  }
+  await unfollower.save();
+  await userToUnfollow.save();
   res.status(200).send('Follower removed');
 };

@@ -22,7 +22,7 @@ interface SpotifyProfile {
 }
 
 interface User {
-  _id: string;
+  id: string;
   username: string;
   isPrivate: boolean;
   status: string;
@@ -53,6 +53,7 @@ export const Profile: FunctionComponent = () => {
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
+  const [myData, setMyData] = useState<User | null>(null);
 
   const navigate = useNavigate();
   const username = window.location.pathname.split('/').pop();
@@ -82,22 +83,22 @@ export const Profile: FunctionComponent = () => {
       // check if that spotify id is yours
 
       // Fetch the profile's Spotify ID from Spotify API
-      let profileResponse = await fetch(`https://api.spotify.com/v1/me`, {
+      let spotifyDataResponse = await fetch(`https://api.spotify.com/v1/me`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log('profile response', profileResponse);
+      console.log('profile response', spotifyDataResponse);
 
-      if (profileResponse.status === 401 && refreshToken) {
+      if (spotifyDataResponse.status === 401 && refreshToken) {
         await getRefreshedToken(refreshToken);
-        profileResponse = await fetch('https://api.spotify.com/v1/me', {
+        spotifyDataResponse = await fetch('https://api.spotify.com/v1/me', {
           headers: {
             Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
           },
         });
       }
-      const profileData = await profileResponse.json();
+      const profileData = await spotifyDataResponse.json();
       const profileSpotifyId = profileData.id;
 
       // Check if the profile's Spotify ID matches the user's Spotify ID
@@ -110,7 +111,7 @@ export const Profile: FunctionComponent = () => {
         });
       } else {
         setIsOwnProfile(false);
-        const otherProfileResponse = await fetch(
+        const otherspotifyDataResponse = await fetch(
           `https://api.spotify.com/v1/users/${userSpotifyId}`,
           {
             headers: {
@@ -119,7 +120,7 @@ export const Profile: FunctionComponent = () => {
           }
         );
 
-        const myProfileResponse = await fetch(
+        const myspotifyDataResponse = await fetch(
           `http://localhost:8000/api/user/spotify/${profileSpotifyId}`,
           {
             headers: {
@@ -128,11 +129,15 @@ export const Profile: FunctionComponent = () => {
           }
         );
 
-        const otherProfileData = await otherProfileResponse.json();
+        const otherProfileData = await otherspotifyDataResponse.json();
 
-        const myProfileData = await myProfileResponse.json();
-        const myMongoId = myProfileData._id;
-        setFollowing(myProfileData.following.includes(myMongoId));
+        const myProfileData = await myspotifyDataResponse.json();
+        // FIXME: this is not the data you're looking for, look into it later
+        // gets "local" mongo data, NOT spotify data
+        setMyData(myProfileData);
+        const myMongoId = myProfileData.id;
+        console.log('user data', userData);
+        setFollowing(userData.followers.includes(myMongoId));
 
         console.log('Other Profile Data Fetched:', otherProfileData);
         setProfile({
@@ -174,12 +179,13 @@ export const Profile: FunctionComponent = () => {
 
     if (following) {
       try {
-        const response = await axios.delete(
+        const response = await axios.put(
           `http://localhost:8000/api/user/${username}/unfollow`,
           {
             headers: {
               authorization: localStorage.getItem('jwttoken'),
             },
+            follower: myData?.username,
           }
         );
 
@@ -197,6 +203,7 @@ export const Profile: FunctionComponent = () => {
             headers: {
               authorization: localStorage.getItem('jwttoken'),
             },
+            follower: myData?.username,
           }
         );
 

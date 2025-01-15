@@ -44,3 +44,5 @@ export const UserSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+//make all following and followers unique
