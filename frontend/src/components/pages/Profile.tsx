@@ -132,11 +132,9 @@ export const Profile: FunctionComponent = () => {
         const otherProfileData = await otherspotifyDataResponse.json();
 
         const myProfileData = await myspotifyDataResponse.json();
-        // FIXME: this is not the data you're looking for, look into it later
-        // gets "local" mongo data, NOT spotify data
         setMyData(myProfileData);
-        const myMongoId = myProfileData.id;
-        console.log('user data', userData);
+        const myMongoId = myProfileData._id;
+        console.log(userData.followers);
         setFollowing(userData.followers.includes(myMongoId));
 
         console.log('Other Profile Data Fetched:', otherProfileData);
@@ -185,7 +183,7 @@ export const Profile: FunctionComponent = () => {
             headers: {
               authorization: localStorage.getItem('jwttoken'),
             },
-            follower: myData?.username,
+            unfollower: myData?.username,
           }
         );
 
