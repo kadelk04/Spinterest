@@ -18,7 +18,7 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { togglePinPlaylist } from '../components/data/playlistUtils';
+import { usePinnedPlaylists } from '../components/data/pinnedPlaylistUtils';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -37,57 +37,9 @@ export const PlaylistWidget = ({
   dragHandleClass: string;
   noDragClass: string;
 }) => {
-  const [clicked, setClicked] = useState(false);
+  const { clicked, handlePinClick } = usePinnedPlaylists(playlistId);
   const [isHovered, setIsHovered] = useState(false);
-  const [pinnedPlaylists, setPinnedPlaylists] = useState([]);
 
-  useEffect(() => {
-    const fetchPinnedPlaylist = async () => {
-      const username = localStorage.getItem('username');
-      if (!username) {
-        console.error('No username found');
-        return;
-      }
-
-      try {
-        const response = await fetch(
-          `http://localhost:8000/profile/pinned-playlists/${username}`,
-          {
-            headers: {
-              authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
-            },
-          }
-        );
-        const data = await response.json();
-        const pinnedPlaylists = data.pinnedPlaylists;
-        setPinnedPlaylists(pinnedPlaylists);
-        setClicked(pinnedPlaylists.includes(playlistId));
-      } catch (error) {
-        console.error('Error fetching pinned playlist.', error);
-      }
-    };
-    fetchPinnedPlaylist();
-  }, [playlistId]);
-
-  const handlePinClick = async () => {
-    const username = localStorage.getItem('username');
-    if (!username) {
-      console.error('No username found');
-      return;
-    }
-
-    if (!playlistId) {
-      console.error('Playlist ID is undefined');
-      return;
-    }
-    try {
-      const updatedPlaylist = await togglePinPlaylist(username, playlistId);
-      setClicked((prev) => !prev);
-      console.log((updatedPlaylist as { message: string }).message);
-    } catch (e) {
-      console.log((e as Error).message);
-    }
-  };
   return (
     <Card
       sx={{

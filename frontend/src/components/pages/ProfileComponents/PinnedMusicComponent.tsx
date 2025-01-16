@@ -1,10 +1,7 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Box, TextField, Typography, Paper, Grid } from '@mui/material';
-import {
-  WidgetData,
-  //fetchSpotifyPlaylistCover,
-} from '../../data/playlistUtils';
+import { WidgetData } from '../../data/playlistUtils';
 
 const PinnedMusicComponent: React.FC = () => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
@@ -46,7 +43,8 @@ const PinnedMusicComponent: React.FC = () => {
           .then((res) => res.json())
           .then((playlistData) => ({
             id: playlistId,
-            cover: playlistData.images[0]?.url || 'path/to/default-image.jpg', // Default image if no cover is found
+            title: playlistData.title,
+            cover: playlistData.images[0]?.url,
           }))
       );
 
