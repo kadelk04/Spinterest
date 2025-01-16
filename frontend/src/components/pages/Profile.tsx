@@ -61,9 +61,10 @@ export const Profile: FunctionComponent = () => {
   const fetchProfile = async () => {
     if (!accessToken && !refreshToken) return;
 
-    // get your username
+    // the purpose of this ugly looking code is to check if you are trying to view YOUR profile or someone elses,
+    // you shouldn't be able to EDIT someone elses account which is why we need to check
 
-    // check if your spotify id (in db) is the same spotify id as the profile you are trying to view
+    // the route should include a ${username} param to fetch the user's data
     try {
       let response = await fetch(`http://localhost:8000/api/user/${username}`, {
         headers: {
@@ -76,42 +77,60 @@ export const Profile: FunctionComponent = () => {
       const userData = await response.json();
       console.log('User Data:', userData);
       setUserData(userData);
+      // spotifyId of the user you want to fetch (could be you, or someone else, doesn't matter just a parm to profile component)
       const userSpotifyId = userData.spotifyId;
 
-      // from that response data get spotify id
+      // fetch YOUR spotify ID directly from the Spotify API
+      let selfSpotifyDataResponse = await fetch(
+        `https://api.spotify.com/v1/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      console.log('YOUR profile response', selfSpotifyDataResponse);
 
-      // check if that spotify id is yours
-
-      // Fetch the profile's Spotify ID from Spotify API
-      let spotifyDataResponse = await fetch(`https://api.spotify.com/v1/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log('profile response', spotifyDataResponse);
-
-      if (spotifyDataResponse.status === 401 && refreshToken) {
+      if (selfSpotifyDataResponse.status === 401 && refreshToken) {
         await getRefreshedToken(refreshToken);
-        spotifyDataResponse = await fetch('https://api.spotify.com/v1/me', {
+        selfSpotifyDataResponse = await fetch('https://api.spotify.com/v1/me', {
           headers: {
             Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
           },
         });
       }
-      const profileData = await spotifyDataResponse.json();
-      const profileSpotifyId = profileData.id;
+
+      const selfProfileData = await selfSpotifyDataResponse.json();
+      const selfProfileSpotifyId = selfProfileData.id;
+
+      const myspotifyDataResponse = await fetch(
+        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const myProfileData = await myspotifyDataResponse.json();
+      setMyData(myProfileData);
+      const myMongoId = myProfileData._id;
+      console.log('My Profile Data:', myProfileData);
 
       // Check if the profile's Spotify ID matches the user's Spotify ID
-      if (profileSpotifyId === userSpotifyId) {
+      if (selfProfileSpotifyId === userSpotifyId) {
+        // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
         setIsOwnProfile(true);
-        console.log('Profile Data Fetched:', profileData);
+        console.log('Profile Data Fetched:', selfProfileData);
         setProfile({
-          display_name: profileData.display_name,
-          images: profileData.images || [],
+          display_name: selfProfileData.display_name,
+          images: selfProfileData.images || [],
         });
       } else {
+        // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
         setIsOwnProfile(false);
         const otherspotifyDataResponse = await fetch(
+          // returns spotify user data from SPOTIFY API, this contains the display name and profile picture
           `https://api.spotify.com/v1/users/${userSpotifyId}`,
           {
             headers: {
@@ -119,24 +138,9 @@ export const Profile: FunctionComponent = () => {
             },
           }
         );
-
-        const myspotifyDataResponse = await fetch(
-          `http://localhost:8000/api/user/spotify/${profileSpotifyId}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
         const otherProfileData = await otherspotifyDataResponse.json();
-
-        const myProfileData = await myspotifyDataResponse.json();
-        setMyData(myProfileData);
-        const myMongoId = myProfileData._id;
         console.log(userData.followers);
         setFollowing(userData.followers.includes(myMongoId));
-
         console.log('Other Profile Data Fetched:', otherProfileData);
         setProfile({
           display_name: otherProfileData.display_name,
