@@ -33,7 +33,17 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 export const getUserBySpotifyId = async (req: Request, res: Response) => {
   try {
     const UserModel = getModel<IUser>('User');
-    const user = await UserModel.findOne({ spotifyId: req.params.spotifyId });
+    let user: IUser | null;
+    if (req.params.username) {
+      // find by BOTH the username and spotifyID, because currently we have it set up so you can have multiple accounts with the same spotifyID
+      user = await UserModel.findOne({
+        username: req.params.username,
+        spotifyId: req.params.spotifyId,
+      });
+    } else {
+      // just fetchig via spotifyID
+      user = await UserModel.findOne({ spotifyId: req.params.spotifyId });
+    }
     if (!user) {
       res.status(404).send('User not found');
       return;

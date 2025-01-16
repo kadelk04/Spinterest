@@ -45,6 +45,7 @@ export interface Friend {
 }
 
 export const Profile: FunctionComponent = () => {
+  const localStorageUsername = window.localStorage.getItem('username');
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
@@ -103,8 +104,8 @@ export const Profile: FunctionComponent = () => {
       const selfProfileData = await selfSpotifyDataResponse.json();
       const selfProfileSpotifyId = selfProfileData.id;
 
-      const myspotifyDataResponse = await fetch(
-        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}`,
+      const selfDataResponse = await fetch(
+        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -112,7 +113,7 @@ export const Profile: FunctionComponent = () => {
         }
       );
 
-      const myProfileData = await myspotifyDataResponse.json();
+      const myProfileData = await selfDataResponse.json();
       setMyData(myProfileData);
       const myMongoId = myProfileData._id;
       console.log('My Profile Data:', myProfileData);
