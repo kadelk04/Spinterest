@@ -140,7 +140,6 @@ const fetchSpotifyId = async (accessToken: string): Promise<string> => {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-
   if (!response.ok) {
     throw new Error('Error fetching Spotify ID from Spotify API');
   }
@@ -154,13 +153,13 @@ export const saveUserSpotifyId = async (req: Request, res: Response) => {
 
   try {
     const UserModel = getModel<IUser>('User');
-    const spotifyId = await fetchSpotifyId(accessToken);
-
     const user = await UserModel.findOne({ username: req.body.username });
     if (!user) {
       res.status(404).send('User not found');
       return;
     }
+
+    const spotifyId = await fetchSpotifyId(accessToken);
 
     user.spotifyId = spotifyId;
     await user.save();
@@ -176,9 +175,10 @@ export const getUserSpotifyId = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  const accessToken = req.body;
+  const accessToken = req.body.accessToken;
   if (!accessToken) {
     console.error('No accessToken');
+    res.status(400).send('No accessToken');
     return;
   }
 
@@ -254,29 +254,34 @@ export const getFollowing = async (req: Request, res: Response) => {
 };
 export const removeFollower = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const userToUnfollow = await UserModel.findOne({
-    username: req.params.username,
-  });
-  const unfollower = await UserModel.findOne({
-    username: req.body.unfollower,
-  });
-  if (!userToUnfollow) {
-    res.status(404).send('User not found');
-    return;
+  try {
+    const userToUnfollow = await UserModel.findOne({
+      username: req.params.username,
+    });
+    const unfollower = await UserModel.findOne({
+      username: req.body.unfollower,
+    });
+    if (!userToUnfollow) {
+      res.status(404).send('User not found');
+      return;
+    }
+    if (!unfollower) {
+      res.status(404).send('Unfollower not found');
+      return;
+    }
+    const index = userToUnfollow.followers.indexOf(unfollower.id);
+    if (index > -1) {
+      userToUnfollow.followers.splice(index, 1);
+    }
+    const followingIndex = unfollower.following.indexOf(userToUnfollow.id);
+    if (followingIndex > -1) {
+      unfollower.following.splice(followingIndex, 1);
+    }
+    await unfollower.save();
+    await userToUnfollow.save();
+    res.status(200).send('Follower removed');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error removing follower');
   }
-  if (!unfollower) {
-    res.status(404).send('Unfollower not found');
-    return;
-  }
-  const index = userToUnfollow.followers.indexOf(unfollower.id);
-  if (index > -1) {
-    userToUnfollow.followers.splice(index, 1);
-  }
-  const followingIndex = unfollower.following.indexOf(userToUnfollow.id);
-  if (followingIndex > -1) {
-    unfollower.following.splice(followingIndex, 1);
-  }
-  await unfollower.save();
-  await userToUnfollow.save();
-  res.status(200).send('Follower removed');
 };
