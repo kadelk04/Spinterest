@@ -37,10 +37,22 @@ export const UserSchema = new mongoose.Schema({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
     required: true,
+    validate: {
+      validator: function (value: mongoose.Types.ObjectId[]) {
+        return value.length === new Set(value.map(String)).size;
+      },
+      message: 'Duplicate items are not allowed in the following list',
+    },
   },
   followers: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
     required: true,
+    validate: {
+      validator: function (value: mongoose.Types.ObjectId[]) {
+        return value.length === new Set(value.map(String)).size;
+      },
+      message: 'Duplicate items are not allowed in the following list',
+    },
   },
 });
