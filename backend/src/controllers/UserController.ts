@@ -123,6 +123,33 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const viewProfile = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params; // Get username from URL parameter
+
+    const UserM = getModel<IUser>('User');
+    const user = await UserM.findOne({ username }).populate('favoritesId');
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Return user profile data
+    res.status(200).json({
+      username: user.username,
+      status: user.status,
+      location: user.location,
+      links: user.links,
+      biography: user.bio,
+      favorites: user.favoritesId,
+    });
+  } catch (error) {
+    console.error('Error viewing profile:', error);
+    res.status(500).json({ message: 'Error retrieving profile' });
+  }
+};
+
 /**
  * Retrieve all users
  * @param req

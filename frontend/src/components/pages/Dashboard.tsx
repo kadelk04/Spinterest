@@ -3,6 +3,7 @@ import React from 'react';
 import { Box, Typography, Input, InputAdornment, Paper } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
+import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
 
 import 'react-grid-layout/css/styles.css';
@@ -11,6 +12,7 @@ import 'react-resizable/css/styles.css';
 import { returnWidgets, Widget } from '../data/playlistUtils';
 
 export const Dashboard = () => {
+  const navigate = useNavigate();
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,12 +45,11 @@ export const Dashboard = () => {
     setError('');
 
     try {
-      console.log('Searching for user:', username);
-      const response = await fetch(`/api/users/${username}`);
-      console.log('Response status:', response.status);
+      const response = await fetch(
+        `http://localhost:8000/api/user/${username}`
+      );
 
       if (response.status === 404) {
-        console.log('User not found');
         setSearchResults([]);
         return;
       }
@@ -58,14 +59,41 @@ export const Dashboard = () => {
       }
 
       const user = await response.json();
-      console.log('Found user:', user);
-      setSearchResults([user]); // Wrap single user in array for consistency
+      setSearchResults([user]);
     } catch (err) {
       console.error('Search error:', err);
       setError('Error searching for user');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleUserClick = async (username: string) => {
+    try {
+      // First fetch the full profile data
+      const profileResponse = await fetch(
+        `http://localhost:8000/api/user/profile/${username}`
+      );
+
+      if (!profileResponse.ok) {
+        throw new Error(`Error fetching profile: ${profileResponse.status}`);
+      }
+
+      // Store the profile data in localStorage or state management if needed
+      const profileData = await profileResponse.json();
+
+      // Navigate to profile page with the username
+      navigate(`/profile/${username}`, {
+        state: { profileData }, // Pass the profile data through navigation state
+      });
+
+      // Clear search
+      setSearchResults([]);
+      setSearchQuery('');
+    } catch (err) {
+      console.error('Error navigating to profile:', err);
+      setError(err instanceof Error ? err.message : 'Error accessing profile');
     }
   };
 
@@ -126,6 +154,7 @@ export const Dashboard = () => {
               searchResults.map((user) => (
                 <Box
                   key={user._id}
+                  onClick={() => handleUserClick(user.username)}
                   sx={{
                     p: 2,
                     '&:hover': {

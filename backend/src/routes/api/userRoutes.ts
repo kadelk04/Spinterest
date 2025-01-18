@@ -10,6 +10,7 @@ import {
   getFollowing,
   removeFollower,
   getUserBySpotifyId,
+  viewProfile,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -44,5 +45,8 @@ router.put('/:username/follow', addFollower);
 router.get('/:username/followers', getFollowers);
 router.get('/:username/following', getFollowing);
 router.delete('/:username/unfollow', removeFollower);
+
+//view user profile
+router.get('/profile/:username', viewProfile); // updated route
 
 export default router;
