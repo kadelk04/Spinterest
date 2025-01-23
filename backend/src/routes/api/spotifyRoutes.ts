@@ -1,7 +1,6 @@
 import { Router } from 'express';
 
 import {
-  getProfileInfo,
   getPlaylists,
   getFriends,
   getPlaylistTracks,
@@ -16,7 +15,6 @@ import { authenticateUser } from '../../middleware/auth';
 
 const router = Router();
 
-router.get('/profile', getProfileInfo);
 router.get('/playlists', authenticateUser, getMyPlaylists);
 router.get('/friends', getFriends);
 router.get('/playlists/:playlistId', getPlaylistTracks);

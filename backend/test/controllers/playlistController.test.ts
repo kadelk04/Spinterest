@@ -38,6 +38,10 @@ describe('Playlist Controller', () => {
     });
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('getAllPlaylists', () => {
     it('should return all playlists', async () => {
       const playlists = [{ name: 'Playlist 1' }, { name: 'Playlist 2' }];

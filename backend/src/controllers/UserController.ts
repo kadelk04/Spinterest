@@ -25,6 +25,37 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 };
 
 /**
+ * Retrieve a user by their spotifyId
+ * @param req
+ * @param res
+ * @returns
+ */
+export const getUserBySpotifyId = async (req: Request, res: Response) => {
+  try {
+    const UserModel = getModel<IUser>('User');
+    let user: IUser | null;
+    if (req.params.username) {
+      // find by BOTH the username and spotifyID, because currently we have it set up so you can have multiple accounts with the same spotifyID
+      user = await UserModel.findOne({
+        username: req.params.username,
+        spotifyId: req.params.spotifyId,
+      });
+    } else {
+      // just fetchig via spotifyID
+      user = await UserModel.findOne({ spotifyId: req.params.spotifyId });
+    }
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching user');
+  }
+};
+
+/**
  * Update any field of a user by their username
  * @param req
  * @param res
@@ -102,6 +133,64 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+// helper function to use spotify API to get logged in user's spotifyId
+const fetchSpotifyId = async (accessToken: string): Promise<string> => {
+  const response = await fetch('https://api.spotify.com/v1/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Error fetching Spotify ID from Spotify API');
+  }
+
+  const data = await response.json();
+  return data.id;
+};
+
+export const saveUserSpotifyId = async (req: Request, res: Response) => {
+  const accessToken = req.params.accessToken;
+
+  try {
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.body.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    const spotifyId = await fetchSpotifyId(accessToken);
+
+    user.spotifyId = spotifyId;
+    await user.save();
+
+    res.status(200).send('Spotify ID saved successfully');
+  } catch (err) {
+    console.error('Error saving Spotify ID:', err);
+    res.status(500).send('Error saving Spotify ID');
+  }
+};
+
+export const getUserSpotifyId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  const accessToken = req.body.accessToken;
+  if (!accessToken) {
+    console.error('No accessToken');
+    res.status(400).send('No accessToken');
+    return;
+  }
+
+  try {
+    const spotifyId = await fetchSpotifyId(accessToken);
+    res.status(200).send({ spotifyId });
+  } catch (err) {
+    console.error('Error fetching Spotify ID:', err);
+    res.status(500).send('Error fetching Spotify ID');
+  }
+};
+
 // export const getAllFriends = async (req: Request, res: Response) => {
 //   try {
 //       // Replace this URL with the endpoint that fetches friends from Spotify
@@ -116,3 +205,83 @@ export const getAllUsers = async (req: Request, res: Response) => {
 //       throw new Error('Failed to fetch friends from Spotify');
 //   }
 // };
+
+export const addFollower = async (req: Request, res: Response) => {
+  try {
+    const UserModel = getModel<IUser>('User');
+    const userToFollow = await UserModel.findOne({
+      username: req.params.username,
+    });
+    // follower is the id of the user (you) that is requesting to follow
+    const follower = await UserModel.findOne({ username: req.body.follower });
+    console.log('userToFollow:', userToFollow?.username);
+    console.log('follower:', follower?.username);
+    if (!userToFollow) {
+      res.status(404).send('User not found');
+      return;
+    }
+    if (!follower) {
+      res.status(404).send('Follower not found');
+      return;
+    }
+    userToFollow.followers.push(follower.id);
+    follower.following.push(userToFollow.id);
+    await follower.save();
+    await userToFollow.save();
+    res.status(200).send('Follower added');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error adding follower');
+  }
+};
+export const getFollowers = async (req: Request, res: Response) => {
+  const UserModel = getModel<IUser>('User');
+  const user = await UserModel.findOne({ username: req.params.username });
+  if (!user) {
+    res.status(404).send('User not found');
+    return;
+  }
+  res.status(200).send(user.followers);
+};
+export const getFollowing = async (req: Request, res: Response) => {
+  const UserModel = getModel<IUser>('User');
+  const user = await UserModel.findOne({ username: req.params.username });
+  if (!user) {
+    res.status(404).send('User not found');
+    return;
+  }
+  res.status(200).send(user.following);
+};
+export const removeFollower = async (req: Request, res: Response) => {
+  const UserModel = getModel<IUser>('User');
+  try {
+    const userToUnfollow = await UserModel.findOne({
+      username: req.params.username,
+    });
+    const unfollower = await UserModel.findOne({
+      username: req.body.unfollower,
+    });
+    if (!userToUnfollow) {
+      res.status(404).send('User not found');
+      return;
+    }
+    if (!unfollower) {
+      res.status(404).send('Unfollower not found');
+      return;
+    }
+    const index = userToUnfollow.followers.indexOf(unfollower.id);
+    if (index > -1) {
+      userToUnfollow.followers.splice(index, 1);
+    }
+    const followingIndex = unfollower.following.indexOf(userToUnfollow.id);
+    if (followingIndex > -1) {
+      unfollower.following.splice(followingIndex, 1);
+    }
+    await unfollower.save();
+    await userToUnfollow.save();
+    res.status(200).send('Follower removed');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error removing follower');
+  }
+};

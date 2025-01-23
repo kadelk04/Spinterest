@@ -25,6 +25,9 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const accessToken = window.localStorage.getItem('spotify_token');
+  const refreshToken = window.localStorage.getItem('spotify_refresh_token');
+
   const handleSignupClick = async () => {
     try {
       setLoading(true);
@@ -49,6 +52,12 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
         console.log('yay going to profile');
         localStorage.setItem('firstlogin', 'true');
         window.location.href = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
+
+        // does spotify return any type of access code after redirect? could use that instead
+
+        // make a req to backend route to add /me id to database
+        // pass username, refreshToken, and accessToken
+        handleSaveSpotifyId(username);
       } else {
         const errorMessage = await response.json().then((data) => data.message);
         setError(`Failed to sign up: ${errorMessage}`);
@@ -57,6 +66,25 @@ export const SignupModal = ({ open, setOpen, navigate }: SignupModalProps) => {
       setError(`Failed to sign up: ${error}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveSpotifyId = async (accessToken: string) => {
+    try {
+      const response = await fetch(`/api/user/${username}/saveSpotifyId`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
+        },
+        body: JSON.stringify({ accessToken }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save Spotify ID');
+      }
+      console.log('Spotify ID saved successfully');
+    } catch (error) {
+      console.error('Error saving Spotify ID:', error);
     }
   };
 

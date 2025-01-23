@@ -12,23 +12,6 @@ export interface Owner {
   display_name: string;
 }
 
-export const getProfileInfo = async (req: Request, res: Response) => {
-  const payload = {
-    spotifyToken: req.body.spotifyToken,
-  };
-  try {
-    const response = await axios.get('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: `Bearer ${payload.spotifyToken}`,
-      },
-    });
-    res.status(200).send(response.data);
-  } catch (err) {
-    console.error('Error fetching profile info:', err);
-    res.status(500).send('Error fetching profile info');
-  }
-};
-
 export const getMyPlaylists = async (req: Request, res: Response) => {
   try {
     const payload = {

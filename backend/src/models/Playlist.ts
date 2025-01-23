@@ -3,7 +3,6 @@ import mongoose from 'mongoose';
 export interface IPlaylist {
   spotifyId: string;
   tags: string[];
-  isPinned?: Boolean;
 }
 
 export const PlaylistSchema = new mongoose.Schema({
@@ -16,5 +15,4 @@ export const PlaylistSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  isPinned: { type: Boolean },
 });

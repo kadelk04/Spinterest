@@ -1,27 +1,8 @@
 import { FunctionComponent, useState, useEffect } from 'react';
-import {
-  getAccessToken,
-  getRefreshedToken,
-  logout,
-  SpotifyLoginButton,
-} from '../data/SpotifyAuth';
+import axios from 'axios';
+import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { PushPin, PushPinOutlined } from '@mui/icons-material';
-import {
-  fetchPlaylists,
-  fetchPinPlaylist,
-  togglePinPlaylist,
-  WidgetData,
-} from '../data/playlistUtils';
-import {
-  Search as SearchIcon,
-  Settings as SettingsIcon,
-  Edit as EditIcon,
-  LocationOn as LocationOnIcon,
-  AccountCircle as AccountCircleIcon,
-  MusicNote as MusicNoteIcon,
-  SaveAlt as SaveAltIcon,
-} from '@mui/icons-material';
+import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Box,
   Button,
@@ -29,107 +10,218 @@ import {
   Typography,
   Paper,
   Avatar,
-  Grid,
-  IconButton,
-  Icon,
-  ListItem,
-  List,
-  ListItemAvatar,
-  ListItemText,
 } from '@mui/material';
-import axios from 'axios';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import FriendsComponent from './ProfileComponents/FriendsComponent';
+import AboutComponent from './ProfileComponents/AboutComponent';
+import PinnedMusicComponent from './ProfileComponents/PinnedMusicComponent';
 
 interface SpotifyProfile {
   display_name: string;
   images: { url: string }[];
 }
 
-// Extend the existing interface
-interface Friend {
+interface User {
+  id: string;
+  username: string;
+  isPrivate: boolean;
+  status: string;
+  bio: string;
+  location: string;
+  links: string;
+  favorites: {
+    genre: string[];
+    artist: string[];
+    album: string[];
+  };
+  following: string[];
+  followers: string[];
+}
+
+export interface Friend {
   id: string;
   name: string;
   images?: { url: string }[];
 }
 
 export const Profile: FunctionComponent = () => {
+  const localStorageUsername = window.localStorage.getItem('username');
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
+  const [following, setFollowing] = useState<boolean>(false);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [myData, setMyData] = useState<User | null>(null);
 
   const navigate = useNavigate();
+  const username = window.location.pathname.split('/').pop();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!accessToken && !refreshToken) return;
+  const fetchProfile = async () => {
+    if (!accessToken && !refreshToken) return;
 
-      try {
-        let response = await fetch('https://api.spotify.com/v1/me', {
+    // the purpose of this ugly looking code is to check if you are trying to view YOUR profile or someone elses,
+    // you shouldn't be able to EDIT someone elses account which is why we need to check
+
+    // the route should include a ${username} param to fetch the user's data
+    try {
+      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to get user data');
+      }
+      const userData = await response.json();
+      console.log('User Data:', userData);
+      setUserData(userData);
+      // spotifyId of the user you want to fetch (could be you, or someone else, doesn't matter just a parm to profile component)
+      const userSpotifyId = userData.spotifyId;
+
+      // fetch YOUR spotify ID directly from the Spotify API
+      let selfSpotifyDataResponse = await fetch(
+        `https://api.spotify.com/v1/me`,
+        {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
+        }
+      );
+      console.log('YOUR profile response', selfSpotifyDataResponse);
+
+      if (selfSpotifyDataResponse.status === 401 && refreshToken) {
+        await getRefreshedToken(refreshToken);
+        selfSpotifyDataResponse = await fetch('https://api.spotify.com/v1/me', {
+          headers: {
+            Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+          },
         });
+      }
 
-        if (response.status === 401 && refreshToken) {
-          await getRefreshedToken(refreshToken);
-          response = await fetch('https://api.spotify.com/v1/me', {
-            headers: {
-              Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
-            },
-          });
+      const selfProfileData = await selfSpotifyDataResponse.json();
+      const selfProfileSpotifyId = selfProfileData.id;
+
+      const selfDataResponse = await fetch(
+        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
         }
+      );
 
-        const data = await response.json();
-        if (data.error) {
-          console.log(data);
-          console.error(data.error.message);
-          return;
-        }
+      const myProfileData = await selfDataResponse.json();
+      setMyData(myProfileData);
+      const myMongoId = myProfileData._id;
+      console.log('My Profile Data:', myProfileData);
 
-        const profileData: SpotifyProfile = {
-          display_name: data.display_name,
-          images: data.images || [],
-        };
-        console.log('Profile Data Fetched:', profileData);
-        setProfile(profileData);
-
-        // Fetch friends
-        const friendsResponse = await fetch(
-          'https://api.spotify.com/v1/me/following?type=user',
+      // Check if the profile's Spotify ID matches the user's Spotify ID
+      if (selfProfileSpotifyId === userSpotifyId) {
+        // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
+        setIsOwnProfile(true);
+        console.log('Profile Data Fetched:', selfProfileData);
+        setProfile({
+          display_name: selfProfileData.display_name,
+          images: selfProfileData.images || [],
+        });
+      } else {
+        // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
+        setIsOwnProfile(false);
+        const otherspotifyDataResponse = await fetch(
+          // returns spotify user data from SPOTIFY API, this contains the display name and profile picture
+          `https://api.spotify.com/v1/users/${userSpotifyId}`,
           {
             headers: {
-              Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
+              Authorization: `Bearer ${accessToken}`,
             },
           }
         );
-
-        console.log('awaiting dfkj');
-        const friendsData = await friendsResponse.json();
-        console.log('sgdfhg');
-        console.log(friendsData);
-        if (friendsData.artists) {
-          const formattedFriends = friendsData.artists.items.map(
-            (artist: any) => ({
-              id: artist.id,
-              name: artist.name,
-              images: artist.images,
-            })
-          );
-          console.log('Friends Fetched:', formattedFriends);
-          setFriends(formattedFriends);
-        }
-
-        setLoadingFriends(false);
-      } catch (error) {
-        console.error('Error fetching profile or friends', error);
-        setLoadingFriends(false);
+        const otherProfileData = await otherspotifyDataResponse.json();
+        console.log(userData.followers);
+        setFollowing(userData.followers.includes(myMongoId));
+        console.log('Other Profile Data Fetched:', otherProfileData);
+        setProfile({
+          display_name: otherProfileData.display_name,
+          images: otherProfileData.images || [],
+        });
       }
-    };
+    } catch (error) {
+      console.error('Error fetching profile', error);
+      setLoadingFriends(false);
+    }
+  };
 
+  const toggleProfileVisibility = async () => {
+    if (!accessToken && !refreshToken) return;
+
+    try {
+      const updatedUserData = {
+        isPrivate: !userData?.isPrivate,
+      };
+
+      const response = await axios.put(
+        `http://localhost:8000/api/user/${username}`,
+        updatedUserData
+      );
+
+      if (response.status === 200) {
+        setUserData((prev) =>
+          prev ? { ...prev, isPrivate: !prev.isPrivate } : null
+        );
+      }
+    } catch (error) {
+      console.error('Error toggling profile visibility:', error);
+    }
+  };
+
+  const handleFollowToggle = async () => {
+    if (!accessToken && !refreshToken) return;
+
+    if (following) {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/api/user/${username}/unfollow`,
+          {
+            headers: {
+              authorization: localStorage.getItem('jwttoken'),
+            },
+            unfollower: myData?.username,
+          }
+        );
+
+        if (response.status === 200) {
+          setFollowing(false);
+        }
+      } catch (error) {
+        console.error('Error unfollowing user:', error);
+      }
+    } else {
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/api/user/${username}/follow`,
+          {
+            headers: {
+              authorization: localStorage.getItem('jwttoken'),
+            },
+            follower: myData?.username,
+          }
+        );
+
+        if (response.status === 200) {
+          setFollowing(true);
+        }
+      } catch (error) {
+        console.error('Error following user:', error);
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken]);
-
+  }, [accessToken, refreshToken, username]);
   return (
     <Box
       sx={{
@@ -158,20 +250,39 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
-
-              {/* Editable status blurb */}
-              <EditableBlurb />
-
-              <Button
-                sx={{ mt: 2 }}
-                variant="contained"
-                onClick={() => {
-                  logout();
-                  navigate('/login');
-                }}
-              >
-                Logout
-              </Button>
+              {/* if is own profile, render profile visibility toggle */}
+              {isOwnProfile ? (
+                <Button
+                  variant="contained"
+                  onClick={toggleProfileVisibility}
+                  startIcon={
+                    userData?.isPrivate ? <VisibilityOff /> : <Visibility />
+                  }
+                >
+                  {userData?.isPrivate ? 'Private' : 'Public'}
+                </Button>
+              ) : null}
+              {isOwnProfile ? (
+                <Button
+                  sx={{ mt: 2 }}
+                  variant="contained"
+                  onClick={() => {
+                    logout();
+                    navigate('/login');
+                  }}
+                >
+                  Logout
+                </Button>
+              ) : null}
+              {!isOwnProfile ? (
+                <Button
+                  sx={{ mt: 2 }}
+                  variant="contained"
+                  onClick={handleFollowToggle}
+                >
+                  {following ? 'Unfollow' : 'Follow'}
+                </Button>
+              ) : null}
             </>
           ) : (
             <>
@@ -187,81 +298,7 @@ export const Profile: FunctionComponent = () => {
             </>
           )}
         </Paper>
-
-        {/* Friends Section */}
-        <Paper
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            bgcolor: '#ECE6F0',
-            borderRadius: 2,
-            width: { xs: '100%', md: '90%' },
-            height: 300,
-            p: 2,
-            overflowY: 'auto',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              width: '100%',
-              alignItems: 'center',
-              mb: 2,
-            }}
-          >
-            <TextField
-              id="search-friends"
-              label="Friends"
-              fullWidth
-              sx={{ flex: 1, mr: 1 }}
-              InputProps={{
-                endAdornment: (
-                  <IconButton>
-                    <SearchIcon />
-                  </IconButton>
-                ),
-              }}
-            />
-            <IconButton>
-              <SettingsIcon />
-            </IconButton>
-          </Box>
-
-          {loadingFriends ? (
-            <Typography>Loading friends...</Typography>
-          ) : (
-            <List
-              sx={{
-                width: '100%',
-                maxHeight: 200,
-                overflowY: 'auto',
-              }}
-            >
-              {friends.map((friend) => (
-                <ListItem key={friend.id} disablePadding>
-                  <ListItemAvatar>
-                    <Avatar
-                      src={
-                        friend.images && friend.images.length > 0
-                          ? friend.images[0].url
-                          : undefined
-                      }
-                      sx={{ width: 40, height: 40 }}
-                    />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={friend.name}
-                    primaryTypographyProps={{
-                      variant: 'body2',
-                      sx: { ml: 1 },
-                    }}
-                  />
-                </ListItem>
-              ))}
-            </List>
-          )}
-        </Paper>
+        <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
       </Box>
 
       {/* About, Favorites, and Pinned Music Column */}
@@ -277,537 +314,11 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
           }}
         >
-          {/* About Section */}
-          <EditableAbout />
+          <AboutComponent isOwnProfile={isOwnProfile} />
         </Paper>
 
-        {/* Pinned Music Section */}
-        <PinnedMusicSection />
+        <PinnedMusicComponent />
       </Box>
     </Box>
   );
 };
-
-//Updates the Editable Blurb
-const EditableBlurb: FunctionComponent = () => {
-  const [isEditable, setIsEditable] = useState(false);
-  const [text, setText] = useState('status');
-  const [clicked, setClicked] = useState(false);
-
-  interface ProfileStatusResponse {
-    status: string;
-  }
-
-  useEffect(() => {
-    fetchStatus();
-  }, []);
-
-  const fetchStatus = async () => {
-    try {
-      const username = localStorage.getItem('username');
-
-      if (!username) {
-        console.error('No username found');
-        return;
-      }
-
-      const response = await axios.get<ProfileStatusResponse>(
-        'http://localhost:8000/profile/logProfileInput',
-        { params: { username } }
-      );
-      if (response.data?.status) {
-        setText(response.data.status);
-      } else {
-        console.warn('Received unexpected data:', response.data);
-        setText('');
-      }
-    } catch (error) {
-      console.error('Error fetching status:', error);
-      setText('');
-    }
-  };
-
-  const handleIconClick = async () => {
-    if (clicked) {
-      // Save only when SaveAltIcon is active
-      const updatedStatus = text;
-      const username = localStorage.getItem('username');
-
-      if (!username) {
-        console.error('No username found');
-        return;
-      }
-
-      try {
-        const response = await axios.post(
-          'http://localhost:8000/profile/logProfileInput',
-          { status: updatedStatus, username }
-        );
-
-        if (response.status === 200) {
-          console.log('Status saved!');
-        } else {
-          console.error('Error: Unexpected response from server', response);
-        }
-      } catch (error) {
-        console.error('Error: Status not saved', error);
-      }
-    }
-
-    setClicked(!clicked);
-    setIsEditable(!clicked);
-  };
-
-  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setText(event.target.value);
-  };
-
-  return (
-    <TextField
-      id="blurb"
-      label="status"
-      sx={{ maxWidth: '80%', mt: 2 }}
-      value={text}
-      onChange={handleTextChange}
-      InputProps={{
-        readOnly: !isEditable,
-        endAdornment: (
-          <IconButton onClick={handleIconClick}>
-            {clicked ? <SaveAltIcon /> : <EditIcon />}
-          </IconButton>
-        ),
-      }}
-    />
-  );
-};
-
-// Updates the fields in the About and Favorite section
-const EditableAbout: FunctionComponent = () => {
-  interface AbtFavResponse {
-    location: string;
-    links: string;
-    biography: string;
-    favorites: {
-      genre: string[];
-      artist: string[];
-      album: string[];
-    };
-  }
-
-  const [isEditable, setIsEditable] = useState(false);
-  const [location, setLocation] = useState('');
-  const [links, setLinks] = useState('');
-  const [biography, setBiography] = useState('');
-  const [favgen1, setText1] = useState('');
-  const [favgen2, setText2] = useState('');
-  const [fava1, setText3] = useState('');
-  const [fava2, setText4] = useState('');
-  const [favalb1, setText5] = useState('');
-  const [favalb2, setText6] = useState('');
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      const username = localStorage.getItem('username');
-
-      if (!username) {
-        console.error('No username found');
-        return;
-      }
-
-      const responseAbtFav = await axios.get<AbtFavResponse>(
-        'http://localhost:8000/profile/logProfileInput',
-        { params: { username } }
-      );
-
-      const dataFields = responseAbtFav.data;
-
-      // Log the fetched data to verify
-      console.log('Fetched Data:', dataFields);
-
-      // Set the state with the fetched data
-      setLocation(dataFields.location);
-      setLinks(dataFields.links);
-      setBiography(dataFields.biography);
-      setText1(dataFields.favorites.genre[0] || '');
-      setText2(dataFields.favorites.genre[1] || '');
-      setText3(dataFields.favorites.artist[0] || '');
-      setText4(dataFields.favorites.artist[1] || '');
-      setText5(dataFields.favorites.album[0] || '');
-      setText6(dataFields.favorites.album[1] || '');
-    } catch (error) {
-      console.error('Error fetching dataFields:', error);
-    }
-  };
-
-  const handleIconClick = async () => {
-    const updatedData = {
-      location,
-      links,
-      biography,
-      favgen1: favgen1 || '', // Fallback to empty string if undefined
-      favgen2: favgen2 || '',
-      fava1: fava1 || '',
-      fava2: fava2 || '',
-      favalb1: favalb1 || '',
-      favalb2: favalb2 || '',
-    };
-
-    const username = localStorage.getItem('username');
-    if (!username) {
-      console.error('No username found');
-      return;
-    }
-
-    if (isEditable) {
-      console.log('Location:', location);
-      console.log('Links:', links);
-      console.log('Biography:', biography);
-      console.log('Favorite Genre 1:', favgen1);
-      console.log('Favorite Genre 2:', favgen2);
-      console.log('Favorite Artist 1:', fava1);
-      console.log('Favorite Artist 2:', fava2);
-      console.log('Favorite Album 1:', favalb1);
-      console.log('Favorite Album 2:', favalb2);
-    }
-
-    try {
-      await axios.post('http://localhost:8000/profile/logProfileInput', {
-        ...updatedData,
-        username,
-      });
-    } catch (error) {
-      console.error('Error: About and Favorite not saved', error);
-    }
-
-    setIsEditable((prev) => !prev);
-  };
-
-  return (
-    <Box sx={{ p: 4 }}>
-      {/* About Section */}
-      <Box sx={{ flex: 1, mb: 4 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Typography variant="h5">ABOUT</Typography>
-          <IconButton onClick={handleIconClick}>
-            {isEditable ? <SaveAltIcon /> : <EditIcon />}
-          </IconButton>
-        </Box>
-
-        <Grid container spacing={2} mt={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              id="location"
-              label="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              disabled={!isEditable}
-              InputProps={{
-                startAdornment: (
-                  <Icon>
-                    <LocationOnIcon />
-                  </Icon>
-                ),
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              id="links"
-              label="Links"
-              value={links}
-              onChange={(e) => setLinks(e.target.value)}
-              disabled={!isEditable}
-              InputProps={{
-                startAdornment: (
-                  <Icon>
-                    <MusicNoteIcon />
-                  </Icon>
-                ),
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
-            <TextField
-              id="biography"
-              label="User Bio"
-              multiline
-              value={biography}
-              onChange={(e) => setBiography(e.target.value)}
-              fullWidth
-              maxRows={3}
-              disabled={!isEditable}
-              InputProps={{
-                startAdornment: (
-                  <Icon>
-                    <AccountCircleIcon />
-                  </Icon>
-                ),
-              }}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Favorites Section */}
-      <Box sx={{ flex: 1 }}>
-        <Typography variant="h5" sx={{ mb: 2 }}>
-          FAVORITES
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <TextField
-              id="favgen1"
-              fullWidth
-              placeholder="Favorite Genre"
-              variant="outlined"
-              sx={{ mb: 2 }}
-              value={favgen1}
-              onChange={(e) => setText1(e.target.value)}
-              disabled={!isEditable}
-            />
-            <TextField
-              id="fava1"
-              fullWidth
-              placeholder="Favorite Artist"
-              variant="outlined"
-              sx={{ mb: 2 }}
-              value={fava1}
-              onChange={(e) => setText3(e.target.value)}
-              disabled={!isEditable}
-            />
-            <TextField
-              id="favalb1"
-              fullWidth
-              placeholder="Album #1"
-              variant="outlined"
-              value={favalb1}
-              onChange={(e) => setText5(e.target.value)}
-              disabled={!isEditable}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              id="favgen2"
-              fullWidth
-              placeholder="Favorite Genre"
-              variant="outlined"
-              sx={{ mb: 2 }}
-              value={favgen2}
-              onChange={(e) => setText2(e.target.value)}
-              disabled={!isEditable}
-            />
-            <TextField
-              id="fava2"
-              fullWidth
-              placeholder="Favorite Artist"
-              variant="outlined"
-              sx={{ mb: 2 }}
-              value={fava2}
-              onChange={(e) => setText4(e.target.value)}
-              disabled={!isEditable}
-            />
-            <TextField
-              id="favalb2"
-              fullWidth
-              placeholder="Album #2"
-              variant="outlined"
-              value={favalb2}
-              onChange={(e) => setText6(e.target.value)}
-              disabled={!isEditable}
-            />
-          </Grid>
-        </Grid>
-      </Box>
-    </Box>
-  );
-};
-
-// Pinned Music Section Component
-/*
-1. create useEffec for this section
-
-*/
-const PinnedMusicSection: FunctionComponent = () => {
-  const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-  const [allPlaylists, setAllPlaylists] = useState<WidgetData[]>([]);
-
-  // Centralized function to fetch and set playlists
-  const loadPlaylists = async () => {
-    try {
-      const accessToken = localStorage.getItem('spotify_token');
-      if (!accessToken) {
-        console.error('Access token is missing');
-        return;
-      }
-
-      // Fetch all playlists
-      const playlists = await fetchPlaylists(accessToken);
-      setAllPlaylists(playlists);
-
-      // Fetch pinned playlists
-      const pinnedPlaylists = await fetchPinPlaylist();
-      setPinnedPlaylists(pinnedPlaylists);
-    } catch (error) {
-      console.error('Failed to fetch playlists:', error);
-    }
-  };
-
-  // Initial load
-  useEffect(() => {
-    loadPlaylists();
-  }, []);
-
-  const handlePinToggle = async (playlist: WidgetData) => {
-    try {
-      // Toggle pin status on backend
-      await togglePinPlaylist(playlist.id);
-
-      // Reload playlists to ensure sync with backend
-      await loadPlaylists();
-    } catch (error) {
-      console.error('Failed to toggle playlist pin:', error);
-    }
-  };
-
-  return (
-    <Paper sx={{ p: 3, bgcolor: '#ECE6F0' }}>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        PINNED MUSIC
-      </Typography>
-      <TextField
-        fullWidth
-        placeholder="Search Pinned Music"
-        variant="outlined"
-        sx={{
-          mb: 2,
-          '& .MuiOutlinedInput-root': {
-            bgcolor: '#F5EFF7',
-            '&:hover fieldset': {
-              borderColor: '#000000',
-            },
-          },
-        }}
-      />
-
-      {/* Pinned Playlists Section */}
-      <Grid container spacing={2}>
-        {pinnedPlaylists.length > 0 ? (
-          pinnedPlaylists.map((playlist) => (
-            <Grid item xs={4} key={playlist.id}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingTop: '100%',
-                  bgcolor: '#FEF7FF',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundImage: `url(${playlist.cover})`,
-                  border: '1px solid #ddd',
-                  borderRadius: 2,
-                }}
-              >
-                <IconButton
-                  onClick={() => handlePinToggle(playlist)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <PushPin />
-                </IconButton>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    color: '#fff',
-                    textAlign: 'center',
-                    padding: '4px',
-                    fontSize: '12px',
-                  }}
-                >
-                  {playlist.title}
-                </Typography>
-              </Box>
-            </Grid>
-          ))
-        ) : (
-          <Typography
-            variant="body2"
-            sx={{ mt: 2, textAlign: 'center', width: '100%' }}
-          >
-            No pinned playlists available.
-          </Typography>
-        )}
-      </Grid>
-
-      {/* Other Playlists Section */}
-      <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
-        Other Playlists
-      </Typography>
-      <Grid container spacing={2}>
-        {allPlaylists
-          .filter((p) => !pinnedPlaylists.some((pp) => pp.id === p.id))
-          .map((playlist) => (
-            <Grid item xs={4} key={playlist.id}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingTop: '100%',
-                  bgcolor: '#FEF7FF',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundImage: `url(${playlist.cover})`,
-                  border: '1px solid #ddd',
-                  borderRadius: 2,
-                }}
-              >
-                <IconButton
-                  onClick={() => handlePinToggle(playlist)}
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: 0,
-                    color: 'white',
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                  }}
-                >
-                  <PushPinOutlined />
-                </IconButton>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0,0,0,0.6)',
-                    color: '#fff',
-                    textAlign: 'center',
-                    padding: '4px',
-                    fontSize: '12px',
-                  }}
-                >
-                  {playlist.title}
-                </Typography>
-              </Box>
-            </Grid>
-          ))}
-      </Grid>
-    </Paper>
-  );
-};
-
-export default Profile;
