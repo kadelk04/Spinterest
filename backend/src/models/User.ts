@@ -15,6 +15,7 @@ export interface IUser {
   favorites: IFavorites;
   favoritesId: mongoose.Types.ObjectId;
   annotatedPlaylists?: IPlaylist[];
+  pinnedPlaylists?: string[];
   following: mongoose.Types.ObjectId[];
   followers: mongoose.Types.ObjectId[];
 }
@@ -30,6 +31,7 @@ export const UserSchema = new mongoose.Schema({
   links: String,
   refreshToken: String,
   favoritesId: { type: mongoose.Schema.Types.ObjectId, ref: 'Favorites' },
+  pinnedPlaylists: [{ type: String }],
   annotatedPlaylists: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'Playlist' },
   ],
@@ -37,10 +39,22 @@ export const UserSchema = new mongoose.Schema({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
     required: true,
+    validate: {
+      validator: function (value: mongoose.Types.ObjectId[]) {
+        return value.length === new Set(value.map(String)).size;
+      },
+      message: 'Duplicate items are not allowed in the following list',
+    },
   },
   followers: {
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     default: [],
     required: true,
+    validate: {
+      validator: function (value: mongoose.Types.ObjectId[]) {
+        return value.length === new Set(value.map(String)).size;
+      },
+      message: 'Duplicate items are not allowed in the following list',
+    },
   },
 });

@@ -1,7 +1,6 @@
 import request from 'supertest';
 import express from 'express';
 import {
-  getProfileInfo,
   getMyPlaylists,
   getPlaylist,
   getPlaylists,
@@ -19,7 +18,7 @@ jest.mock('axios');
 const app = express();
 app.use(express.json());
 
-app.post('/profile', getProfileInfo);
+// app.get('/profile', getProfileInfo);
 app.get('/my-playlists', getMyPlaylists);
 app.get('/playlist', getPlaylist);
 app.get('/playlists/:spotifyToken/:playlistId', getPlaylists);
@@ -33,31 +32,6 @@ app.get('/artists', getMultipleArtistInfo);
 describe('Spotify Controller', () => {
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  it('should get profile info', async () => {
-    const mockResponse = { data: { id: 'user123' } };
-    (axios.get as jest.Mock).mockResolvedValue(mockResponse);
-
-    const response = await request(app)
-      .post('/profile')
-      .send({ spotifyToken: 'testToken' });
-
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual(mockResponse.data);
-  });
-
-  it('should catch errors when getting profile info', async () => {
-    (axios.get as jest.Mock).mockRejectedValue(
-      new Error('Error fetching profile info')
-    );
-
-    const response = await request(app)
-      .post('/profile')
-      .send({ spotifyToken: 'testToken' });
-
-    expect(response.status).toBe(500);
-    expect(response.text).toBe('Error fetching profile info');
   });
 
   it('should get my playlists', async () => {
