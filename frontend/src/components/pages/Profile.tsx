@@ -22,7 +22,7 @@ interface SpotifyProfile {
 }
 
 interface User {
-  _id: string;
+  id: string;
   username: string;
   isPrivate: boolean;
   status: string;
@@ -45,6 +45,7 @@ export interface Friend {
 }
 
 export const Profile: FunctionComponent = () => {
+  const localStorageUsername = window.localStorage.getItem('username');
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
@@ -53,6 +54,7 @@ export const Profile: FunctionComponent = () => {
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
+  const [myData, setMyData] = useState<User | null>(null);
 
   const navigate = useNavigate();
   const username = window.location.pathname.split('/').pop();
@@ -60,9 +62,10 @@ export const Profile: FunctionComponent = () => {
   const fetchProfile = async () => {
     if (!accessToken && !refreshToken) return;
 
-    // get your username
+    // the purpose of this ugly looking code is to check if you are trying to view YOUR profile or someone elses,
+    // you shouldn't be able to EDIT someone elses account which is why we need to check
 
-    // check if your spotify id (in db) is the same spotify id as the profile you are trying to view
+    // the route should include a ${username} param to fetch the user's data
     try {
       let response = await fetch(`http://localhost:8000/api/user/${username}`, {
         headers: {
@@ -75,42 +78,60 @@ export const Profile: FunctionComponent = () => {
       const userData = await response.json();
       console.log('User Data:', userData);
       setUserData(userData);
+      // spotifyId of the user you want to fetch (could be you, or someone else, doesn't matter just a parm to profile component)
       const userSpotifyId = userData.spotifyId;
 
-      // from that response data get spotify id
+      // fetch YOUR spotify ID directly from the Spotify API
+      let selfSpotifyDataResponse = await fetch(
+        `https://api.spotify.com/v1/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+      console.log('YOUR profile response', selfSpotifyDataResponse);
 
-      // check if that spotify id is yours
-
-      // Fetch the profile's Spotify ID from Spotify API
-      let profileResponse = await fetch(`https://api.spotify.com/v1/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      console.log('profile response', profileResponse);
-
-      if (profileResponse.status === 401 && refreshToken) {
+      if (selfSpotifyDataResponse.status === 401 && refreshToken) {
         await getRefreshedToken(refreshToken);
-        profileResponse = await fetch('https://api.spotify.com/v1/me', {
+        selfSpotifyDataResponse = await fetch('https://api.spotify.com/v1/me', {
           headers: {
             Authorization: `Bearer ${window.localStorage.getItem('spotify_token')}`,
           },
         });
       }
-      const profileData = await profileResponse.json();
-      const profileSpotifyId = profileData.id;
+
+      const selfProfileData = await selfSpotifyDataResponse.json();
+      const selfProfileSpotifyId = selfProfileData.id;
+
+      const selfDataResponse = await fetch(
+        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const myProfileData = await selfDataResponse.json();
+      setMyData(myProfileData);
+      const myMongoId = myProfileData._id;
+      console.log('My Profile Data:', myProfileData);
 
       // Check if the profile's Spotify ID matches the user's Spotify ID
-      if (profileSpotifyId === userSpotifyId) {
+      if (selfProfileSpotifyId === userSpotifyId) {
+        // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
         setIsOwnProfile(true);
-        console.log('Profile Data Fetched:', profileData);
+        console.log('Profile Data Fetched:', selfProfileData);
         setProfile({
-          display_name: profileData.display_name,
-          images: profileData.images || [],
+          display_name: selfProfileData.display_name,
+          images: selfProfileData.images || [],
         });
       } else {
+        // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
         setIsOwnProfile(false);
-        const otherProfileResponse = await fetch(
+        const otherspotifyDataResponse = await fetch(
+          // returns spotify user data from SPOTIFY API, this contains the display name and profile picture
           `https://api.spotify.com/v1/users/${userSpotifyId}`,
           {
             headers: {
@@ -118,22 +139,9 @@ export const Profile: FunctionComponent = () => {
             },
           }
         );
-
-        const myProfileResponse = await fetch(
-          `http://localhost:8000/api/user/spotify/${profileSpotifyId}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        const otherProfileData = await otherProfileResponse.json();
-
-        const myProfileData = await myProfileResponse.json();
-        const myMongoId = myProfileData._id;
-        setFollowing(myProfileData.following.includes(myMongoId));
-
+        const otherProfileData = await otherspotifyDataResponse.json();
+        console.log(userData.followers);
+        setFollowing(userData.followers.includes(myMongoId));
         console.log('Other Profile Data Fetched:', otherProfileData);
         setProfile({
           display_name: otherProfileData.display_name,
@@ -174,12 +182,13 @@ export const Profile: FunctionComponent = () => {
 
     if (following) {
       try {
-        const response = await axios.delete(
+        const response = await axios.put(
           `http://localhost:8000/api/user/${username}/unfollow`,
           {
             headers: {
               authorization: localStorage.getItem('jwttoken'),
             },
+            unfollower: myData?.username,
           }
         );
 
@@ -197,6 +206,7 @@ export const Profile: FunctionComponent = () => {
             headers: {
               authorization: localStorage.getItem('jwttoken'),
             },
+            follower: myData?.username,
           }
         );
 

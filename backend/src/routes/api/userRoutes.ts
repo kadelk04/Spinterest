@@ -43,6 +43,6 @@ router.patch('/:username/favorites', updateFavorite);
 router.put('/:username/follow', addFollower);
 router.get('/:username/followers', getFollowers);
 router.get('/:username/following', getFollowing);
-router.delete('/:username/unfollow', removeFollower);
+router.put('/:username/unfollow', removeFollower);
 
 export default router;
