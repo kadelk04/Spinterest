@@ -125,25 +125,30 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
 export const viewProfile = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params; // Get username from URL parameter
+    const { username } = req.params;
 
     const UserM = getModel<IUser>('User');
-    const user = await UserM.findOne({ username }).populate('favoritesId');
+    const user = await UserM.findOne({ username })
+      .select('username location bio spotify favorites links status')
+      .lean();
 
     if (!user) {
       res.status(404).json({ message: 'User not found' });
       return;
     }
 
-    // Return user profile data
-    res.status(200).json({
+    // Always return a complete profile object with default values for all fields
+    const profileData = {
       username: user.username,
-      status: user.status,
-      location: user.location,
-      links: user.links,
-      biography: user.bio,
-      favorites: user.favoritesId,
-    });
+      location: user.location || '',
+      bio: user.bio || '',
+      links: user.links || [],
+      status: user.status || '',
+      favorites: user.favorites || [],
+      // Add any other profile fields with default values
+    };
+
+    res.status(200).json(profileData);
   } catch (error) {
     console.error('Error viewing profile:', error);
     res.status(500).json({ message: 'Error retrieving profile' });

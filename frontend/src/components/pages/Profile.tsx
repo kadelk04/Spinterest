@@ -2,7 +2,6 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Box,
   Button,
@@ -53,17 +52,23 @@ export const Profile: FunctionComponent = () => {
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
-
+  const [currentUser] = useState<string>(
+    localStorage.getItem('username') || ''
+  );
+  const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
-  const username = window.location.pathname.split('/').pop();
+
+  useEffect(() => {
+    const username = window.location.pathname.split('/').pop() || '';
+    setProfileUsername(username);
+    fetchProfile(); // Fetch profile when username changes
+  }, [window.location.pathname]); // Remove separate useEffect for fetchProfile
 
   const fetchProfile = async () => {
     if (!accessToken && !refreshToken) return;
 
-    // get your username
-
-    // check if your spotify id (in db) is the same spotify id as the profile you are trying to view
     try {
+      const username = window.location.pathname.split('/').pop();
       let response = await fetch(`http://localhost:8000/api/user/${username}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -72,22 +77,26 @@ export const Profile: FunctionComponent = () => {
       if (!response.ok) {
         throw new Error('Failed to get user data');
       }
+
+      const fullprofileResponse = await fetch(
+        `http://localhost:8000/api/user/profile/${username}`
+      );
+      if (!fullprofileResponse.ok) {
+        throw new Error('Failed to get full profile data');
+      }
+      const fullProfileData = await fullprofileResponse.json();
+
       const userData = await response.json();
       console.log('User Data:', userData);
-      setUserData(userData);
+      console.log('Profile Response:', fullProfileData);
+      setUserData(fullProfileData);
       const userSpotifyId = userData.spotifyId;
 
-      // from that response data get spotify id
-
-      // check if that spotify id is yours
-
-      // Fetch the profile's Spotify ID from Spotify API
       let profileResponse = await fetch(`https://api.spotify.com/v1/me`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log('profile response', profileResponse);
 
       if (profileResponse.status === 401 && refreshToken) {
         await getRefreshedToken(refreshToken);
@@ -100,10 +109,8 @@ export const Profile: FunctionComponent = () => {
       const profileData = await profileResponse.json();
       const profileSpotifyId = profileData.id;
 
-      // Check if the profile's Spotify ID matches the user's Spotify ID
       if (profileSpotifyId === userSpotifyId) {
         setIsOwnProfile(true);
-        console.log('Profile Data Fetched:', profileData);
         setProfile({
           display_name: profileData.display_name,
           images: profileData.images || [],
@@ -129,12 +136,10 @@ export const Profile: FunctionComponent = () => {
         );
 
         const otherProfileData = await otherProfileResponse.json();
-
         const myProfileData = await myProfileResponse.json();
         const myMongoId = myProfileData._id;
         setFollowing(myProfileData.following.includes(myMongoId));
 
-        console.log('Other Profile Data Fetched:', otherProfileData);
         setProfile({
           display_name: otherProfileData.display_name,
           images: otherProfileData.images || [],
@@ -148,8 +153,8 @@ export const Profile: FunctionComponent = () => {
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
-
     try {
+      const username = window.location.pathname.split('/').pop();
       const updatedUserData = {
         isPrivate: !userData?.isPrivate,
       };
@@ -171,6 +176,7 @@ export const Profile: FunctionComponent = () => {
 
   const handleFollowToggle = async () => {
     if (!accessToken && !refreshToken) return;
+    const username = window.location.pathname.split('/').pop();
 
     if (following) {
       try {
@@ -211,7 +217,8 @@ export const Profile: FunctionComponent = () => {
 
   useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken, username]);
+  }, [accessToken, refreshToken]);
+
   return (
     <Box
       sx={{
@@ -219,7 +226,6 @@ export const Profile: FunctionComponent = () => {
         flexDirection: { xs: 'column', md: 'row' },
       }}
     >
-      {/* Profile and Friends Column */}
       <Box sx={{ flex: { xs: '100%', md: 1 } }}>
         <Paper
           sx={{
@@ -240,7 +246,6 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
-              {/* if is own profile, render profile visibility toggle */}
               {isOwnProfile ? (
                 <Button
                   variant="contained"
@@ -291,9 +296,7 @@ export const Profile: FunctionComponent = () => {
         <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
       </Box>
 
-      {/* About, Favorites, and Pinned Music Column */}
       <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
-        {/* About and Favorites Section */}
         <Paper
           sx={{
             display: 'flex',
@@ -304,7 +307,10 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
           }}
         >
-          <AboutComponent isOwnProfile={isOwnProfile} />
+          <AboutComponent
+            isOwnProfile={profileUsername === currentUser}
+            profileUsername={profileUsername}
+          />
         </Paper>
 
         <PinnedMusicComponent />

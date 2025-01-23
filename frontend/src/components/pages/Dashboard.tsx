@@ -71,24 +71,30 @@ export const Dashboard = () => {
 
   const handleUserClick = async (username: string) => {
     try {
-      // First fetch the full profile data
+      // First navigate to clear the current profile
+      navigate(`/profile/${username}`);
+
       const profileResponse = await fetch(
-        `http://localhost:8000/api/user/profile/${username}`
+        `http://localhost:8000/api/user/profile/${username}`,
+        {
+          method: 'GET',
+          credentials: 'omit',
+        }
       );
 
       if (!profileResponse.ok) {
         throw new Error(`Error fetching profile: ${profileResponse.status}`);
       }
 
-      // Store the profile data in localStorage or state management if needed
       const profileData = await profileResponse.json();
 
-      // Navigate to profile page with the username
+      // Then replace the current navigation with the new data
       navigate(`/profile/${username}`, {
-        state: { profileData }, // Pass the profile data through navigation state
+        state: { profileData },
+        replace: true, // This is important - it replaces the current history entry
       });
 
-      // Clear search
+      // Clear search after successful navigation
       setSearchResults([]);
       setSearchQuery('');
     } catch (err) {
