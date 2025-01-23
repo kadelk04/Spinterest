@@ -2,6 +2,7 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
+import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Box,
   Button,
@@ -9,7 +10,6 @@ import {
   Typography,
   Paper,
   Avatar,
-  Grid,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import FriendsComponent from './ProfileComponents/FriendsComponent';
@@ -55,17 +55,9 @@ export const Profile: FunctionComponent = () => {
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [myData, setMyData] = useState<User | null>(null);
-  const [currentUser] = useState<string>(
-    localStorage.getItem('username') || ''
-  );
-  const [profileUsername, setProfileUsername] = useState<string>('');
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const username = window.location.pathname.split('/').pop() || '';
-    setProfileUsername(username);
-    fetchProfile(); // Fetch profile when username changes
-  }, [window.location.pathname]); // Remove separate useEffect for fetchProfile
+  const navigate = useNavigate();
+  const username = window.location.pathname.split('/').pop();
 
   const fetchProfile = async () => {
     if (!accessToken && !refreshToken) return;
@@ -75,7 +67,6 @@ export const Profile: FunctionComponent = () => {
 
     // the route should include a ${username} param to fetch the user's data
     try {
-      const username = window.location.pathname.split('/').pop();
       let response = await fetch(`http://localhost:8000/api/user/${username}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -84,15 +75,6 @@ export const Profile: FunctionComponent = () => {
       if (!response.ok) {
         throw new Error('Failed to get user data');
       }
-
-      const fullprofileResponse = await fetch(
-        `http://localhost:8000/api/user/profile/${username}`
-      );
-      if (!fullprofileResponse.ok) {
-        throw new Error('Failed to get full profile data');
-      }
-      const fullProfileData = await fullprofileResponse.json();
-
       const userData = await response.json();
       console.log('User Data:', userData);
       setUserData(userData);
@@ -174,8 +156,8 @@ export const Profile: FunctionComponent = () => {
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
+
     try {
-      const username = window.location.pathname.split('/').pop();
       const updatedUserData = {
         isPrivate: !userData?.isPrivate,
       };
@@ -197,7 +179,6 @@ export const Profile: FunctionComponent = () => {
 
   const handleFollowToggle = async () => {
     if (!accessToken && !refreshToken) return;
-    const username = window.location.pathname.split('/').pop();
 
     if (following) {
       try {
@@ -240,8 +221,7 @@ export const Profile: FunctionComponent = () => {
 
   useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken]);
-
+  }, [accessToken, refreshToken, username]);
   return (
     <Box
       sx={{
@@ -249,6 +229,7 @@ export const Profile: FunctionComponent = () => {
         flexDirection: { xs: 'column', md: 'row' },
       }}
     >
+      {/* Profile and Friends Column */}
       <Box sx={{ flex: { xs: '100%', md: 1 } }}>
         <Paper
           sx={{
@@ -269,6 +250,7 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
+              {/* if is own profile, render profile visibility toggle */}
               {isOwnProfile ? (
                 <Button
                   variant="contained"
@@ -319,7 +301,9 @@ export const Profile: FunctionComponent = () => {
         <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
       </Box>
 
+      {/* About, Favorites, and Pinned Music Column */}
       <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
+        {/* About and Favorites Section */}
         <Paper
           sx={{
             display: 'flex',
@@ -330,10 +314,7 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
           }}
         >
-          <AboutComponent
-            isOwnProfile={profileUsername === currentUser}
-            profileUsername={profileUsername}
-          />
+          <AboutComponent isOwnProfile={isOwnProfile} />
         </Paper>
 
         <PinnedMusicComponent />
