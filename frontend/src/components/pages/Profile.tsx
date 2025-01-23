@@ -2,7 +2,6 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
 import {
   Box,
   Button,
@@ -10,6 +9,7 @@ import {
   Typography,
   Paper,
   Avatar,
+  Grid,
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import FriendsComponent from './ProfileComponents/FriendsComponent';

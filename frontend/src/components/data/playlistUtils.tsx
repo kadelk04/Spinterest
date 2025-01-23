@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
+import { getAccessToken } from './SpotifyAuth';
 
 export interface Widget {
   id: string;
@@ -85,6 +86,62 @@ export const fetchPlaylists = async (
   }
 };
 
+// Pinning playlist
+export const togglePinPlaylist = async (
+  username: string,
+  playlistId: string
+) => {
+  try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
+    const response = await axios.put(
+      `http://localhost:8000/profile/pin-playlist/${username}/${playlistId}`,
+      {},
+      {
+        headers: { authorization: token },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling pinned playlist:', error);
+    throw error;
+  }
+};
+
+export const fetchPinPlaylist = async (
+  username: string
+): Promise<WidgetData[]> => {
+  try {
+    // Fetch pinned playlists from your backend
+    const response = await axios.get<PlaylistResponse>(
+      `http://localhost:8000/profile/pinned-playlists`,
+      { params: { user: username } }
+    );
+
+    const data = response.data;
+    console.log('Pinned Playlists:', data);
+
+    // Fetch cover image for each playlist from Spotify API
+    const pinnedPlaylists: WidgetData[] = data.items
+      .filter((playlist: PlaylistData) => playlist)
+      .map((playlist: PlaylistData) => ({
+        id: playlist.id,
+        cover: playlist.images[0]?.url || '',
+        owner: playlist.owner,
+        title: playlist.name,
+      }));
+
+    return pinnedPlaylists;
+  } catch (error) {
+    console.error('Error fetching pinned playlists from user:', error);
+    return [];
+  }
+};
+
 export const buildWidgets = async (
   playlists: WidgetData[],
   accessToken: string
@@ -154,7 +211,7 @@ export const buildWidgets = async (
         genres: topGenres,
         component: (
           <PlaylistWidget
-            key={playlist.id}
+            playlistId={playlist.id}
             cover={playlist.cover}
             owner={playlist.owner.display_name}
             title={playlist.title}
