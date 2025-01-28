@@ -30,6 +30,16 @@ class Song {
     +String spotifyId
 }
 
+'Notification Structure'
+class Notification {
+    +String title
+    +String type
+    +List<User> receiver
+    +String status
+    +int createdAt
+    +int expiresAt
+}
+
 Playlist "1" *-- "*" Song
 
 User "1" *-- "*" Playlist
