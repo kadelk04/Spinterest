@@ -250,12 +250,25 @@ export const returnWidgets = async (): Promise<Widget[]> => {
     console.error('No access token found');
     return [];
   }
+  // check if the widget (playlist) data exists in local storage
+  // if not, this means the user has either cleared their local storage or has not visited the dashboard yet
+  // if the data does not exist, fetch the playlist data from the spotify api and build the widgets
+  let playlists_with_genres: Widget[] = [];
+  if (localStorage.getItem('widget_data') === null) {
+    //first time loading into dashboard
+    const playlists_data = await fetchPlaylists(accessToken);
+    // save the data to local storage
+    localStorage.setItem('widget_data', JSON.stringify(playlists_data));
 
-  const playlists_data = await fetchPlaylists(accessToken);
-  console.log(playlists_data);
-
-  const playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-
+    playlists_with_genres = await buildWidgets(playlists_data, accessToken);
+  } else {
+    // use the local storage data to build the widgets
+    // buildWidgets expects an array of WidgetData[]
+    const localWidgetsData: WidgetData[] = JSON.parse(
+      localStorage.getItem('widget_data') || '[]'
+    );
+    playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
+  }
   // returns Widget[] type
   return playlists_with_genres;
 };
