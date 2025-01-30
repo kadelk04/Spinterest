@@ -98,7 +98,7 @@ export const togglePinPlaylist = async (
     }
 
     const response = await axios.put(
-      `http://localhost:8000/profile/pin-playlist/${username}/${playlistId}`,
+      `http://localhost:8000/api/profile/pin-playlist/${username}/${playlistId}`,
       {},
       {
         headers: { authorization: token },
