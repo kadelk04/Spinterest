@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import {
-  getPinnedPlaylist,
+  getPinnedPlaylists,
   getProfilePgInfo,
   pinPlaylist,
   updateProfilePgInfo,
@@ -10,7 +10,7 @@ const profileController = Router();
 
 profileController.post('/logProfileInput', updateProfilePgInfo);
 profileController.get('/logProfileInput', getProfilePgInfo);
-profileController.put('/pinPlaylists/:username/:playlistId', pinPlaylist);
-profileController.get('/getPinnedPlaylists/:username', getPinnedPlaylist);
+profileController.put('/pinPlaylist/:username/:playlistId', pinPlaylist);
+profileController.get('/getPinnedPlaylists/:username', getPinnedPlaylists);
 
 export default profileController;
