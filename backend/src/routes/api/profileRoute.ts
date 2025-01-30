@@ -10,7 +10,7 @@ const profileController = Router();
 
 profileController.post('/logProfileInput', updateProfilePgInfo);
 profileController.get('/logProfileInput', getProfilePgInfo);
-profileController.put('/pin-playlist/:username/:playlistId', pinPlaylist);
-profileController.get('/pinned-playlists/:username', getPinnedPlaylist);
+profileController.put('/pinPlaylists/:username/:playlistId', pinPlaylist);
+profileController.get('/getPinnedPlaylists/:username', getPinnedPlaylist);
 
 export default profileController;

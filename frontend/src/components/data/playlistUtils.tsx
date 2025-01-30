@@ -98,7 +98,7 @@ export const togglePinPlaylist = async (
     }
 
     const response = await axios.put(
-      `http://localhost:8000/api/profile/pin-playlist/${username}/${playlistId}`,
+      `http://localhost:8000/api/profile/pinPlaylists/${username}/${playlistId}`,
       {},
       {
         headers: { authorization: token },
@@ -118,7 +118,7 @@ export const fetchPinPlaylist = async (
   try {
     // Fetch pinned playlists from your backend
     const response = await axios.get<PlaylistResponse>(
-      `http://localhost:8000/profile/pinned-playlists`,
+      `http://localhost:8000/profile/getPinnedPlaylists`,
       { params: { user: username } }
     );
 
