@@ -264,6 +264,7 @@ export const returnWidgets = async (): Promise<Widget[]> => {
   } else {
     // use the local storage data to build the widgets
     // buildWidgets expects an array of WidgetData[]
+    console.log('utilizing local storage to build widgets');
     const localWidgetsData: WidgetData[] = JSON.parse(
       localStorage.getItem('widget_data') || '[]'
     );
