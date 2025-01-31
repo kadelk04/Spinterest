@@ -45,6 +45,8 @@ export interface PlaylistResponse {
 }
 
 interface Artist {
+  id: string;
+  name: string;
   genres: string[];
 }
 
@@ -173,14 +175,31 @@ export const buildWidgets = async (
       const tracks = response.data.items;
       // console.log('Tracks:', tracks);
 
-      const artists = tracks.flatMap((track: any) =>
+      const artists: string[] = tracks.flatMap((track: any) =>
         track.track.artists.map((artist: any) => artist.id)
       );
 
+      // for each artist, find if they're in our db
+      const artistsQueryResponse = await axios.post<{
+        saved: string[];
+        unsaved: string[];
+      }>('http://localhost:8000/api/artist/status', { ids: artists });
+
+      const { saved, unsaved } = artistsQueryResponse.data;
+
+      const localArtistResponse = await axios.post<ArtistResponse>(
+        'http://localhost:8000/api/artist/bulk',
+        {
+          ids: saved,
+        }
+      );
+
+      const localArtists: ArtistResponse = localArtistResponse.data;
+
       // Split artist IDs into batches of 50 and make requests
-      const artistInfoResponses = await Promise.all(
-        Array.from({ length: Math.ceil(artists.length / 50) }, (_, i) => {
-          const batch = artists.slice(i * 50, (i + 1) * 50).join(',');
+      const spotifyArtistResponses = await Promise.all(
+        Array.from({ length: Math.ceil(unsaved.length / 50) }, (_, i) => {
+          const batch = unsaved.slice(i * 50, (i + 1) * 50).join(',');
           return axios.get<ArtistResponse>(
             `http://localhost:8000/api/spotify/artists?ids=${batch}`,
             {
@@ -191,13 +210,16 @@ export const buildWidgets = async (
           );
         })
       );
-      const allArtistInfo = artistInfoResponses.flatMap(
+      const spotifyArtistInfo = spotifyArtistResponses.flatMap(
         (response) => response.data
       );
-      //console.log('allArtistInfo', allArtistInfo);
 
-      const genres = allArtistInfo.flatMap((artistInfo: any) =>
+      const genres = spotifyArtistInfo.flatMap((artistInfo: any) =>
         artistInfo.artists.flatMap((artist: any) => artist.genres)
+      );
+
+      genres.concat(
+        localArtists.artists.flatMap((artist: any) => artist.genres)
       );
 
       const topGenres = await getTopGenres(genres);
