@@ -55,7 +55,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
       }
 
       const responseAbtFav = await axios.get<AbtFavResponse>(
-        'http://localhost:8000/profile/logProfileInput',
+        'http://localhost:8000/api/profile/logProfileInput',
         { params: { username } }
       );
 
@@ -115,7 +115,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
     }
 
     try {
-      await axios.post('http://localhost:8000/profile/logProfileInput', {
+      await axios.post('http://localhost:8000/api/profile/logProfileInput', {
         ...updatedData,
         username,
       });

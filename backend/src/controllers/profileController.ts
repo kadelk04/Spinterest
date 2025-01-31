@@ -169,7 +169,7 @@ export const pinPlaylist = async (req: Request, res: Response) => {
     const user = await UserModel.findOne({ username }).populate(
       'pinnedPlaylists'
     );
-    console.log('Found user:', user);
+    //console.log('Found user:', user);
 
     if (!user) {
       console.error('User not found');
@@ -217,7 +217,7 @@ export const pinPlaylist = async (req: Request, res: Response) => {
  * @param req
  * @param res
  */
-export const getPinnedPlaylist = async (req: Request, res: Response) => {
+export const getPinnedPlaylists = async (req: Request, res: Response) => {
   try {
     const UserModel = getModel<IUser>('User');
     const { username } = req.params;

@@ -18,7 +18,7 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { togglePinPlaylist } from '../components/data/playlistUtils';
+import { togglePinPlaylist } from '../../data/playlistUtils';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -51,7 +51,7 @@ export const PlaylistWidget = ({
 
       try {
         const response = await fetch(
-          `http://localhost:8000/profile/pinned-playlists/${username}`,
+          `http://localhost:8000/api/profile/getPinnedPlaylists/${username}`,
           {
             headers: {
               authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
