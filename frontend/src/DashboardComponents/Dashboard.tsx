@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react';
 import React from 'react';
-import { Box, Typography, Input, InputAdornment, Paper } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Input,
+  InputAdornment,
+  Paper,
+  InputLabel,
+  MenuItem,
+} from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
-import { getLayouts } from '../data/layoutGenerator';
+import { getLayouts } from '../components/data/layoutGenerator';
 
-import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-import { returnWidgets, Widget } from '../data/playlistUtils';
+import { returnWidgets, Widget } from '../components/data/playlistUtils';
+
+import SelectionBar from './SelectionBar';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -116,7 +125,14 @@ export const Dashboard = () => {
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
-      <Box sx={{ position: 'relative', marginBottom: '20px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '20px',
+          justifyContent: 'space-between',
+        }}
+      >
         <Input
           placeholder="/genre, /tag, /person"
           id="input-with-icon-adornment"
@@ -130,12 +146,16 @@ export const Dashboard = () => {
           disableUnderline
           fullWidth
           sx={{
+            width: '30ch',
             borderRadius: '20px',
             backgroundColor: 'white',
             padding: '5px 15px',
             border: '1px solid #ccc',
+            marginRight: '10px',
           }}
         />
+
+        <SelectionBar />
 
         {/* Search Results Dropdown */}
         {(searchResults.length > 0 || isSearching) && (
@@ -188,8 +208,6 @@ export const Dashboard = () => {
           </Typography>
         )}
       </Box>
-
-      <Typography>Dashboard</Typography>
 
       <ResponsiveGridLayout
         className="layout"

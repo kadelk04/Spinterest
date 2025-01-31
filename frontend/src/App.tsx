@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Profile } from './components/pages/Profile';
 import { Login } from './components/pages/Login';
-import { Dashboard } from './components/pages/Dashboard';
+import { Dashboard } from './DashboardComponents/Dashboard';
 import { Box, CssBaseline } from '@mui/material';
 import { Navbar } from './components/common/Navbar';
 import { Theme } from './components/common/Theme';
