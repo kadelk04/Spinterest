@@ -44,14 +44,14 @@ export const NotificationSchema = new mongoose.Schema({
       return (this as any).type === 'follow_request' ? 'pending' : undefined;
     },
   },
-  createdAt: { type: Date, default: Date.now, required: true },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    required: true,
+  },
   expiresAt: {
     type: Date,
-    // If the notification is a follow request, set expiration to one week
-    default: function () {
-      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 1-week expiration for all notifications
-    },
   },
 });
 
-NotificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+NotificationSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 604800 }); // 1 week = 604800 seconds
