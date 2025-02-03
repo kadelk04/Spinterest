@@ -5,7 +5,6 @@ import { IUser } from './User';
 export interface INotifcation {
   title: string;
   type: 'new_playlist' | 'saved_playlist' | 'follow_request' | 'like';
-  sender: mongoose.Types.ObjectId;
   receiver: mongoose.Types.ObjectId[];
   metadata?: Record<string, any>;
   status?: 'pending' | 'accepted';
