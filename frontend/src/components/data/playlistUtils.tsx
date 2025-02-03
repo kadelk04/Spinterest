@@ -86,6 +86,30 @@ export const fetchPlaylists = async (
   }
 };
 
+export const likePlaylist = async (playlistId: string) => {
+  console.log('in likePlaylist');
+  try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
+    const response = await axios.put(
+      `http://localhost:8000/api/playlist/${playlistId}/like`,
+      {
+        params: {
+          playlistId: playlistId,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error liking playlist:', error);
+    throw error;
+  }
+};
+
 // Pinning playlist
 export const togglePinPlaylist = async (
   username: string,

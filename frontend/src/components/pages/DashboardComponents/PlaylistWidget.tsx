@@ -18,7 +18,7 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { togglePinPlaylist } from '../../data/playlistUtils';
+import { togglePinPlaylist, likePlaylist } from '../../data/playlistUtils';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -84,6 +84,15 @@ export const PlaylistWidget = ({
       const updatedPlaylist = await togglePinPlaylist(username, playlistId);
       setClicked((prev) => !prev);
       console.log((updatedPlaylist as { message: string }).message);
+    } catch (e) {
+      console.log((e as Error).message);
+    }
+  };
+
+  const handleLikeClick = async (playlistId: string) => {
+    try {
+      const response = await likePlaylist(playlistId);
+      console.log(response);
     } catch (e) {
       console.log((e as Error).message);
     }
@@ -231,6 +240,7 @@ export const PlaylistWidget = ({
             {clicked ? <PushPin /> : <PushPinOutlined />}
           </IconButton>
           <FavoriteBorderOutlined
+            // onClick={() => handleLikeClick(playlistId)}
             sx={{
               transition: 'transform 0.3s, box-shadow 0.3s',
               '&:hover': {
