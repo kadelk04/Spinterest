@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { PlaylistWidget } from '../../DashboardComponents/PlaylistWidget';
+import { PlaylistWidget } from '../pages/DashboardComponents/PlaylistWidget';
 import { getAccessToken } from './SpotifyAuth';
 
 export interface Widget {
