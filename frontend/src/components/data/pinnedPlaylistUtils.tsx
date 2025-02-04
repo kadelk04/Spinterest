@@ -1,5 +1,5 @@
+import axios from 'axios';
 import { useState, useEffect } from 'react';
-
 import { Owner, PlaylistData, PlaylistResponse } from './playlistUtils';
 
 export interface PinnedMusicData {
@@ -21,10 +21,12 @@ export const togglePinPlaylist = async (
     }
 
     const response = await axios.put(
-      `http://localhost:8000/profile/pin-playlist/${username}/${playlistId}`,
+      `http://localhost:8000/api/profile/pinPlaylist/${username}/${playlistId}`,
       {},
       {
-        headers: { authorization: token },
+        headers: {
+          authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
+        },
       }
     );
 
@@ -42,8 +44,7 @@ export const fetchPinPlaylist = async (
   try {
     // Fetch pinned playlists from your backend
     const response = await axios.get<PlaylistResponse>(
-      `http://localhost:8000/profile/pinned-playlists`,
-      { params: { user: username } }
+      `http://localhost:8000/api/profile/getPinnedPlaylists/${username}`
     );
 
     const data = response.data;
@@ -80,7 +81,7 @@ export const usePinnedPlaylists = (playlistId: string) => {
 
       try {
         const response = await fetch(
-          `http://localhost:8000/profile/pinned-playlists/${username}`,
+          `http://localhost:8000/api/profile/getPinnedPlaylists/${username}`,
           {
             headers: {
               authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
