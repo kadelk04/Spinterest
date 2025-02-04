@@ -30,6 +30,13 @@ class Song {
     +String spotifyId
 }
 
+'Artist structure'
+class Artist {
+    +String name
+    +String spotifyId
+    +List<Genre> genres
+}
+
 Playlist "1" *-- "*" Song
 
 User "1" *-- "*" Playlist
