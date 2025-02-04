@@ -33,6 +33,7 @@ class Song {
 'Notification Structure'
 class Notification {
     +String title
+    +String message
     +String type
     +List<User> receiver
     +String status
