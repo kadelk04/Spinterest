@@ -18,7 +18,7 @@ import {
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { usePinnedPlaylists } from '../components/data/pinnedPlaylistUtils';
+import { usePinnedPlaylists } from '../../data/pinnedPlaylistUtils';
 
 export const PlaylistWidget = ({
   playlistId,

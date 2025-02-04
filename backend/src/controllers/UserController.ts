@@ -133,6 +133,66 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const viewProfile = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+
+    const UserM = getModel<IUser>('User');
+    const user = await UserM.findOne({ username })
+      .select('username location bio spotify favorites links status')
+      .lean();
+
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    // Always return a complete profile object with default values for all fields
+    const profileData = {
+      username: user.username,
+      location: user.location || '',
+      bio: user.bio || '',
+      links: user.links || [],
+      status: user.status || '',
+      favorites: user.favorites || [],
+      // Add any other profile fields with default values
+    };
+
+    res.status(200).json(profileData);
+  } catch (error) {
+    console.error('Error viewing profile:', error);
+    res.status(500).json({ message: 'Error retrieving profile' });
+  }
+};
+
+/**
+ * Retrieve all users
+ * @param req
+ * @param res
+ * @returns
+ */
+export const searchUsers = async (req: Request, res: Response) => {
+  try {
+    console.log('Searching for username:', req.params.username); // Debug log
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({
+      username: { $regex: req.params.username, $options: 'i' },
+    });
+
+    if (!user) {
+      console.log('No user found'); // Debug log
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    console.log('Found user:', user); // Debug log
+    res.status(200).json(user);
+  } catch (err) {
+    console.error('Error in getUserByUsername:', err);
+    res.status(500).json({ message: 'Error fetching user' });
+  }
+};
+
 // helper function to use spotify API to get logged in user's spotifyId
 const fetchSpotifyId = async (accessToken: string): Promise<string> => {
   const response = await fetch('https://api.spotify.com/v1/me', {
