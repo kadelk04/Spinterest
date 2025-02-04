@@ -60,20 +60,6 @@ const PinnedMusicComponent: React.FC = () => {
       <Typography variant="h5" sx={{ mb: 2 }}>
         PINNED MUSIC
       </Typography>
-      <TextField
-        fullWidth
-        placeholder="Pinned Music"
-        variant="outlined"
-        sx={{
-          mb: 2,
-          '& .MuiOutlinedInput-root': {
-            bgcolor: '#F5EFF7',
-            '&:hover fieldset': {
-              borderColor: '#000000',
-            },
-          },
-        }}
-      />
       <Grid container spacing={2}>
         {pinnedPlaylists.length > 0 ? (
           pinnedPlaylists.map((playlist, i) => (
