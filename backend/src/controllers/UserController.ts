@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { IUser } from '../models/User';
+import { INotification } from '../models/Notification';
 import { getFriends } from '../controllers/spotifyController';
 
 /**

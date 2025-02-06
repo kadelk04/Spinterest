@@ -3,6 +3,7 @@ import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
+import { followUser, unfollowUser } from '../data/followUtils';
 import {
   Box,
   Button,
@@ -182,6 +183,8 @@ export const Profile: FunctionComponent = () => {
 
     if (following) {
       try {
+        // CALL unfollowUser in followUtils.tsx
+
         const response = await axios.put(
           `http://localhost:8000/api/user/${username}/unfollow`,
           {
@@ -200,6 +203,12 @@ export const Profile: FunctionComponent = () => {
       }
     } else {
       try {
+        // CALL followUser in followUtils.tsx
+
+        if (followUser(username) === true) {
+          console.log('followUser called');
+        }
+
         const response = await axios.put(
           `http://localhost:8000/api/user/${username}/follow`,
           {

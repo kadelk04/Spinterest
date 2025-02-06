@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
-import { IUser } from '../models/User';
+import { INotification } from '../models/Notification';
 /**
  * Create notification
  * @param req
  * @param res
  * @returns
  */
-export const createNotification = async (
+export const createFollowNotification = async (
   req: Request,
   res: Response
 ): Promise<void> => {};

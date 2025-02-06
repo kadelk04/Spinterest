@@ -6,6 +6,7 @@ import { PlaylistSchema } from '../models/Playlist';
 import { IUser } from '../models/User';
 import { UserSchema } from '../models/User';
 import dotenv from 'dotenv';
+import { ArtistSchema, IArtist } from '../models/Artist';
 
 let connection: mongoose.Connection | null = null;
 const env = dotenv.config({ path: '.env.local' });
@@ -27,6 +28,7 @@ export const getDbConnection = async (): Promise<mongoose.Connection> => {
     conn.model<IUser>('User', UserSchema);
     conn.model<IPlaylist>('Playlist', PlaylistSchema);
     conn.model<IFavorites>('Favorites', FavoritesSchema);
+    conn.model<IArtist>('Artist', ArtistSchema);
 
     connection = conn;
     console.log('DB Connection established');

@@ -30,15 +30,11 @@ class Song {
     +String spotifyId
 }
 
-'Notification Structure'
-class Notification {
-    +String title
-    +String message
-    +String type
-    +List<User> receiver
-    +String status
-    +int createdAt
-    +int expiresAt
+'Artist structure'
+class Artist {
+    +String name
+    +String spotifyId
+    +List<Genre> genres
 }
 
 Playlist "1" *-- "*" Song

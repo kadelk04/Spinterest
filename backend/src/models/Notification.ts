@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 import { IUser } from './User';
 
-export interface INotifcation {
+export interface INotification {
   title: string;
   type: 'new_playlist' | 'saved_playlist' | 'follow_request' | 'like';
   receiver: mongoose.Types.ObjectId[];
