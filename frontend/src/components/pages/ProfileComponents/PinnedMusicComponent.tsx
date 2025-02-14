@@ -3,17 +3,24 @@ import { useEffect, useState } from 'react';
 import { Box, TextField, Typography, Paper, Grid } from '@mui/material';
 import { WidgetData } from '../../data/playlistUtils';
 
-const PinnedMusicComponent: React.FC = () => {
+interface PinnedMusicComponentProps {
+  username: string;
+  isOwnProfile: boolean;
+}
+
+const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
+  username,
+  isOwnProfile,
+}) => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-  const username = localStorage.getItem('username');
 
   useEffect(() => {
     if (!username) {
-      console.error('No username found');
+      console.error('No username provided');
       return;
     }
     fetchPlaylistsData(username);
-  }, [username]);
+  }, [username]); // Re-fetch when username changes
 
   const fetchPlaylistsData = async (username: string) => {
     try {

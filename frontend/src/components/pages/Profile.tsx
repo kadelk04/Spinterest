@@ -328,10 +328,16 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
           }}
         >
-          <AboutComponent isOwnProfile={profileUsername === currentUser} />
+          <AboutComponent
+            isOwnProfile={isOwnProfile}
+            username={profileUsername}
+          />
         </Paper>
 
-        <PinnedMusicComponent />
+        <PinnedMusicComponent
+          username={profileUsername}
+          isOwnProfile={isOwnProfile}
+        />
       </Box>
     </Box>
   );
