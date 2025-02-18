@@ -16,10 +16,17 @@ export const followUser = async (username: string, myUsername: string) => {
 
     console.log('Privacy response:', privacyResponse.data);
 
-    // first call notification route to create a notification
-    // const notificationResponse = await axios.post(
-    //   `http://localhost:8000/api/notification/follow/${username}`
-    // );
+    if (privacyResponse.data === true) {
+      try {
+        const notificationResponse = await axios.post(
+          `http://localhost:8000/api/notification/follow/${username}`
+        );
+        console.log('Notification created:', notificationResponse.data);
+      } catch (notificationError) {
+        console.error('Error creating notification:', notificationError);
+        throw new Error('Failed to create notification');
+      }
+    }
 
     const followResponse = await axios.put(
       `http://localhost:8000/api/user/${username}/follow`,
