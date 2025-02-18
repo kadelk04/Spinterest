@@ -11,6 +11,7 @@ import {
   removeFollower,
   getUserBySpotifyId,
   viewProfile,
+  checkPrivacy,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -39,6 +40,7 @@ router.get('/:username/favorites', getUserFavorites);
 router.post('/:username/favorites', addFavorite);
 router.delete('/:username/favorites', removeFavorite);
 router.patch('/:username/favorites', updateFavorite);
+router.get('/:username/privacy', checkPrivacy);
 
 // follow + unfollow routes
 router.put('/:username/follow', addFollower);

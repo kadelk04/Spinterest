@@ -10,6 +10,11 @@ export const followUser = async (username: string, myUsername: string) => {
       throw new Error('Username is undefined');
     }
     // first find if user is private or public -- add a new UserController method
+    const privacyResponse = await axios.get(
+      `http://localhost:8000/api/user/${username}/privacy`
+    );
+
+    console.log('Privacy response:', privacyResponse.data);
 
     // first call notification route to create a notification
     // const notificationResponse = await axios.post(
