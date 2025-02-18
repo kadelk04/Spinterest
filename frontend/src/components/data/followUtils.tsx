@@ -4,17 +4,26 @@ import axios from 'axios';
 // logic for following
 // called by handleFollowToggle in Profile.tsx
 
-export const followUser = async (username: string) => {
+export const followUser = async (username: string, myUsername: string) => {
   try {
+    if (!username) {
+      throw new Error('Username is undefined');
+    }
     // first find if user is private or public -- add a new UserController method
 
     // first call notification route to create a notification
-    const notificationResponse = await axios.post(
-      `http://localhost:8000/api/notification/follow/${username}`
-    );
+    // const notificationResponse = await axios.post(
+    //   `http://localhost:8000/api/notification/follow/${username}`
+    // );
 
     const followResponse = await axios.put(
-      `http://localhost:8000/api/user/${username}/follow`
+      `http://localhost:8000/api/user/${username}/follow`,
+      {
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
+        follower: myUsername,
+      }
     );
     console.log('Followed user:', followResponse.data);
     return true;

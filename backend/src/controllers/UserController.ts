@@ -268,15 +268,19 @@ export const getUserSpotifyId = async (
 // };
 
 export const addFollower = async (req: Request, res: Response) => {
+  console.log('in addFollower in UserController');
+  console.log('req.params.username: ', req.params.username, req.body.follower);
   try {
     const UserModel = getModel<IUser>('User');
     const userToFollow = await UserModel.findOne({
       username: req.params.username,
     });
+
     // follower is the id of the user (you) that is requesting to follow
     const follower = await UserModel.findOne({ username: req.body.follower });
     console.log('userToFollow:', userToFollow?.username);
     console.log('follower:', follower?.username);
+
     if (!userToFollow) {
       res.status(404).send('User not found');
       return;
@@ -285,10 +289,39 @@ export const addFollower = async (req: Request, res: Response) => {
       res.status(404).send('Follower not found');
       return;
     }
-    userToFollow.followers.push(follower.id);
-    follower.following.push(userToFollow.id);
-    await follower.save();
-    await userToFollow.save();
+
+    try {
+      userToFollow.followers.push(follower.id);
+    } catch (err) {
+      console.error('Error adding follower to userToFollow:', err);
+      res.status(500).send('Error adding follower');
+      return;
+    }
+
+    try {
+      follower.following.push(userToFollow.id);
+    } catch (err) {
+      console.error('Error adding userToFollow to follower:', err);
+      res.status(500).send('Error adding follower');
+      return;
+    }
+
+    try {
+      await follower.save();
+    } catch (err) {
+      console.error('Error saving follower:', err);
+      res.status(500).send('Error adding follower');
+      return;
+    }
+
+    try {
+      await userToFollow.save();
+    } catch (err) {
+      console.error('Error saving userToFollow:', err);
+      res.status(500).send('Error adding follower');
+      return;
+    }
+
     res.status(200).send('Follower added');
   } catch (err) {
     console.error(err);

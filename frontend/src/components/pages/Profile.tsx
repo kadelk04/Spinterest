@@ -178,7 +178,7 @@ export const Profile: FunctionComponent = () => {
     }
   };
 
-  const handleFollowToggle = async () => {
+  const handleFollowToggle = async (username: string) => {
     if (!accessToken && !refreshToken) return;
 
     if (following) {
@@ -203,9 +203,16 @@ export const Profile: FunctionComponent = () => {
       }
     } else {
       try {
+        if (!username) {
+          throw new Error('Username is undefined');
+        }
+
         // CALL followUser in followUtils.tsx
 
-        if (followUser(username) === true) {
+        console.log('followUser called in handleFollowToggle');
+
+        const followSuccess = await followUser(username, myData!.username);
+        if (followSuccess === true) {
           console.log('followUser called');
         }
 
@@ -287,7 +294,7 @@ export const Profile: FunctionComponent = () => {
                 <Button
                   sx={{ mt: 2 }}
                   variant="contained"
-                  onClick={handleFollowToggle}
+                  onClick={() => handleFollowToggle(username!)}
                 >
                   {following ? 'Unfollow' : 'Follow'}
                 </Button>
