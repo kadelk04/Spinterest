@@ -32,14 +32,22 @@ export const followUser = async (username: string, myUsername: string) => {
     return false;
   }
 };
-export const unfollowUser = async (username: string) => {
+export const unfollowUser = async (username: string, myUsername: string) => {
   // don't create a notification lol
   try {
-    const response = await axios.put(
-      `http://localhost:8000/api/user/${username}/unfollow`
+    const unfollowResponse = await axios.put(
+      `http://localhost:8000/api/user/${username}/unfollow`,
+      {
+        headers: {
+          authorization: localStorage.getItem('jwttoken'),
+        },
+        unfollower: myUsername,
+      }
     );
-    console.log('Unfollowed user:', response.data);
+    console.log('Unfollowed user:', unfollowResponse.data);
+    return true;
   } catch (error) {
     console.error('Error unfollowing user:', error);
+    return false;
   }
 };

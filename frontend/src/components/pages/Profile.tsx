@@ -178,24 +178,19 @@ export const Profile: FunctionComponent = () => {
     }
   };
 
-  const handleFollowToggle = async (username: string) => {
+  const handleFollowToggle = async () => {
+    const username = window.location.pathname.split('/').pop();
     if (!accessToken && !refreshToken) return;
 
     if (following) {
+      if (!username) {
+        throw new Error('Username is undefined');
+      }
       try {
         // CALL unfollowUser in followUtils.tsx
 
-        const response = await axios.put(
-          `http://localhost:8000/api/user/${username}/unfollow`,
-          {
-            headers: {
-              authorization: localStorage.getItem('jwttoken'),
-            },
-            unfollower: myData?.username,
-          }
-        );
-
-        if (response.status === 200) {
+        const unfollowSuccess = await unfollowUser(username, myData!.username);
+        if (unfollowSuccess === true) {
           setFollowing(false);
         }
       } catch (error) {
@@ -214,19 +209,6 @@ export const Profile: FunctionComponent = () => {
         const followSuccess = await followUser(username, myData!.username);
         if (followSuccess === true) {
           console.log('followUser called');
-        }
-
-        const response = await axios.put(
-          `http://localhost:8000/api/user/${username}/follow`,
-          {
-            headers: {
-              authorization: localStorage.getItem('jwttoken'),
-            },
-            follower: myData?.username,
-          }
-        );
-
-        if (response.status === 200) {
           setFollowing(true);
         }
       } catch (error) {
@@ -294,7 +276,7 @@ export const Profile: FunctionComponent = () => {
                 <Button
                   sx={{ mt: 2 }}
                   variant="contained"
-                  onClick={() => handleFollowToggle(username!)}
+                  onClick={handleFollowToggle}
                 >
                   {following ? 'Unfollow' : 'Follow'}
                 </Button>
