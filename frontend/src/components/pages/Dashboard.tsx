@@ -18,6 +18,7 @@ import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
+import { returnNotifications, Notification } from '../data/notificationUtils';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,9 +29,14 @@ export const Dashboard = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState('');
 
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
   useEffect(() => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
+    });
+    returnNotifications().then((notifications) => {
+      setNotifications(notifications);
     });
   }, []);
 
@@ -125,7 +131,7 @@ export const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
-        {<NotificationsDrawer />}
+        {<NotificationsDrawer notifications={notifications} />}
         <Input
           placeholder="/genre, /tag, /person"
           id="input-with-icon-adornment"

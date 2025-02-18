@@ -9,7 +9,16 @@ import {
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
-export default function NotificationDrawer() {
+import { Notification } from '../../data/notificationUtils';
+import { NotificationBlurb } from './NotificationBlurb';
+
+interface NotificationDrawerProps {
+  notifications: Notification[];
+}
+
+export default function NotificationDrawer({
+  notifications,
+}: NotificationDrawerProps) {
   const [open, setOpen] = useState(false);
 
   // Toggle Drawer Function
@@ -28,7 +37,6 @@ export default function NotificationDrawer() {
 
   return (
     <Box sx={{ position: 'relative', marginBottom: '20px' }}>
-      {/* Notifications Button */}
       <Button
         variant="contained"
         sx={{
@@ -47,7 +55,6 @@ export default function NotificationDrawer() {
         Notifications
       </Button>
 
-      {/* Right-Side Drawer */}
       <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
         <Box
           sx={{ width: 300, p: 2 }}
@@ -56,6 +63,18 @@ export default function NotificationDrawer() {
           onKeyDown={toggleDrawer(false)}
         >
           <h3>Notifications</h3>
+          <List>
+            {notifications.length > 0 ? (
+              notifications.map((notification) => (
+                <NotificationBlurb
+                  key={notification.id}
+                  notification={notification}
+                />
+              ))
+            ) : (
+              <p>No notifications</p>
+            )}
+          </List>
         </Box>
       </Drawer>
     </Box>
