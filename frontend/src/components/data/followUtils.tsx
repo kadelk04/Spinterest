@@ -6,8 +6,8 @@ import axios from 'axios';
 
 export const followUser = async (username: string, myUsername: string) => {
   try {
-    if (!username) {
-      throw new Error('Username is undefined');
+    if (!username || !myUsername) {
+      throw new Error('A username is undefined');
     }
     // first find if user is private or public -- add a new UserController method
     const privacyResponse = await axios.get(
@@ -18,8 +18,14 @@ export const followUser = async (username: string, myUsername: string) => {
 
     if (privacyResponse.data === true) {
       try {
+        console.log('username and myUsername: ', username, myUsername);
+        console.log('Type of username:', typeof username);
         const notificationResponse = await axios.post(
-          `http://localhost:8000/api/notification/follow/${username}`
+          `http://localhost:8000/api/notification/follow/${username}`,
+          {
+            testUsername: username,
+            follower: myUsername,
+          }
         );
         console.log('Notification created:', notificationResponse.data);
       } catch (notificationError) {
