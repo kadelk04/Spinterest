@@ -12,7 +12,7 @@ import axios from 'axios';
 export const createFollowNotification = async (req: Request, res: Response) => {
   console.log('in createNotification in notificationController.ts');
   const toBeFollowed = req.params.username;
-  const { follower } = req.body;
+  const { follower, privacy } = req.body;
   console.log(`username: ${toBeFollowed}, follower: ${follower}`);
   if (!toBeFollowed || !follower) {
     throw new Error('toBeFollowed or follower is undefined');
@@ -38,9 +38,11 @@ export const createFollowNotification = async (req: Request, res: Response) => {
   try {
     const Notification = getModel<INotification>('Notification');
     const newNotification = new Notification({
-      title: 'Follow',
-      type: 'follow_request',
-      message: `${follower} followed you!`,
+      title: privacy ? 'Follow Request' : 'New Follower',
+      type: privacy ? 'follow_request' : 'follow',
+      message: privacy
+        ? `${follower} requested to follow you!`
+        : `${follower} followed you!`,
       receiver: [toBeFollowedObjectId],
       createdAt: new Date(),
     });

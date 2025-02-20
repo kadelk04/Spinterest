@@ -21,6 +21,7 @@ export const NotificationSchema = new mongoose.Schema({
       'like',
       'new_playlist',
       'saved_playlist',
+      'follow',
       'follow_request',
       'follow_accept',
     ],

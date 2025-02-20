@@ -24,6 +24,7 @@ export const followUser = async (username: string, myUsername: string) => {
           `http://localhost:8000/api/notification/follow/${username}`,
           {
             follower: myUsername,
+            privacy: true,
           }
         );
         console.log('Notification created:', notificationResponse.data);
