@@ -1,9 +1,7 @@
 import React from 'react';
 import axios from 'axios';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Search as SearchIcon,
-  Settings as SettingsIcon,
   Edit as EditIcon,
   LocationOn as LocationOnIcon,
   AccountCircle as AccountCircleIcon,
@@ -32,9 +30,13 @@ interface AbtFavResponse {
 
 interface AboutComponentProps {
   isOwnProfile: boolean;
+  username: string;
 }
 
-const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
+const AboutComponent: React.FC<AboutComponentProps> = ({
+  isOwnProfile,
+  username,
+}) => {
   const [isEditable, setIsEditable] = useState(false);
   const [location, setLocation] = useState('');
   const [links, setLinks] = useState('');
@@ -45,12 +47,11 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
   const [fava2, setText4] = useState('');
   const [favalb1, setText5] = useState('');
   const [favalb2, setText6] = useState('');
+
   const fetchData = async () => {
     try {
-      const username = localStorage.getItem('username');
-
       if (!username) {
-        console.error('No username found');
+        console.error('No username provided');
         return;
       }
 
@@ -60,20 +61,17 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
       );
 
       const dataFields = responseAbtFav.data;
+      console.log('Fetched Data for user:', username, dataFields);
 
-      // Log the fetched data to verify
-      console.log('Fetched Data:', dataFields);
-
-      // Set the state with the fetched data
-      setLocation(dataFields.location);
-      setLinks(dataFields.links);
-      setBiography(dataFields.biography);
-      setText1(dataFields.favorites.genre[0] || '');
-      setText2(dataFields.favorites.genre[1] || '');
-      setText3(dataFields.favorites.artist[0] || '');
-      setText4(dataFields.favorites.artist[1] || '');
-      setText5(dataFields.favorites.album[0] || '');
-      setText6(dataFields.favorites.album[1] || '');
+      setLocation(dataFields.location || '');
+      setLinks(dataFields.links || '');
+      setBiography(dataFields.biography || '');
+      setText1(dataFields.favorites?.genre[0] || '');
+      setText2(dataFields.favorites?.genre[1] || '');
+      setText3(dataFields.favorites?.artist[0] || '');
+      setText4(dataFields.favorites?.artist[1] || '');
+      setText5(dataFields.favorites?.album[0] || '');
+      setText6(dataFields.favorites?.album[1] || '');
     } catch (error) {
       console.error('Error fetching dataFields:', error);
     }
@@ -81,44 +79,30 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [username]);
 
   const handleIconClick = async () => {
+    if (!isOwnProfile) return;
+
     const updatedData = {
       location,
       links,
       biography,
-      favgen1: favgen1 || '', // Fallback to empty string if undefined
+      favgen1: favgen1 || '',
       favgen2: favgen2 || '',
       fava1: fava1 || '',
       fava2: fava2 || '',
       favalb1: favalb1 || '',
       favalb2: favalb2 || '',
+      username,
     };
 
-    const username = localStorage.getItem('username');
-    if (!username) {
-      console.error('No username found');
-      return;
-    }
-
-    if (isEditable) {
-      console.log('Location:', location);
-      console.log('Links:', links);
-      console.log('Biography:', biography);
-      console.log('Favorite Genre 1:', favgen1);
-      console.log('Favorite Genre 2:', favgen2);
-      console.log('Favorite Artist 1:', fava1);
-      console.log('Favorite Artist 2:', fava2);
-      console.log('Favorite Album 1:', favalb1);
-      console.log('Favorite Album 2:', favalb2);
-    }
-
     try {
-      await axios.post('http://localhost:8000/api/profile/logProfileInput', {
-        ...updatedData,
-        username,
-      });
+      await axios.post(
+        'http://localhost:8000/api/profile/logProfileInput',
+        updatedData
+      );
+      console.log('Profile data updated successfully');
     } catch (error) {
       console.error('Error: About and Favorite not saved', error);
     }
@@ -132,11 +116,11 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
       <Box sx={{ flex: 1, mb: 4 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h5">ABOUT</Typography>
-          {isOwnProfile ? (
+          {isOwnProfile && (
             <IconButton onClick={handleIconClick}>
               {isEditable ? <SaveAltIcon /> : <EditIcon />}
             </IconButton>
-          ) : null}
+          )}
         </Box>
 
         <Grid container spacing={2} mt={2}>
@@ -145,6 +129,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
               id="location"
               label="Location"
               value={location}
+              maxRows={1}
               onChange={(e) => setLocation(e.target.value)}
               InputProps={{
                 readOnly: !isEditable,
@@ -162,6 +147,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
               id="spotify"
               label="Spotify"
               value={links}
+              maxRows={1}
               onChange={(e) => setLinks(e.target.value)}
               InputProps={{
                 readOnly: !isEditable,
@@ -281,4 +267,5 @@ const AboutComponent: React.FC<AboutComponentProps> = ({ isOwnProfile }) => {
     </Box>
   );
 };
+
 export default AboutComponent;

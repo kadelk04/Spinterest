@@ -56,9 +56,17 @@ export const Profile: FunctionComponent = () => {
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [myData, setMyData] = useState<User | null>(null);
-
+  const [currentUser] = useState<string>(
+    localStorage.getItem('username') || ''
+  );
+  const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
-  const username = window.location.pathname.split('/').pop();
+
+  useEffect(() => {
+    const username = window.location.pathname.split('/').pop() || '';
+    setProfileUsername(username);
+    fetchProfile(); // Fetch profile when username changes
+  }, [window.location.pathname]); // Remove separate useEffect for fetchProfile
 
   const fetchProfile = async () => {
     if (!accessToken && !refreshToken) return;
@@ -68,6 +76,7 @@ export const Profile: FunctionComponent = () => {
 
     // the route should include a ${username} param to fetch the user's data
     try {
+      const username = window.location.pathname.split('/').pop();
       let response = await fetch(`http://localhost:8000/api/user/${username}`, {
         headers: {
           'Content-Type': 'application/json',
@@ -76,10 +85,19 @@ export const Profile: FunctionComponent = () => {
       if (!response.ok) {
         throw new Error('Failed to get user data');
       }
+
+      const fullprofileResponse = await fetch(
+        `http://localhost:8000/api/user/profile/${username}`
+      );
+      if (!fullprofileResponse.ok) {
+        throw new Error('Failed to get full profile data');
+      }
+      const fullProfileData = await fullprofileResponse.json();
+
       const userData = await response.json();
       console.log('User Data:', userData);
-      setUserData(userData);
-      // spotifyId of the user you want to fetch (could be you, or someone else, doesn't matter just a parm to profile component)
+      console.log('Profile Response:', fullProfileData);
+      setUserData(fullProfileData);
       const userSpotifyId = userData.spotifyId;
 
       // fetch YOUR spotify ID directly from the Spotify API
@@ -119,7 +137,6 @@ export const Profile: FunctionComponent = () => {
       const myMongoId = myProfileData._id;
       console.log('My Profile Data:', myProfileData);
 
-      // Check if the profile's Spotify ID matches the user's Spotify ID
       if (selfProfileSpotifyId === userSpotifyId) {
         // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
         setIsOwnProfile(true);
@@ -157,8 +174,8 @@ export const Profile: FunctionComponent = () => {
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
-
     try {
+      const username = window.location.pathname.split('/').pop();
       const updatedUserData = {
         isPrivate: !userData?.isPrivate,
       };
@@ -219,7 +236,8 @@ export const Profile: FunctionComponent = () => {
 
   useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken, username]);
+  }, [accessToken, refreshToken]);
+
   return (
     <Box
       sx={{
@@ -227,7 +245,6 @@ export const Profile: FunctionComponent = () => {
         flexDirection: { xs: 'column', md: 'row' },
       }}
     >
-      {/* Profile and Friends Column */}
       <Box sx={{ flex: { xs: '100%', md: 1 } }}>
         <Paper
           sx={{
@@ -248,7 +265,6 @@ export const Profile: FunctionComponent = () => {
                 sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
-              {/* if is own profile, render profile visibility toggle */}
               {isOwnProfile ? (
                 <Button
                   variant="contained"
@@ -299,9 +315,7 @@ export const Profile: FunctionComponent = () => {
         <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
       </Box>
 
-      {/* About, Favorites, and Pinned Music Column */}
       <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
-        {/* About and Favorites Section */}
         <Paper
           sx={{
             display: 'flex',
@@ -312,10 +326,16 @@ export const Profile: FunctionComponent = () => {
             bgcolor: '#ECE6F0',
           }}
         >
-          <AboutComponent isOwnProfile={isOwnProfile} />
+          <AboutComponent
+            isOwnProfile={isOwnProfile}
+            username={profileUsername}
+          />
         </Paper>
 
-        <PinnedMusicComponent />
+        <PinnedMusicComponent
+          username={profileUsername}
+          isOwnProfile={isOwnProfile}
+        />
       </Box>
     </Box>
   );

@@ -17,7 +17,6 @@ export interface WidgetData {
   cover: string;
   owner: Owner;
   title: string;
-  isPinned?: boolean;
 }
 
 export interface Owner {

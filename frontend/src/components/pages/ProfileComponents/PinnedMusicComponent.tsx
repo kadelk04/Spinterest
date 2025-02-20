@@ -1,22 +1,26 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
 import { Box, TextField, Typography, Paper, Grid } from '@mui/material';
-import {
-  WidgetData,
-  //fetchSpotifyPlaylistCover,
-} from '../../data/playlistUtils';
+import { WidgetData } from '../../data/playlistUtils';
 
-const PinnedMusicComponent: React.FC = () => {
+interface PinnedMusicComponentProps {
+  username: string;
+  isOwnProfile: boolean;
+}
+
+const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
+  username,
+  isOwnProfile,
+}) => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
-  const username = localStorage.getItem('username');
 
   useEffect(() => {
     if (!username) {
-      console.error('No username found');
+      console.error('No username provided');
       return;
     }
     fetchPlaylistsData(username);
-  }, [username]);
+  }, [username]); // Re-fetch when username changes
 
   const fetchPlaylistsData = async (username: string) => {
     try {
@@ -46,7 +50,8 @@ const PinnedMusicComponent: React.FC = () => {
           .then((res) => res.json())
           .then((playlistData) => ({
             id: playlistId,
-            cover: playlistData.images[0]?.url || 'path/to/default-image.jpg', // Default image if no cover is found
+            title: playlistData.title,
+            cover: playlistData.images[0]?.url,
           }))
       );
 
@@ -62,20 +67,6 @@ const PinnedMusicComponent: React.FC = () => {
       <Typography variant="h5" sx={{ mb: 2 }}>
         PINNED MUSIC
       </Typography>
-      <TextField
-        fullWidth
-        placeholder="Pinned Music"
-        variant="outlined"
-        sx={{
-          mb: 2,
-          '& .MuiOutlinedInput-root': {
-            bgcolor: '#F5EFF7',
-            '&:hover fieldset': {
-              borderColor: '#000000',
-            },
-          },
-        }}
-      />
       <Grid container spacing={2}>
         {pinnedPlaylists.length > 0 ? (
           pinnedPlaylists.map((playlist, i) => (
