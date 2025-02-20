@@ -23,7 +23,6 @@ export const followUser = async (username: string, myUsername: string) => {
         const notificationResponse = await axios.post(
           `http://localhost:8000/api/notification/follow/${username}`,
           {
-            testUsername: username,
             follower: myUsername,
           }
         );
