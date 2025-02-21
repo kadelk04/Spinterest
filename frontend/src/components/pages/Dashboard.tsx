@@ -7,6 +7,7 @@ import {
   InputAdornment,
   Paper,
   Avatar,
+  Skeleton,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
@@ -18,17 +19,44 @@ import 'react-resizable/css/styles.css';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
 
+interface User {
+  _id: string;
+  username: string;
+  location?: string;
+  images?: { url: string }[];
+}
+
 export const Dashboard = () => {
   const navigate = useNavigate();
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
+    // 16 skeleton widgets
+    const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
+      id: `skeleton-${i}`,
+      cover: '',
+      owner: '',
+      title: '',
+      description: '',
+      genres: [],
+      component: (
+        <Skeleton
+          key={i}
+          variant="rounded"
+          width={250}
+          height={420}
+          sx={{ borderRadius: '20px' }}
+        />
+      ),
+    }));
+    setWidgets(skeletonArray);
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
@@ -211,8 +239,6 @@ export const Dashboard = () => {
         )}
       </Box>
 
-      <Typography>Dashboard</Typography>
-
       <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
@@ -224,21 +250,25 @@ export const Dashboard = () => {
         draggableCancel=".no-drag"
         isResizable={false}
       >
-        {widgets.map((widget) => (
-          <div
-            key={widget.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {React.cloneElement(widget.component, {
-              dragHandleClass: 'drag-handle',
-              noDragClass: 'no-drag',
-            })}
-          </div>
-        ))}
+        {widgets.map((widget) => {
+          const { component, ...rest } = widget;
+          return (
+            <div
+              key={widget.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {React.cloneElement(component, {
+                dragHandleClass: 'drag-handle',
+                noDragClass: 'no-drag',
+                ...rest,
+              })}
+            </div>
+          );
+        })}
       </ResponsiveGridLayout>
     </Box>
   );

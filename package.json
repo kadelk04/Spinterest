@@ -9,7 +9,8 @@
     "prepare": "husky install",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "test:changed": "jest -o",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint --fix ."
   },
   "author": "",
   "license": "ISC",

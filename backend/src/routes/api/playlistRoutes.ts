@@ -7,7 +7,6 @@ import {
   updatePlaylistById,
   deletePlaylistById,
 } from '../../controllers/playlistController';
-import { authenticateUser } from '../../middleware/auth';
 
 const router = Router();
 

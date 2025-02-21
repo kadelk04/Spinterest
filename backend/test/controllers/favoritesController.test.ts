@@ -19,7 +19,12 @@ app.delete('/favorites', removeFavorite);
 app.put('/favorites', updateFavorite);
 
 describe('FavoritesController', () => {
-  let FavoritesModel: any;
+  let FavoritesModel: {
+    find: jest.Mock;
+    create: jest.Mock;
+    findOneAndDelete: jest.Mock;
+    findOneAndUpdate: jest.Mock;
+  };
 
   beforeEach(() => {
     FavoritesModel = {

@@ -3,7 +3,6 @@ import cors from 'cors';
 import { getDbConnection } from './utils/connection';
 import routes from './routes/index.js';
 import dotenv from 'dotenv';
-import profileController from './routes/api/profileRoute';
 dotenv.config(); // Load .env variables
 
 // dotenv.config({ path: '../.env.local' });

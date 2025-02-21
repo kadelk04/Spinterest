@@ -1,9 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import { saveArtist, getArtist } from '../../src/controllers/artistController';
-import mongoose from 'mongoose';
 import { getModel } from '../../src/utils/connection';
-const Artist = require('../../src/models/Artist');
 
 const app = express();
 app.use(express.json());
@@ -13,7 +11,16 @@ app.get('/artist/:artistId', getArtist);
 jest.mock('../../src/utils/connection');
 
 describe('Artist Controller', () => {
-  let ArtistModel: any;
+  interface Artist {
+    name: string;
+    artistId: string;
+    genres: string[];
+  }
+
+  let ArtistModel: {
+    create: jest.Mock<Promise<Artist>, [Artist]>;
+    findOne: jest.Mock<Promise<Artist | null>, [Partial<Artist>]>;
+  };
 
   beforeEach(() => {
     ArtistModel = {
@@ -33,7 +40,11 @@ describe('Artist Controller', () => {
   describe('saveArtist', () => {
     it('should save a new artist', async () => {
       ArtistModel.findOne.mockResolvedValue(null);
-      ArtistModel.create.mockResolvedValue({});
+      ArtistModel.create.mockResolvedValue({
+        name: 'Test Artist',
+        artistId: '12345',
+        genres: ['pop'],
+      });
 
       const response = await request(app)
         .post('/artist')
@@ -48,7 +59,11 @@ describe('Artist Controller', () => {
     });
 
     it('should return 200 if artist already exists', async () => {
-      ArtistModel.findOne.mockResolvedValue({});
+      ArtistModel.findOne.mockResolvedValue({
+        name: 'Test Artist',
+        artistId: '12345',
+        genres: ['pop'],
+      } as Artist);
 
       const response = await request(app)
         .post('/artist')

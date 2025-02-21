@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../pages/DashboardComponents/PlaylistWidget';
-import { getAccessToken } from './SpotifyAuth';
 
 export interface Widget {
   id: string;
@@ -31,8 +30,14 @@ export interface PlaylistData {
   tracks: { href: string; total: number };
 }
 
+interface Track {
+  track: {
+    artists: Artist[];
+  };
+}
+
 interface Playlist {
-  items: any[];
+  items: Track[];
 }
 
 interface Image {
@@ -57,14 +62,18 @@ export const fetchPlaylists = async (
   accessToken: string
 ): Promise<WidgetData[]> => {
   try {
+    const spotifyUser = await axios.get('https://api.spotify.com/v1/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
     const response = await axios.get<PlaylistResponse>(
-      'http://localhost:8000/api/spotify/playlists',
+      'http://localhost:8000/api/spotify/user/' +
+        spotifyUser.data.id +
+        '/playlists',
       {
-        params: {
-          spotifyToken: accessToken,
-        },
         headers: {
-          authorization: localStorage.getItem('jwttoken'),
+          authorization: `${accessToken}`,
         },
       }
     );
@@ -118,8 +127,9 @@ export const buildWidgets = async (
       const tracks = response.data.items;
       // console.log('Tracks:', tracks);
 
-      const artists: string[] = tracks.flatMap((track: any) =>
-        track.track.artists.map((artist: any) => artist.id)
+      const artists: string[] = tracks.flatMap(
+        (track: Track) =>
+          track.track?.artists?.map((artist: Artist) => artist.id) || []
       );
 
       // for each artist, find if they're in our db
@@ -159,34 +169,31 @@ export const buildWidgets = async (
         );
       }
 
-      const genres = spotifyArtistInfo.flatMap((artistInfo: any) =>
-        artistInfo.artists.flatMap((artist: any) => artist.genres)
+      const genres = spotifyArtistInfo.flatMap((artistInfo: ArtistResponse) =>
+        artistInfo.artists.flatMap((artist: Artist) => artist.genres)
       );
-      const localArtistsGenres = localArtists?.flatMap((artist: any) => {
+      const localArtistsGenres = localArtists?.flatMap((artist: Artist) => {
         return artist.genres;
       });
 
       const allGenres = genres.concat(localArtistsGenres);
 
       try {
-        const localSaveResponse = await axios.post(
-          'http://localhost:8000/api/artist/bulkWrite',
-          {
-            artists: spotifyArtistInfo.flatMap((response: any) =>
-              response.artists.map((artist: any) => ({
-                id: artist.id,
-                name: artist.name,
-                genres: artist.genres,
-              }))
-            ),
-          }
-        );
+        await axios.post('http://localhost:8000/api/artist/bulkWrite', {
+          artists: spotifyArtistInfo.flatMap((response: ArtistResponse) =>
+            response.artists.map((artist: Artist) => ({
+              id: artist.id,
+              name: artist.name,
+              genres: artist.genres,
+            }))
+          ),
+        });
       } catch (error) {
         console.error('Error saving artists:', error);
       }
 
       const topGenres = await getTopGenres(allGenres);
-      // console.log('topGenres', topGenres);
+
       return {
         id: playlist.id,
         cover: playlist.cover,
@@ -238,25 +245,27 @@ export const returnWidgets = async (): Promise<Widget[]> => {
   // if not, this means the user has either cleared their local storage or has not visited the dashboard yet
   // if the data does not exist, fetch the playlist data from the spotify api and build the widgets
   let playlists_with_genres: Widget[] = [];
-  if (
-    !localStorage.getItem('widget_data') ||
-    localStorage.getItem('widget_data') === '[]'
-  ) {
-    //first time loading into dashboard
-    const playlists_data = await fetchPlaylists(accessToken);
-    // save the data to local storage
-    localStorage.setItem('widget_data', JSON.stringify(playlists_data));
+  // if (
+  //   !localStorage.getItem('widget_data') ||
+  //   localStorage.getItem('widget_data') === '[]'
+  // ) {
+  //   //first time loading into dashboard
+  //   const playlists_data = await fetchPlaylists(accessToken);
+  //   // save the data to local storage
+  //   localStorage.setItem('widget_data', JSON.stringify(playlists_data));
 
-    playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  } else {
-    // use the local storage data to build the widgets
-    // buildWidgets expects an array of WidgetData[]
-    console.log('utilizing local storage to build widgets');
-    const localWidgetsData: WidgetData[] = JSON.parse(
-      localStorage.getItem('widget_data') || '[]'
-    );
-    playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
-  }
+  //   playlists_with_genres = await buildWidgets(playlists_data, accessToken);
+  // } else {
+  //   // use the local storage data to build the widgets
+  //   // buildWidgets expects an array of WidgetData[]
+  //   console.log('utilizing local storage to build widgets');
+  //   const localWidgetsData: WidgetData[] = JSON.parse(
+  //     localStorage.getItem('widget_data') || '[]'
+  //   );
+  //   playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
+  // }
+  const playlists_data = await fetchPlaylists(accessToken);
+  playlists_with_genres = await buildWidgets(playlists_data, accessToken);
   // returns Widget[] type
   return playlists_with_genres;
 };
