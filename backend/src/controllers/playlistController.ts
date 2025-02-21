@@ -132,8 +132,8 @@ export const getPlaylistsByUsername = async (req: Request, res: Response) => {
  * @returns
  */
 export const likePlaylist = async (req: Request, res: Response) => {
-  console.log('in likePlaylist in controller');
-  console.log(req.params.playlistId);
+  // console.log('in likePlaylist in controller');
+  // console.log(req.params.playlistId);
   try {
     const PlaylistModel = getModel<IPlaylist>('Playlist');
     const playlist = await PlaylistModel.findById(req.params.playlistId);
