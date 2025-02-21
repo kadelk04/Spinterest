@@ -2,6 +2,8 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
+import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
+import { followUser, unfollowUser } from '../data/followUtils';
 import {
   Box,
   Button,
@@ -194,22 +196,18 @@ export const Profile: FunctionComponent = () => {
   };
 
   const handleFollowToggle = async () => {
-    if (!accessToken && !refreshToken) return;
     const username = window.location.pathname.split('/').pop();
+    if (!accessToken && !refreshToken) return;
 
     if (following) {
+      if (!username) {
+        throw new Error('Username is undefined');
+      }
       try {
-        const response = await axios.put(
-          `http://localhost:8000/api/user/${username}/unfollow`,
-          {
-            headers: {
-              authorization: localStorage.getItem('jwttoken'),
-            },
-            unfollower: myData?.username,
-          }
-        );
+        // CALL unfollowUser in followUtils.tsx
 
-        if (response.status === 200) {
+        const unfollowSuccess = await unfollowUser(username, myData!.username);
+        if (unfollowSuccess === true) {
           setFollowing(false);
         }
       } catch (error) {
@@ -217,17 +215,17 @@ export const Profile: FunctionComponent = () => {
       }
     } else {
       try {
-        const response = await axios.put(
-          `http://localhost:8000/api/user/${username}/follow`,
-          {
-            headers: {
-              authorization: localStorage.getItem('jwttoken'),
-            },
-            follower: myData?.username,
-          }
-        );
+        if (!username) {
+          throw new Error('Username is undefined');
+        }
 
-        if (response.status === 200) {
+        // CALL followUser in followUtils.tsx
+
+        console.log('followUser called in handleFollowToggle');
+
+        const followSuccess = await followUser(username, myData!.username);
+        if (followSuccess === true) {
+          console.log('followUser called');
           setFollowing(true);
         }
       } catch (error) {

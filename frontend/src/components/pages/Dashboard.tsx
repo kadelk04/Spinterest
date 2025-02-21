@@ -6,17 +6,20 @@ import {
   Input,
   InputAdornment,
   Paper,
+  Button,
   Avatar,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
+import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
+import { returnNotifications, Notification } from '../data/notificationUtils';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -28,9 +31,14 @@ export const Dashboard = () => {
   const [error, setError] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
   useEffect(() => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
+    });
+    returnNotifications().then((notifications) => {
+      setNotifications(notifications);
     });
   }, []);
 
@@ -126,6 +134,7 @@ export const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
+        {<NotificationsDrawer notifications={notifications} />}
         <Input
           placeholder="/genre, /tag, /person"
           value={searchQuery}
@@ -210,8 +219,6 @@ export const Dashboard = () => {
           </Typography>
         )}
       </Box>
-
-      <Typography>Dashboard</Typography>
 
       <ResponsiveGridLayout
         className="layout"

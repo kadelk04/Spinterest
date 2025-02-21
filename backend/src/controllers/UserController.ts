@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { IUser } from '../models/User';
+import { INotification } from '../models/Notification';
 import { getFriends } from '../controllers/spotifyController';
 
 /**
@@ -297,6 +298,7 @@ export const addFollower = async (req: Request, res: Response) => {
     res.status(500).send('Error adding follower');
   }
 };
+
 export const getFollowers = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
   const user = await UserModel.findOne({ username: req.params.username });
@@ -346,5 +348,20 @@ export const removeFollower = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error removing follower');
+  }
+};
+
+export const checkPrivacy = async (req: Request, res: Response) => {
+  try {
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.params.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send(user.isPrivate);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error checking privacy');
   }
 };

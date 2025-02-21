@@ -15,7 +15,6 @@ import {
   removeFollower,
 } from '../../src/controllers/UserController';
 import { getModel } from '../../src/utils/connection';
-import { IUser } from '../../src/models/User';
 
 jest.mock('../../src/utils/connection');
 
