@@ -228,6 +228,8 @@ export const getPinnedPlaylists = async (req: Request, res: Response) => {
       return;
     }
 
+    //check if 
+
     // Find user by username
     const user = await UserModel.findOne({ username });
 

@@ -25,7 +25,7 @@ export const SpotifyLoginButton: FunctionComponent = () => {
 export const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-follow-read%20user-follow-modify`;
 
 export const fetchAuthToken = async (code: string) => {
-  var authOptions = {
+  const authOptions = {
     url: 'https://accounts.spotify.com/api/token',
     form: {
       code: code,

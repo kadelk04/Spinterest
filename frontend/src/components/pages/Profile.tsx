@@ -75,7 +75,7 @@ export const Profile: FunctionComponent = () => {
     // the route should include a ${username} param to fetch the user's data
     try {
       const username = window.location.pathname.split('/').pop();
-      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
+      const response = await fetch(`http://localhost:8000/api/user/${username}`, {
         headers: {
           'Content-Type': 'application/json',
         },

@@ -84,8 +84,8 @@ export const getArtists = async (req: Request, res: Response) => {
 
 export const getSavedStatus = async (req: Request, res: Response) => {
   try {
-    let unsaved: string[] = [];
-    let saved: string[] = [];
+    const unsaved: string[] = [];
+    const saved: string[] = [];
     const ArtistModel = getModel<IArtist>('Artist');
     for (const id of req.body.ids) {
       const existingArtist = await ArtistModel.findOne({ id: id });
