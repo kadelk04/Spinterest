@@ -3,6 +3,12 @@ import mongoose from 'mongoose';
 export interface IPlaylist {
   spotifyId: string;
   tags: string[];
+  title: string;
+  cover: string;
+  songs: string[];
+  creator: mongoose.Types.ObjectId;
+  isDeleted: boolean;
+  removedFromProfile: boolean;
 }
 
 export const PlaylistSchema = new mongoose.Schema({
@@ -15,4 +21,6 @@ export const PlaylistSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  isDeleted: { type: Boolean, default: false },
+  removedFromProfile: { type: Boolean, default: false }
 });

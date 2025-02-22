@@ -20,16 +20,10 @@ const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
       return;
     }
     fetchPlaylistsData(username);
-  }, [username]); // Re-fetch when username changes
+  }, [username]);
 
   const fetchPlaylistsData = async (username: string) => {
     try {
-      const accessToken = window.localStorage.getItem('spotify_token');
-      if (!accessToken) {
-        console.error('Access token is missing');
-        return;
-      }
-
       const response = await fetch(
         `http://localhost:8000/api/profile/getPinnedPlaylists/${username}`,
         {
@@ -38,25 +32,46 @@ const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
           },
         }
       );
-
+  
       const { pinnedPlaylists } = await response.json();
-
-      const playlistPromises = pinnedPlaylists.map((playlistId: string) =>
-        fetch(`https://api.spotify.com/v1/playlists/${playlistId}`, {
-          headers: {
-            authorization: `Bearer ${accessToken}`,
-          },
+  
+      const playlists = await Promise.all(
+        pinnedPlaylists.map(async (playlistId: string) => {
+          try {
+            const playlistResponse = await fetch(
+              `http://localhost:8000/api/playlists/${playlistId}`,
+              {
+                headers: {
+                  authorization: `Bearer ${localStorage.getItem('jwttoken')}`,
+                },
+              }
+            );
+  
+            if (!playlistResponse.ok) {
+              return null;
+            }
+  
+            const playlistData = await playlistResponse.json();
+            
+            // Skip removed or deleted playlists
+            if (playlistData.isDeleted || playlistData.removedFromProfile) {
+              return null;
+            }
+  
+            return {
+              id: playlistId,
+              title: playlistData.title,
+              cover: playlistData.cover,
+              owner: playlistData.owner
+            };
+          } catch (error) {
+            console.error(`Error fetching playlist ${playlistId}:`, error);
+            return null;
+          }
         })
-          .then((res) => res.json())
-          .then((playlistData) => ({
-            id: playlistId,
-            title: playlistData.title,
-            cover: playlistData.images[0]?.url,
-          }))
       );
-
-      const playlists = await Promise.all(playlistPromises);
-      setPinnedPlaylists(playlists);
+  
+      setPinnedPlaylists(playlists.filter((playlist): playlist is WidgetData => playlist !== null));
     } catch (error) {
       console.error('Failed to fetch playlists:', error);
     }

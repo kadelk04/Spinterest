@@ -6,25 +6,6 @@ import { authenticateUser } from '../middleware/auth';
 //import mongoose from 'mongoose';
 
 /**
- * Retrieve all playlists
- * @param req
- * @param res
- * @param connection
- * @returns
- * */
-
-export const getAllPlaylists = async (req: Request, res: Response) => {
-  try {
-    const PlaylistModel = getModel<IPlaylist>('Playlist');
-    const playlists = await PlaylistModel.find();
-    res.status(200).send(playlists);
-  } catch (err) {
-    console.error('Error fetching playlists:', err);
-    res.status(500).send('Error fetching playlists');
-  }
-};
-
-/**
  * Add a new playlist
  * @param req
  * @param res
@@ -40,16 +21,53 @@ export const addPlaylist = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Get a playlist by its ID
- * @param req
- * @param res
- * @returns
- * */
-export const getPlaylistById = async (req: Request, res: Response) => {
+export const updatePlaylistById = async (req: Request, res: Response) => {
   try {
     const PlaylistModel = getModel<IPlaylist>('Playlist');
     const playlist = await PlaylistModel.findById(req.params.playlistId);
+    
+    if (!playlist || playlist.isDeleted) {
+      res.status(404).send('Playlist not found');
+      return;
+    }
+
+    // Only creator can update playlist
+    if (playlist.creator.toString() !== req.body.userId) {
+      res.status(403).send('Not authorized to update this playlist');
+      return;
+    }
+
+    await playlist.updateOne(req.body);
+    res.status(200).send('Playlist updated');
+  } catch (err) {
+    console.error('Error updating playlist:', err);
+    res.status(500).send('Error updating playlist');
+  }
+};
+
+export const getAllPlaylists = async (req: Request, res: Response) => {
+  try {
+    const PlaylistModel = getModel<IPlaylist>('Playlist');
+    const playlists = await PlaylistModel.find({
+      isDeleted: false,
+      removedFromProfile: false
+    });
+    res.status(200).send(playlists);
+  } catch (err) {
+    console.error('Error fetching playlists:', err);
+    res.status(500).send('Error fetching playlists');
+  }
+};
+
+export const getPlaylistById = async (req: Request, res: Response) => {
+  try {
+    const PlaylistModel = getModel<IPlaylist>('Playlist');
+    const playlist = await PlaylistModel.findOne({
+      _id: req.params.playlistId,
+      isDeleted: false,
+      removedFromProfile: false
+    });
+    
     if (!playlist) {
       res.status(404).send('Playlist not found');
       return;
@@ -61,44 +79,29 @@ export const getPlaylistById = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Update a playlist by its ID
- * @param req
- * @param res
- * @param connection
- * @returns
- * */
-export const updatePlaylistById = async (req: Request, res: Response) => {
-  try {
-    const PlaylistModel = getModel<IPlaylist>('Playlist');
-    const playlist = await PlaylistModel.findById(req.params.playlistId);
-    if (!playlist) {
-      res.status(404).send('Playlist not found');
-      return;
-    }
-    await playlist.updateOne(req.body);
-    res.status(200).send('Playlist updated');
-  } catch (err) {
-    console.error('Error updating playlist:', err);
-    res.status(500).send('Error updating playlist');
-  }
-};
-
-/**
- * Delete a playlist by its ID
- * @param req
- * @param res
- * @returns
- * */
 export const deletePlaylistById = async (req: Request, res: Response) => {
   try {
     const PlaylistModel = getModel<IPlaylist>('Playlist');
     const playlist = await PlaylistModel.findById(req.params.playlistId);
+    
     if (!playlist) {
       res.status(404).send('Playlist not found');
       return;
     }
-    await playlist.deleteOne();
+
+    // Soft delete by updating flags
+    await playlist.updateOne({
+      isDeleted: true,
+      removedFromProfile: true
+    });
+
+    // Remove from any user's pinned playlists
+    const UserModel = getModel<IUser>('User');
+    await UserModel.updateMany(
+      { pinnedPlaylists: playlist._id },
+      { $pull: { pinnedPlaylists: playlist._id } }
+    );
+
     res.status(200).send('Playlist deleted');
   } catch (err) {
     console.error('Error deleting playlist:', err);
@@ -106,21 +109,28 @@ export const deletePlaylistById = async (req: Request, res: Response) => {
   }
 };
 
-/**
- * Retrieve all of a user's playlists
- * @param req
- * @param res
- * @returns
- */
-export const getPlaylistsByUsername = async (req: Request, res: Response) => {
+export const removeFromProfile = async (req: Request, res: Response) => {
   try {
     const PlaylistModel = getModel<IPlaylist>('Playlist');
-    const playlists = await PlaylistModel.find({
-      username: req.params.username,
-    });
-    res.status(200).send(playlists);
+    const playlist = await PlaylistModel.findById(req.params.playlistId);
+    
+    if (!playlist) {
+      res.status(404).send('Playlist not found');
+      return;
+    }
+
+    await playlist.updateOne({ removedFromProfile: true });
+
+    // Remove from any user's pinned playlists
+    const UserModel = getModel<IUser>('User');
+    await UserModel.updateMany(
+      { pinnedPlaylists: playlist._id },
+      { $pull: { pinnedPlaylists: playlist._id } }
+    );
+
+    res.status(200).send('Playlist removed from profile');
   } catch (err) {
-    console.error('Error fetching playlists:', err);
-    res.status(500).send('Error fetching playlists');
+    console.error('Error removing playlist from profile:', err);
+    res.status(500).send('Error removing playlist from profile');
   }
 };
