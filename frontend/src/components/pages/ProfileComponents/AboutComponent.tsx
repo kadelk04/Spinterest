@@ -1,6 +1,9 @@
-import React from 'react';
+//import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { ToggleSlider }  from "react-toggle-slider";
+
+//import { useEffect, useState } from 'react';
 import {
   Edit as EditIcon,
   LocationOn as LocationOnIcon,
@@ -156,6 +159,24 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
                     <MusicNoteIcon />
                   </Icon>
                 ),
+              }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={4}>
+          <TextField
+              id="Theme"
+              label="Theme"
+              value={links}
+              maxRows={1}
+              onChange={(e) => setLinks(e.target.value)}
+              InputProps={{
+              readOnly: !isEditable,
+              startAdornment: (
+                <Icon>
+                  <LocationOnIcon />
+                </Icon>
+              ),
               }}
             />
           </Grid>
