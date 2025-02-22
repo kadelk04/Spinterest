@@ -162,7 +162,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
               }}
             />
           </Grid>
-
+              {/*trying to integrate a theme switch !*/}
           <Grid item xs={12} sm={6} md={4}>
           <TextField
               id="Theme"

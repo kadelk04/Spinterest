@@ -1,6 +1,6 @@
 import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-
+{/* theme2 */}
 const theme = createTheme({
   typography: {
     fontFamily: 'Open Sans',
