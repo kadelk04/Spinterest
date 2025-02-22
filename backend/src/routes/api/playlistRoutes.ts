@@ -6,6 +6,7 @@ import {
   getPlaylistById,
   updatePlaylistById,
   deletePlaylistById,
+  removeFromProfile,
 } from '../../controllers/playlistController';
 import { authenticateUser } from '../../middleware/auth';
 
@@ -16,5 +17,6 @@ router.post('/', addPlaylist);
 router.get('/:playlistId', getPlaylistById);
 router.put('/:playlistId', updatePlaylistById);
 router.delete('/:playlistId', deletePlaylistById);
+router.put('/:playlistId/removeFromProfile', removeFromProfile);
 
 export default router;

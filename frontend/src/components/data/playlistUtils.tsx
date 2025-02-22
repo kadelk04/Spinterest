@@ -17,6 +17,8 @@ export interface WidgetData {
   cover: string;
   owner: Owner;
   title: string;
+  isDeleted?: boolean;
+  removedFromProfile?: boolean;
 }
 
 export interface Owner {
@@ -238,16 +240,19 @@ export const returnWidgets = async (): Promise<Widget[]> => {
   // if not, this means the user has either cleared their local storage or has not visited the dashboard yet
   // if the data does not exist, fetch the playlist data from the spotify api and build the widgets
   let playlists_with_genres: Widget[] = [];
-  if (
-    !localStorage.getItem('widget_data') ||
-    localStorage.getItem('widget_data') === '[]'
-  ) {
+  if (!localStorage.getItem('widget_data') || localStorage.getItem('widget_data') === '[]') {
     //first time loading into dashboard
     const playlists_data = await fetchPlaylists(accessToken);
+    
+    // Filter out removed/deleted playlists
+    const visiblePlaylists = playlists_data.filter(playlist => 
+      !playlist.isDeleted && !playlist.removedFromProfile
+    );
+    
     // save the data to local storage
-    localStorage.setItem('widget_data', JSON.stringify(playlists_data));
+    localStorage.setItem('widget_data', JSON.stringify(visiblePlaylists));
 
-    playlists_with_genres = await buildWidgets(playlists_data, accessToken);
+    playlists_with_genres = await buildWidgets(visiblePlaylists, accessToken);
   } else {
     // use the local storage data to build the widgets
     // buildWidgets expects an array of WidgetData[]
@@ -255,7 +260,43 @@ export const returnWidgets = async (): Promise<Widget[]> => {
     const localWidgetsData: WidgetData[] = JSON.parse(
       localStorage.getItem('widget_data') || '[]'
     );
-    playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
+
+    // Check current status of each playlist
+      const validPlaylists = await Promise.all(
+        localWidgetsData.map(async (playlist) => {
+          try {
+            const jwtToken = localStorage.getItem('jwttoken');
+            const headers: HeadersInit = jwtToken 
+              ? { authorization: jwtToken } 
+              : {};
+      
+            const response = await fetch(
+              `http://localhost:8000/api/playlists/${playlist.id}`,
+              {
+                headers: headers,
+              }
+            );
+      
+            if (!response.ok) {
+              return null;
+            }
+      
+            const playlistData = await response.json();
+            if (playlistData.isDeleted || playlistData.removedFromProfile) {
+              return null;
+            }
+      
+            return playlist;
+          } catch (error) {
+            console.error(`Error checking playlist ${playlist.id}:`, error);
+            return null;
+          }
+        })
+      );
+
+    const currentVisiblePlaylists = validPlaylists.filter((p): p is WidgetData => p !== null);
+    localStorage.setItem('widget_data', JSON.stringify(currentVisiblePlaylists));
+    playlists_with_genres = await buildWidgets(currentVisiblePlaylists, accessToken);
   }
   // returns Widget[] type
   return playlists_with_genres;
