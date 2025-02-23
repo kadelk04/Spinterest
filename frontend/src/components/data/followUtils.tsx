@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios';
+import mongoose from 'mongoose';
 
 // logic for following
 // called by handleFollowToggle in Profile.tsx
@@ -28,6 +29,7 @@ export const followUser = async (username: string, myUsername: string) => {
           }
         );
         console.log('Notification created:', notificationResponse.data);
+        return "pending";
       } catch (notificationError) {
         console.error('Error creating notification:', notificationError);
         throw new Error('Failed to create notification');
@@ -69,3 +71,22 @@ export const unfollowUser = async (username: string, myUsername: string) => {
     return false;
   }
 };
+export const fetchFollowStatus = async (userMongoId: mongoose.Types.ObjectId, myUsername: string) => {
+  // if you don't follow them, check to see if there is a pending notification
+  try {
+    console.log('Fetching follow status', userMongoId, myUsername);
+    const followStatusResponse = await axios.get(
+      `http://localhost:8000/api/notification/getFollowRequest/${userMongoId}`,
+      {
+        params: {
+          follower: myUsername,
+        },
+      }
+    );
+    console.log('Follow status:', followStatusResponse.data);
+    return followStatusResponse.data;
+  } catch (error) {
+    console.error('Error fetching follow status:', error);
+    return false;
+  }
+}

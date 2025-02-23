@@ -57,6 +57,45 @@ export const createFollowNotification = async (req: Request, res: Response) => {
 };
 
 /**
+ * Find Follow Request Notification
+ * @param req
+ * @param res
+ * @returns
+ */
+export const findFollowRequestNotification = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  console.log("in findFollowRequestNotification in notificationController.ts");
+  const { userMongoId } = req.params;
+  const { follower } = req.query;
+  console.log(`username: ${userMongoId}, follower: ${follower}`);
+  if (!userMongoId || !follower) {
+    res.status(400).send('Username and follower are required');
+    return;
+  }
+
+  try {
+    const Notification = getModel<INotification>('Notification');
+    const notifications = await Notification.find({
+      type: 'follow_request',
+      receiver: userMongoId,
+      message: { $regex: follower, $options: 'i' },
+    });
+
+    if (notifications.length === 0) {
+      res.status(404).send('No follow request notifications found');
+      return;
+    }
+
+    res.status(200).json(true);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error finding follow request notifications');
+  }
+};
+
+/**
  * Get All Notifications for a User
  * @param req
  * @param res

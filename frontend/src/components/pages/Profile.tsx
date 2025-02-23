@@ -2,8 +2,7 @@ import { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
-import { fetchPlaylists, WidgetData } from '../data/playlistUtils';
-import { followUser, unfollowUser } from '../data/followUtils';
+import { followUser, unfollowUser, fetchFollowStatus } from '../data/followUtils';
 import {
   Box,
   Button,
@@ -16,6 +15,7 @@ import { Visibility, VisibilityOff } from '@mui/icons-material';
 import FriendsComponent from './ProfileComponents/FriendsComponent';
 import AboutComponent from './ProfileComponents/AboutComponent';
 import PinnedMusicComponent from './ProfileComponents/PinnedMusicComponent';
+import { set } from 'mongoose';
 
 interface SpotifyProfile {
   display_name: string;
@@ -56,6 +56,8 @@ export const Profile: FunctionComponent = () => {
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [myData, setMyData] = useState<User | null>(null);
+  const [notAllowedToViewProfile, setNotAllowedToViewProfile] = useState(false);
+  const [pendingFollow, setPendingFollow] = useState(false);
   const [currentUser] = useState<string>(
     localStorage.getItem('username') || ''
   );
@@ -148,6 +150,20 @@ export const Profile: FunctionComponent = () => {
       } else {
         // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
         setIsOwnProfile(false);
+
+        // if the user you are viewing is private, hide their information if you do not follow them
+
+        // use this as a react component condition to hide the profile information
+        setNotAllowedToViewProfile(userData.isPrivate && !userData.followers.includes(myMongoId));
+
+        // fetch if you currently have a pending follow request
+        //const followRequestResponse = await fetchFollowStatus(userData._id, myData!.username);
+        //console.log('Follow Request Response:', followRequestResponse);
+
+        // if (followRequestResponse){
+        //   setPendingFollow(true);
+        // }
+
         const otherspotifyDataResponse = await fetch(
           // returns spotify user data from SPOTIFY API, this contains the display name and profile picture
           `https://api.spotify.com/v1/users/${userSpotifyId}`,
@@ -199,37 +215,23 @@ export const Profile: FunctionComponent = () => {
     const username = window.location.pathname.split('/').pop();
     if (!accessToken && !refreshToken) return;
 
+    if (!username) {
+      throw new Error('Username is undefined');
+    }
+
     if (following) {
-      if (!username) {
-        throw new Error('Username is undefined');
+      // CALL unfollowUser in followUtils.tsx
+      const unfollowSuccess = await unfollowUser(username, myData!.username);
+      if (unfollowSuccess === true) {
+        setFollowing(false);
       }
-      try {
-        // CALL unfollowUser in followUtils.tsx
-
-        const unfollowSuccess = await unfollowUser(username, myData!.username);
-        if (unfollowSuccess === true) {
-          setFollowing(false);
-        }
-      } catch (error) {
-        console.error('Error unfollowing user:', error);
-      }
-    } else {
-      try {
-        if (!username) {
-          throw new Error('Username is undefined');
-        }
-
-        // CALL followUser in followUtils.tsx
-
-        console.log('followUser called in handleFollowToggle');
-
-        const followSuccess = await followUser(username, myData!.username);
-        if (followSuccess === true) {
-          console.log('followUser called');
-          setFollowing(true);
-        }
-      } catch (error) {
-        console.error('Error following user:', error);
+      } else {
+      // CALL followUser in followUtils.tsx
+      const followSuccess = await followUser(username, myData!.username);
+      if (followSuccess === true) {
+        setFollowing(true);
+      } else if (followSuccess === 'pending') {
+        setPendingFollow(true);
       }
     }
   };
@@ -261,42 +263,47 @@ export const Profile: FunctionComponent = () => {
           {profile ? (
             <>
               <Avatar
-                src={profile.images[0]?.url}
-                sx={{ width: 224, height: 224, mb: 3 }}
+              src={profile.images[0]?.url}
+              sx={{ width: 224, height: 224, mb: 3 }}
               />
               <Typography variant="h5">{profile.display_name}</Typography>
               {isOwnProfile ? (
-                <Button
-                  variant="contained"
-                  onClick={toggleProfileVisibility}
-                  startIcon={
-                    userData?.isPrivate ? <VisibilityOff /> : <Visibility />
-                  }
-                >
-                  {userData?.isPrivate ? 'Private' : 'Public'}
-                </Button>
+              <Button
+                variant="contained"
+                onClick={toggleProfileVisibility}
+                startIcon={
+                userData?.isPrivate ? <VisibilityOff /> : <Visibility />
+                }
+              >
+                {userData?.isPrivate ? 'Private' : 'Public'}
+              </Button>
               ) : null}
               {isOwnProfile ? (
-                <Button
-                  sx={{ mt: 2 }}
-                  variant="contained"
-                  onClick={() => {
-                    logout();
-                    navigate('/login');
-                  }}
-                >
-                  Logout
-                </Button>
-              ) : null}
-              {!isOwnProfile ? (
+              <Button
+                sx={{ mt: 2 }}
+                variant="contained"
+                onClick={() => {
+                logout();
+                navigate('/login');
+                }}
+              >
+                Logout
+              </Button>
+                ) : null}
+                {!isOwnProfile ? (
                 <Button
                   sx={{ mt: 2 }}
                   variant="contained"
                   onClick={handleFollowToggle}
                 >
-                  {following ? 'Unfollow' : 'Follow'}
+                  {pendingFollow ? 'Requested' : following ? 'Unfollow' : 'Follow'}
                 </Button>
               ) : null}
+              {notAllowedToViewProfile && (
+              <Typography>
+                This user is private. Follow to see their account.
+              </Typography>
+              )}
             </>
           ) : (
             <>
@@ -312,10 +319,13 @@ export const Profile: FunctionComponent = () => {
             </>
           )}
         </Paper>
-        <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
+        {!notAllowedToViewProfile && (
+          <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
+        )}
       </Box>
 
-      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
+      {!notAllowedToViewProfile && (
+        <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
         <Paper
           sx={{
             display: 'flex',
@@ -337,6 +347,7 @@ export const Profile: FunctionComponent = () => {
           isOwnProfile={isOwnProfile}
         />
       </Box>
+      )}
     </Box>
   );
 };
