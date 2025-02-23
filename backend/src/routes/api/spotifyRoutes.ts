@@ -1,13 +1,11 @@
 import { Router } from 'express';
 
 import {
-  getPlaylists,
   getFriends,
   getPlaylistTracks,
   getUserPlaylists,
   getUserPlaylistTracks,
   getArtistInfo,
-  getPlaylist,
   getMyPlaylists,
   getMultipleArtistInfo,
 } from '../../controllers/spotifyController';

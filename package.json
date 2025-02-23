@@ -9,7 +9,8 @@
     "prepare": "husky install",
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
     "test:changed": "jest -o",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint --fix ."
   },
   "author": "",
   "license": "ISC",
@@ -20,7 +21,9 @@
     "axios": "^1.7.7",
     "jest": "^29.7.0",
     "prettier": "^3.3.3",
+    "react": "^19.0.0",
     "react-grid-layout": "^1.5.0",
+    "react-toggle-slider": "^0.4.1",
     "supertest": "^7.0.0"
   },
   "devDependencies": {
@@ -37,12 +40,13 @@
     "lint-staged": "^11.0.0",
     "ts-jest": "^29.2.5",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.13.0"
+    "typescript-eslint": "^8.15.0"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,scss,md}": [
       "prettier --write --config ./.prettierrc",
-      "eslint --fix"
+      "eslint --fix",
+      "jest --bail --findRelatedTests --passWithNoTests"
     ]
   }
 }

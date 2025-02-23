@@ -1,4 +1,4 @@
-import { FunctionComponent, useState, useEffect } from 'react';
+import React, { FunctionComponent, useState, useEffect } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
@@ -48,15 +48,13 @@ export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [myData, setMyData] = useState<User | null>(null);
-  const [currentUser] = useState<string>(
-    localStorage.getItem('username') || ''
-  );
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
 
@@ -75,11 +73,14 @@ export const Profile: FunctionComponent = () => {
     // the route should include a ${username} param to fetch the user's data
     try {
       const username = window.location.pathname.split('/').pop();
-      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const response = await fetch(
+        `http://localhost:8000/api/user/${username}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to get user data');
       }

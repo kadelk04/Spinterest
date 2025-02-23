@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { Box, TextField, Typography, Paper, Grid } from '@mui/material';
+import { Box, Typography, Paper, Grid } from '@mui/material';
 import { WidgetData } from '../../data/playlistUtils';
 
 interface PinnedMusicComponentProps {
@@ -10,7 +10,6 @@ interface PinnedMusicComponentProps {
 
 const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
   username,
-  isOwnProfile,
 }) => {
   const [pinnedPlaylists, setPinnedPlaylists] = useState<WidgetData[]>([]);
 
@@ -69,7 +68,7 @@ const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
       </Typography>
       <Grid container spacing={2}>
         {pinnedPlaylists.length > 0 ? (
-          pinnedPlaylists.map((playlist, i) => (
+          pinnedPlaylists.map((playlist) => (
             <Grid item xs={4} key={playlist.id}>
               <Box
                 sx={{

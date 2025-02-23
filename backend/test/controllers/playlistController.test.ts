@@ -23,7 +23,11 @@ app.delete('/playlists/:playlistId', deletePlaylistById);
 app.get('/users/:username/playlists', getPlaylistsByUsername);
 
 describe('Playlist Controller', () => {
-  let PlaylistModel: any;
+  let PlaylistModel: {
+    find: jest.Mock;
+    create: jest.Mock;
+    findById: jest.Mock;
+  };
 
   beforeEach(() => {
     PlaylistModel = {

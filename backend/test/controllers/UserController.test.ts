@@ -15,7 +15,6 @@ import {
   removeFollower,
 } from '../../src/controllers/UserController';
 import { getModel } from '../../src/utils/connection';
-import { IUser } from '../../src/models/User';
 
 jest.mock('../../src/utils/connection');
 
@@ -35,7 +34,14 @@ app.get('/user/:username/following', getFollowing);
 app.put('/user/:username/unfollow', removeFollower);
 
 describe('UserController', () => {
-  let UserModel: any;
+  let UserModel: {
+    findOne: jest.Mock;
+    create: jest.Mock;
+    updateOne: jest.Mock;
+    deleteOne: jest.Mock;
+    find: jest.Mock;
+    save: jest.Mock;
+  };
 
   beforeEach(() => {
     UserModel = {

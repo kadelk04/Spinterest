@@ -16,24 +16,26 @@ app.post('/login', loginUser);
 app.get('/protected-route', authenticateUser, (req, res) => {
   res.status(200).send('Protected route');
 });
+
 jest.mock('../../src/utils/connection');
 jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
 describe('Auth Middleware', () => {
-  let User: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let UserModel: any;
 
   beforeAll(() => {
     process.env.TOKEN_SECRET = 'testsecret';
   });
 
   beforeEach(() => {
-    User = {
+    UserModel = {
       findOne: jest.fn().mockReturnThis(),
       create: jest.fn(),
       select: jest.fn(),
     };
-    (getModel as jest.Mock).mockReturnValue(User);
+    (getModel as jest.Mock).mockReturnValue(UserModel);
   });
 
   afterEach(() => {
@@ -42,7 +44,7 @@ describe('Auth Middleware', () => {
 
   describe('registerUser', () => {
     it('should return 400 if username already exists', async () => {
-      User.findOne.mockResolvedValue({ username: 'existingUser' });
+      UserModel.findOne.mockResolvedValue({ username: 'existingUser' });
 
       const response = await request(app)
         .post('/user')
@@ -53,8 +55,11 @@ describe('Auth Middleware', () => {
     });
 
     it('should return 201 and token if registration is successful', async () => {
-      User.findOne.mockResolvedValue(null);
-      User.create.mockResolvedValue({});
+      UserModel.findOne.mockResolvedValue(null);
+      UserModel.create.mockResolvedValue({
+        username: 'newUser',
+        password: 'hashedPassword',
+      });
       (bcrypt.genSalt as jest.Mock).mockResolvedValue('salt');
       (bcrypt.hash as jest.Mock).mockResolvedValue('hashedPassword');
       (jwt.sign as jest.Mock).mockImplementation(
@@ -72,7 +77,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should return 500 if there is an error during registration', async () => {
-      User.findOne.mockResolvedValue(null);
+      UserModel.findOne.mockResolvedValue(null);
       (bcrypt.genSalt as jest.Mock).mockRejectedValue(
         new Error('bcrypt error')
       );
@@ -95,8 +100,8 @@ describe('Auth Middleware', () => {
     });
 
     it('should return 401 if user does not exist', async () => {
-      User.findOne.mockReturnThis(null);
-      User.select.mockResolvedValue(null);
+      UserModel.findOne.mockReturnThis();
+      UserModel.select.mockResolvedValue(null);
 
       const response = await request(app)
         .post('/login')
@@ -107,8 +112,8 @@ describe('Auth Middleware', () => {
     });
 
     it('should return 401 if username or password is invalid', async () => {
-      User.findOne.mockReturnThis();
-      User.select.mockResolvedValue({
+      UserModel.findOne.mockReturnThis();
+      UserModel.select.mockResolvedValue({
         username: 'nonexistentUser',
         password: 'password123',
       });
@@ -122,8 +127,8 @@ describe('Auth Middleware', () => {
     });
 
     it('should return 200 and token if login is successful', async () => {
-      User.findOne.mockReturnThis();
-      User.select.mockResolvedValue({
+      UserModel.findOne.mockReturnThis();
+      UserModel.select.mockResolvedValue({
         username: 'existingUser',
         password: 'hashedPassword',
       });
@@ -143,7 +148,7 @@ describe('Auth Middleware', () => {
     });
 
     it('should return 500 if there is an error during login', async () => {
-      User.findOne.mockImplementation(() => {
+      UserModel.findOne.mockImplementation(() => {
         throw new Error('database error');
       });
 
