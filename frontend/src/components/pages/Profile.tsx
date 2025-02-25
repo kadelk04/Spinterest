@@ -167,7 +167,7 @@ export const Profile: FunctionComponent = () => {
       console.error('Error fetching profile', error);
       setLoadingFriends(false);
     }
-  }, [accessToken, refreshToken]);
+  }, [accessToken, refreshToken, localStorageUsername]);
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
@@ -239,11 +239,7 @@ export const Profile: FunctionComponent = () => {
     const username = window.location.pathname.split('/').pop() || '';
     setProfileUsername(username);
     fetchProfile(); // Fetch profile when username changes
-  }, []); // Remove separate useEffect for fetchProfile
-
-  useEffect(() => {
-    fetchProfile();
-  }, [accessToken, refreshToken]);
+  }, [fetchProfile, accessToken, refreshToken]);
 
   return (
     <Box
