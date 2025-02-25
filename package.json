@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@fontsource/open-sans": "^5.1.0",
+    "@fontsource/open-sans": "^5.1.1",
     "@mui/icons-material": "^6.1.5",
     "@mui/material": "^6.4.4",
     "@types/supertest": "^6.0.2",
