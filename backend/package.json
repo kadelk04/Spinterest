@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "supertest": "^7.0.0",
     "@types/supertest": "^6.0.2",
     "axios": "^0.24.0",
     "bcrypt": "^5.1.1",
