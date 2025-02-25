@@ -62,11 +62,14 @@ export const fetchPlaylists = async (
   accessToken: string
 ): Promise<WidgetData[]> => {
   try {
-    const spotifyUser = await axios.get('https://api.spotify.com/v1/me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const spotifyUser = await axios.get<{ id: string }>(
+      'https://api.spotify.com/v1/me',
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     const response = await axios.get<PlaylistResponse>(
       'http://localhost:8000/api/spotify/user/' +
         spotifyUser.data.id +
