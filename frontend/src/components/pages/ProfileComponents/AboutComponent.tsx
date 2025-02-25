@@ -81,7 +81,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
 
   useEffect(() => {
     fetchData();
-  }, [username]);
+  }, [username, fetchData]);
 
   const handleIconClick = async () => {
     if (!isOwnProfile) return;

@@ -57,13 +57,6 @@ export const Profile: FunctionComponent = () => {
   const [myData, setMyData] = useState<User | null>(null);
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const username = window.location.pathname.split('/').pop() || '';
-    setProfileUsername(username);
-    fetchProfile(); // Fetch profile when username changes
-  }, [window.location.pathname]); // Remove separate useEffect for fetchProfile
-
   const fetchProfile = async () => {
     if (!accessToken && !refreshToken) return;
 
@@ -238,8 +231,14 @@ export const Profile: FunctionComponent = () => {
   };
 
   useEffect(() => {
+    const username = window.location.pathname.split('/').pop() || '';
+    setProfileUsername(username);
+    fetchProfile(); // Fetch profile when username changes
+  }, [window.location.pathname, fetchProfile]); // Remove separate useEffect for fetchProfile
+
+  useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken]);
+  }, [accessToken, refreshToken, fetchProfile]);
 
   return (
     <Box
