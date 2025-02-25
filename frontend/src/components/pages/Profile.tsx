@@ -1,4 +1,9 @@
-import React, { FunctionComponent, useState, useEffect } from 'react';
+import React, {
+  FunctionComponent,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
@@ -57,7 +62,7 @@ export const Profile: FunctionComponent = () => {
   const [myData, setMyData] = useState<User | null>(null);
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!accessToken && !refreshToken) return;
 
     // the purpose of this ugly looking code is to check if you are trying to view YOUR profile or someone elses,
@@ -162,7 +167,7 @@ export const Profile: FunctionComponent = () => {
       console.error('Error fetching profile', error);
       setLoadingFriends(false);
     }
-  };
+  }, [accessToken, refreshToken]);
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
@@ -234,11 +239,11 @@ export const Profile: FunctionComponent = () => {
     const username = window.location.pathname.split('/').pop() || '';
     setProfileUsername(username);
     fetchProfile(); // Fetch profile when username changes
-  }, [window.location.pathname, fetchProfile]); // Remove separate useEffect for fetchProfile
+  }, []); // Remove separate useEffect for fetchProfile
 
   useEffect(() => {
     fetchProfile();
-  }, [accessToken, refreshToken, fetchProfile]);
+  }, [accessToken, refreshToken]);
 
   return (
     <Box

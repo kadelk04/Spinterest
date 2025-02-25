@@ -1,5 +1,5 @@
 //import React from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 
 //import { useEffect, useState } from 'react';
@@ -50,7 +50,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
   const [favalb1, setText5] = useState('');
   const [favalb2, setText6] = useState('');
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (!username) {
         console.error('No username provided');
@@ -77,7 +77,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
     } catch (error) {
       console.error('Error fetching dataFields:', error);
     }
-  };
+  }, [username]);
 
   useEffect(() => {
     fetchData();
