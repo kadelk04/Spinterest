@@ -6,8 +6,6 @@ import Grid from '@mui/material/Grid2';
 import logo from '../../assets/logo.png';
 import { SignupModal } from '../common/SignupModal';
 
-import '@fontsource/open-sans';
-
 export const Login = () => {
   const [open, setOpen] = useState(false);
   const [username, setUsername] = useState('');
@@ -29,7 +27,7 @@ export const Login = () => {
       navigate('/dashboard');
     };
     fetchData();
-  }, []);
+  }, [navigate]);
 
   const getInfoFromUrl = () => {
     const code = new URLSearchParams(window.location.search).get('code');
