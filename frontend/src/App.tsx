@@ -10,7 +10,7 @@ import { Theme } from './components/common/Theme';
 
 import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
-import '@fontsource/open-sans';
+import { PlaylistProvider } from './components/data/PlaylistContext';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -38,12 +38,14 @@ export default function App() {
               transition: 'all 0.3s ease',
             }}
           >
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/" element={<Login />} />
-            </Routes>
+            <PlaylistProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/" element={<Login />} />
+              </Routes>
+            </PlaylistProvider>
           </Box>
         </Box>
       </Router>
