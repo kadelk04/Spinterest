@@ -4,7 +4,7 @@ import axios from 'axios';
 
 export const SpotifyLoginButton: FunctionComponent = () => {
   const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
-  const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/profile&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-follow-read%20user-follow-modify`;
+  const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${process.env.REACT_APP_SITE_URL}/profile&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-follow-read%20user-follow-modify`;
 
   return (
     <Button
@@ -22,14 +22,14 @@ export const SpotifyLoginButton: FunctionComponent = () => {
   );
 };
 
-export const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-follow-read%20user-follow-modify`;
+export const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=h${process.env.REACT_APP_SITE_URL}/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify%20user-follow-read%20user-follow-modify`;
 
 export const fetchAuthToken = async (code: string) => {
   const authOptions = {
     url: 'https://accounts.spotify.com/api/token',
     form: {
       code: code,
-      redirect_uri: 'http://localhost:3000/login',
+      redirect_uri: `${process.env.REACT_APP_SITE_URL}/login`,
       grant_type: 'authorization_code',
     },
     headers: {
@@ -65,7 +65,7 @@ export const fetchAuthToken = async (code: string) => {
     });
     const id = await profileData.json().then((data) => data.id);
     axios.put(
-      `http://localhost:8000/api/user/${localStorage.getItem('username')}`,
+      `${process.env.REACT_APP_API_URL}/api/user/${localStorage.getItem('username')}`,
       {
         spotifyId: id,
         refreshToken: data.refresh_token,
