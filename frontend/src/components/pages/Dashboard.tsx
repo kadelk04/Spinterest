@@ -10,7 +10,7 @@ import {
   Skeleton,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
+//import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
 
@@ -62,14 +62,14 @@ export const Dashboard = () => {
     });
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth - 120);
-    };
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setWindowWidth(window.innerWidth - 120);
+  //   };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  //   window.addEventListener('resize', handleResize);
+  //   return () => window.removeEventListener('resize', handleResize);
+  // }, []);
 
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
@@ -239,7 +239,7 @@ export const Dashboard = () => {
         )}
       </Box>
 
-      <ResponsiveGridLayout
+      {/* <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -269,7 +269,7 @@ export const Dashboard = () => {
             </div>
           );
         })}
-      </ResponsiveGridLayout>
+      </ResponsiveGridLayout> */}
     </Box>
   );
 };
