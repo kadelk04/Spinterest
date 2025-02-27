@@ -12,6 +12,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import {
   Dashboard as DashboardIcon,
   AccountCircle as ProfileIcon,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { List } from '@mui/material';
 
@@ -63,6 +64,11 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
       href: `/profile/${username}`,
       label: 'Profile',
       icon: <ProfileIcon />,
+    },
+    {
+      href: '/settings',
+      label: 'Settings',
+      icon: <SettingsIcon />,
     },
   ];
 
