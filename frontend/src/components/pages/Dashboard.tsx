@@ -240,10 +240,10 @@ export const Dashboard = () => {
               justifyContent: 'center',
             }}
           >
-            {React.cloneElement(widget.component, {
+            {/* {React.cloneElement(widget.component, {
               dragHandleClass: 'drag-handle',
               noDragClass: 'no-drag',
-            })}
+            })} */}
           </div>
         ))}
       </ResponsiveGridLayout>
