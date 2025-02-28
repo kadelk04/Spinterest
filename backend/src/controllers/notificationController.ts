@@ -3,6 +3,12 @@ import { getModel } from '../utils/connection';
 import { INotification } from '../models/Notification';
 import mongoose from 'mongoose';
 import axios from 'axios';
+
+interface UserResponse {
+  _id: mongoose.Types.ObjectId;
+  username: string;
+}
+
 /**
  * Create notification
  * @param req
@@ -22,11 +28,14 @@ export const createFollowNotification = async (req: Request, res: Response) => {
   // need to get the mongoose.Types.ObjectId of toBeFollowed for receiver param
   let toBeFollowedObjectId;
   try {
+    const User = getModel<UserResponse>('User');
     // can use getUserByUsername in UserController.ts
-    const response = await axios.get(
-      `http://localhost:8000/api/user/${toBeFollowed}`
-    );
-    toBeFollowedObjectId = response.data._id;
+    const response = await User.findOne({ username: toBeFollowed });
+    if (!response) {
+      res.status(404).send('User not found');
+      return;
+    }
+    toBeFollowedObjectId = response._id;
     console.log(`toBeFollowedObjectId: ${toBeFollowedObjectId}`);
   } catch (err) {
     console.log(err);
@@ -37,7 +46,7 @@ export const createFollowNotification = async (req: Request, res: Response) => {
   // create new notification
   try {
     const Notification = getModel<INotification>('Notification');
-    const newNotification = new Notification({
+    const newNotification = await Notification.create({
       title: privacy ? 'Follow Request' : 'New Follower',
       type: privacy ? 'follow_request' : 'follow',
       message: privacy
@@ -46,7 +55,6 @@ export const createFollowNotification = async (req: Request, res: Response) => {
       receiver: [toBeFollowedObjectId],
       createdAt: new Date(),
     });
-    await newNotification.save();
     res.status(200).json(newNotification);
     return;
   } catch (err) {
@@ -66,7 +74,7 @@ export const findFollowRequestNotification = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  console.log("in findFollowRequestNotification in notificationController.ts");
+  console.log('in findFollowRequestNotification in notificationController.ts');
   const { userMongoId } = req.params;
   const { follower } = req.query;
   console.log(`username: ${userMongoId}, follower: ${follower}`);

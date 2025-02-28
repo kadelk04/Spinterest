@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import mongoose from 'mongoose';
 
 // logic for following
 // called by handleFollowToggle in Profile.tsx
@@ -23,13 +22,10 @@ export const followUser = async (username: string, myUsername: string) => {
         console.log('Type of username:', typeof username);
         const notificationResponse = await axios.post(
           `http://localhost:8000/api/notification/follow/${username}`,
-          {
-            follower: myUsername,
-            privacy: true,
-          }
+          { follower: myUsername, privacy: true }
         );
         console.log('Notification created:', notificationResponse.data);
-        return "pending";
+        return 'pending';
       } catch (notificationError) {
         console.error('Error creating notification:', notificationError);
         throw new Error('Failed to create notification');
@@ -39,9 +35,7 @@ export const followUser = async (username: string, myUsername: string) => {
     const followResponse = await axios.put(
       `http://localhost:8000/api/user/${username}/follow`,
       {
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
+        headers: { authorization: localStorage.getItem('jwttoken') },
         follower: myUsername,
       }
     );
@@ -58,9 +52,7 @@ export const unfollowUser = async (username: string, myUsername: string) => {
     const unfollowResponse = await axios.put(
       `http://localhost:8000/api/user/${username}/unfollow`,
       {
-        headers: {
-          authorization: localStorage.getItem('jwttoken'),
-        },
+        headers: { authorization: localStorage.getItem('jwttoken') },
         unfollower: myUsername,
       }
     );
@@ -71,17 +63,16 @@ export const unfollowUser = async (username: string, myUsername: string) => {
     return false;
   }
 };
-export const fetchFollowStatus = async (userMongoId: mongoose.Types.ObjectId, myUsername: string) => {
+export const fetchFollowStatus = async (
+  userMongoId: string,
+  myUsername: string
+) => {
   // if you don't follow them, check to see if there is a pending notification
   try {
     console.log('Fetching follow status', userMongoId, myUsername);
     const followStatusResponse = await axios.get(
       `http://localhost:8000/api/notification/getFollowRequest/${userMongoId}`,
-      {
-        params: {
-          follower: myUsername,
-        },
-      }
+      { params: { follower: myUsername } }
     );
     console.log('Follow status:', followStatusResponse.data);
     return followStatusResponse.data;
@@ -89,4 +80,4 @@ export const fetchFollowStatus = async (userMongoId: mongoose.Types.ObjectId, my
     console.error('Error fetching follow status:', error);
     return false;
   }
-}
+};

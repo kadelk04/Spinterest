@@ -26,11 +26,7 @@ describe('Playlist Controller', () => {
   let PlaylistModel: any;
 
   beforeEach(() => {
-    PlaylistModel = {
-      find: jest.fn(),
-      create: jest.fn(),
-      findById: jest.fn(),
-    };
+    PlaylistModel = { find: jest.fn(), create: jest.fn(), findById: jest.fn() };
     (getModel as jest.Mock).mockReturnValue({
       find: PlaylistModel.find,
       create: PlaylistModel.create,
@@ -65,7 +61,7 @@ describe('Playlist Controller', () => {
 
   describe('addPlaylist', () => {
     it('should add a new playlist', async () => {
-      const newPlaylist: IPlaylist = { spotifyId: '1234', tags: [] };
+      const newPlaylist: IPlaylist = { spotifyId: '1234', tags: [], likes: 0 };
       PlaylistModel.create.mockResolvedValue(newPlaylist);
 
       const res = await request(app).post('/playlists').send(newPlaylist);
