@@ -8,11 +8,12 @@ import {
   Paper,
   Avatar,
   Skeleton,
+  Grid2,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
+//import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
-import { getLayouts } from '../data/layoutGenerator';
+//import { getLayouts } from '../data/layoutGenerator';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -37,38 +38,45 @@ export const Dashboard = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // useEffect(() => {
+  //   // 16 skeleton widgets
+  //   const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
+  //     id: `skeleton-${i}`,
+  //     cover: '',
+  //     owner: '',
+  //     title: '',
+  //     description: '',
+  //     genres: [],
+  //     component: (
+  //       <Skeleton
+  //         key={i}
+  //         variant="rounded"
+  //         width={250}
+  //         height={420}
+  //         sx={{ borderRadius: '20px' }}
+  //       />
+  //     ),
+  //   }));
+  //   setWidgets(skeletonArray);
+  //   returnWidgets().then((widgets) => {
+  //     setWidgets(widgets);
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setWindowWidth(window.innerWidth - 120);
+  //   };
+
+  //   window.addEventListener('resize', handleResize);
+  //   return () => window.removeEventListener('resize', handleResize);
+  // }, []);
+
   useEffect(() => {
-    // 16 skeleton widgets
-    const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
-      id: `skeleton-${i}`,
-      cover: '',
-      owner: '',
-      title: '',
-      description: '',
-      genres: [],
-      component: (
-        <Skeleton
-          key={i}
-          variant="rounded"
-          width={250}
-          height={420}
-          sx={{ borderRadius: '20px' }}
-        />
-      ),
-    }));
-    setWidgets(skeletonArray);
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth - 120);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    console.log("widgets", widgets);
   }, []);
 
   const handleSearch = async (username: string) => {
@@ -149,7 +157,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(widgets);
+  //const layouts = getLayouts(widgets);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -239,7 +247,15 @@ export const Dashboard = () => {
         )}
       </Box>
 
-      <ResponsiveGridLayout
+      {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
+        {widgets.map((widget) => (
+          <Grid2 key={widget.id} xs={12} sm={6} md={4} lg={3}>
+            {widget.component}
+          </Grid2>
+        ))}
+      </Grid2> */}
+
+      {/* <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -269,7 +285,7 @@ export const Dashboard = () => {
             </div>
           );
         })}
-      </ResponsiveGridLayout>
+      </ResponsiveGridLayout> */}
     </Box>
   );
 };
