@@ -11,7 +11,6 @@ import {
 import {
   AddOutlined,
   FavoriteBorderOutlined,
-  DragIndicator,
   PushPinOutlined,
   PushPin,
 } from '@mui/icons-material';
@@ -32,6 +31,7 @@ export const PlaylistWidget = ({
   genres: string[];
 }) => {
   const { clicked, handlePinClick } = usePinnedPlaylists(playlistId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -138,11 +138,7 @@ export const PlaylistWidget = ({
         <Stack
           direction="row"
           spacing={2}
-          sx={{
-            justifyContent: 'flex-end',
-            marginTop: '10%',
-            width: '100%',
-          }}
+          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
         >
           <IconButton
             onClick={handlePinClick}

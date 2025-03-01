@@ -7,8 +7,6 @@ import {
   InputAdornment,
   Paper,
   Avatar,
-  Skeleton,
-  Grid2,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 //import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
@@ -30,7 +28,6 @@ interface User {
 export const Dashboard = () => {
   const navigate = useNavigate();
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -76,8 +73,8 @@ export const Dashboard = () => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
-    console.log("widgets", widgets);
-  }, []);
+    console.log('widgets', widgets);
+  }, [widgets]);
 
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
@@ -121,10 +118,7 @@ export const Dashboard = () => {
 
       const profileResponse = await fetch(
         `http://localhost:8000/api/user/profile/${username}`,
-        {
-          method: 'GET',
-          credentials: 'omit',
-        }
+        { method: 'GET', credentials: 'omit' }
       );
 
       if (!profileResponse.ok) {
