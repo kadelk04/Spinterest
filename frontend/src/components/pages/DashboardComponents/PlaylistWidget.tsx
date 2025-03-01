@@ -25,7 +25,7 @@ export const PlaylistWidget = ({
   genres,
 }: {
   playlistId: string;
-  cover: string | File;
+  cover: string;
   title: string;
   owner: string;
   genres: string[];
