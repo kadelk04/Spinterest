@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../pages/DashboardComponents/PlaylistWidget';
 
@@ -8,7 +8,7 @@ export interface Widget {
   owner: string;
   title: string;
   genres: string[];
-  //component: React.ReactElement;
+  component: ReactElement;
 }
 
 export interface WidgetData {
