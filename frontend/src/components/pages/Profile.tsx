@@ -129,6 +129,7 @@ export const Profile: FunctionComponent = () => {
       console.log('My Profile Data:', myProfileData);
 
       if (selfProfileSpotifyId === userSpotifyId) {
+        console.log("this is my profile");
         // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
         setIsOwnProfile(true);
         console.log('Profile Data Fetched:', selfProfileData);
@@ -137,6 +138,7 @@ export const Profile: FunctionComponent = () => {
           images: selfProfileData.images || [],
         });
       } else {
+        console.log("this is not my profile");
         // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
         setIsOwnProfile(false);
 

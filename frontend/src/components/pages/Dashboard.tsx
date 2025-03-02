@@ -23,7 +23,7 @@ import { returnNotifications, Notification } from '../data/notificationUtils';
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+  //const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -34,9 +34,9 @@ export const Dashboard = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   useEffect(() => {
-    returnWidgets().then((widgets) => {
-      setWidgets(widgets);
-    });
+    // returnWidgets().then((widgets) => {
+    //   setWidgets(widgets);
+    // });
     returnNotifications().then((notifications) => {
       setNotifications(notifications);
     });
@@ -129,7 +129,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(widgets);
+  //const layouts = getLayouts(widgets);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -220,7 +220,7 @@ export const Dashboard = () => {
         )}
       </Box>
 
-      <ResponsiveGridLayout
+      {/* <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -240,13 +240,13 @@ export const Dashboard = () => {
               justifyContent: 'center',
             }}
           >
-            {/* {React.cloneElement(widget.component, {
+            {React.cloneElement(widget.component, {
               dragHandleClass: 'drag-handle',
               noDragClass: 'no-drag',
-            })} */}
+            })}
           </div>
         ))}
-      </ResponsiveGridLayout>
+      </ResponsiveGridLayout> */}
     </Box>
   );
 };

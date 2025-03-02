@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
-import { Notification } from '../../data/notificationUtils';
+import { Notification, fetchNotifications } from '../../data/notificationUtils';
 import { NotificationBlurb } from './NotificationBlurb';
 
 interface NotificationDrawerProps {
@@ -33,7 +33,12 @@ export default function NotificationDrawer({
         return;
       }
       setOpen(open);
-    };
+  };
+
+  useEffect(() => {
+    console.log('Fetching notifications');
+    fetchNotifications();
+  }, [setOpen]);
 
   return (
     <Box sx={{ position: 'relative', marginBottom: '20px' }}>

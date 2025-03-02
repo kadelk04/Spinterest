@@ -10,6 +10,13 @@ export interface Notification {
   createdAt: string;
 }
 
+interface UserData {
+  _id: string;
+  username: string;
+  isPrivate: boolean;
+  // Add other fields as needed
+}
+
 export const returnNotifications = async (): Promise<Notification[]> => {
   return [
     {
@@ -35,3 +42,23 @@ export const returnNotifications = async (): Promise<Notification[]> => {
     },
   ];
 };
+
+export const fetchNotifications = async (): Promise<void> => {
+  const localStorageUsername = window.localStorage.getItem('username');
+
+  
+  try {
+
+    const userResponse = await axios.get<UserData>(`http://localhost:8000/api/user/${localStorageUsername}`);
+    console.log('userResponse');
+    console.log(userResponse.data);
+    const userMongoId = userResponse.data?._id;
+    console.log('mongoId');
+    console.log(userMongoId);
+
+    const response = await axios.get(`http://localhost:8000/api/notification/all/${userMongoId}`);
+    console.log(response.data);
+  } catch (error) {
+    console.error(error);
+  }
+}

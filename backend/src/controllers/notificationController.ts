@@ -112,7 +112,36 @@ export const findFollowRequestNotification = async (
 export const getAllNotifications = async (
   req: Request,
   res: Response
-): Promise<void> => {};
+): Promise<void> => {
+  console.log('in getAllNotifications in notificationController.ts');
+  console.log("before", req.params.userMongoId);
+  const userMongoId = req.params.userMongoId;
+  //const userMongoId = new mongoose.Types.ObjectId(req.params.mongoId);
+
+  console.log(`my mongoId: ${userMongoId}`);
+
+  if (!userMongoId) {
+    res.status(400).send('User ID is required');
+    return;
+  }
+
+  try {
+    console.log('in try block');
+    const Notification = getModel<INotification>('Notification');
+    const notifications = await Notification.find({ receiver: userMongoId });
+
+    console.log(notifications);
+    if (notifications.length === 0) {
+      res.status(404).send('No notifications found');
+      return;
+    }
+
+    res.status(200).json(notifications);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error retrieving notifications');
+  }
+};
 
 /**
  * Update Notification
