@@ -11,7 +11,6 @@ import Grid from '@mui/material/Grid2';
 import logo from '../../assets/logo.png';
 import { SignupModal } from '../common/SignupModal';
 
-import '@fontsource/open-sans';
 import { PlaylistResponse } from '../data/playlistUtils';
 
 export const Login = () => {

@@ -148,12 +148,13 @@ export const Profile: FunctionComponent = () => {
         );
 
         // fetch if you currently have a pending follow request
-        //const followRequestResponse = await fetchFollowStatus(userData._id, myData!.username);
-        //console.log('Follow Request Response:', followRequestResponse);
+        console.log('my username:', myProfileData!.username);
+        const followRequestResponse = await fetchFollowStatus(userData._id, myProfileData!.username);
+        console.log('Follow Request Response:', followRequestResponse);
 
-        // if (followRequestResponse){
-        //   setPendingFollow(true);
-        // }
+        if (followRequestResponse){
+          setPendingFollow(true);
+        }
 
         const otherspotifyDataResponse = await fetch(
           // returns spotify user data from SPOTIFY API, this contains the display name and profile picture
