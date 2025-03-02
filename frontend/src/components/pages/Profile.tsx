@@ -256,7 +256,7 @@ export const Profile: FunctionComponent = () => {
                     userData?.isPrivate ? <VisibilityOff /> : <Visibility />
                   }
                 >
-                  {userData?.isPrivate ? 'Private' : 'Public'}
+                  {myData?.isPrivate ? 'Private' : 'Public'}
                 </Button>
               ) : null}
               {isOwnProfile ? (
