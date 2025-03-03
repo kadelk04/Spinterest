@@ -1,6 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 
+import { followUserDirect } from './followUtils';
+
 export interface Notification {
   _id: string;
   type: string;
@@ -49,7 +51,9 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
     console.log("accepting follow req", notificationId);
     // add them to their following array, add requested user to their followers array
 
+    // create new notifcation of type follow
 
+    //const FollowResponse = await followUserDirect(notificationId);
     // const followResponse = await axios.put(
     //   `http://localhost:8000/api/user/${username}/follow`,
     //   {
@@ -61,7 +65,7 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
 
 
     // delete the notification
-    const deleteResponse = await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
+    //const deleteResponse = await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
   } catch (error) {
     console.error(error);
   }

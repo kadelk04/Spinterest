@@ -57,7 +57,7 @@ export const NotificationBlurb = ({ notification }: NotificationBlurbProps) => {
               color="secondary"
               onClick={handleDelete}
             >
-              Delete
+              Deny
             </Button>
           </Stack>
         )}

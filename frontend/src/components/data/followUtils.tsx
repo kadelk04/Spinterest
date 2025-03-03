@@ -5,6 +5,7 @@ import axios from 'axios';
 // called by handleFollowToggle in Profile.tsx
 
 export const followUser = async (username: string, myUsername: string) => {
+
   try {
     if (!username || !myUsername) {
       throw new Error('A username is undefined');
@@ -32,8 +33,32 @@ export const followUser = async (username: string, myUsername: string) => {
       }
     }
 
-    return await followUserDirect(username, myUsername);
-    
+    // first get the mongo ids of username and myUsername
+    let userMongo;
+    try {
+      const userResponse = await axios.get(
+      `http://localhost:8000/api/user/${username}`
+      );
+      userMongo = (userResponse.data as { _id: string })._id;
+      console.log("this is userMongo", userMongo);
+    } catch (userError) {
+      console.error('Error fetching user data:', userError);
+      throw new Error('Failed to fetch user data');
+    }
+
+    let myMongo;
+    try {
+      const myResponse = await axios.get(
+      `http://localhost:8000/api/user/${myUsername}`
+      );
+      myMongo = (myResponse.data as { _id: string })._id;
+    } catch (myUserError) {
+      console.error('Error fetching my user data:', myUserError);
+      throw new Error('Failed to fetch my user data');
+    }
+
+    return await followUserDirect(userMongo, myMongo);
+
   } catch (error) {
     console.error('Error following user:', error);
     return false;
@@ -76,13 +101,16 @@ export const fetchFollowStatus = async (
 };
 
 // this function is called by in notificationUtils.tsx for a user to accept a follow request
-export const followUserDirect = async (username: string, myUsername: string) => {
+export const followUserDirect = async (mongoId: string, myMongoId: string) => {
+
+  console.log('Following user:', mongoId, myMongoId);
   try {
+    // calling addFollower in userController
     const followResponse = await axios.put(
-      `http://localhost:8000/api/user/${username}/follow`,
+      `http://localhost:8000/api/user/${mongoId}/follow`,
       {
         headers: { authorization: localStorage.getItem('jwttoken') },
-        follower: myUsername,
+        follower: myMongoId,
       }
     );
     console.log('Followed user:', followResponse.data);

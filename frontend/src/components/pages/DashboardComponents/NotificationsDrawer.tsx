@@ -4,8 +4,10 @@ import {
   Button,
   Drawer,
   List,
+  IconButton,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { Notification, returnNotifications } from '../../data/notificationUtils';
 import { NotificationBlurb } from './NotificationBlurb';
@@ -61,10 +63,14 @@ export default function NotificationDrawer() {
         <Box
           sx={{ width: 300, p: 2 }}
           role="presentation"
-          //onClick={toggleDrawer(false)}
           onKeyDown={toggleDrawer(false)}
         >
-          <h3>Notifications</h3>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3>Notifications</h3>
+            <IconButton onClick={toggleDrawer(false)}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
           <List>
             {notifications.length > 0 ? (
               notifications.map((notification) => (

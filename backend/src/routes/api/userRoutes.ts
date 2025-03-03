@@ -44,7 +44,7 @@ router.patch('/:username/favorites', updateFavorite);
 router.get('/:username/privacy', checkPrivacy);
 
 // follow + unfollow routes
-router.put('/:username/follow', addFollower);
+router.put('/:mongoId/follow', addFollower);
 router.get('/:username/followers', getFollowers);
 router.get('/:username/following', getFollowing);
 router.put('/:username/unfollow', removeFollower);

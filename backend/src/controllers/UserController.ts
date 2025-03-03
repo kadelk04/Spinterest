@@ -255,31 +255,22 @@ export const getUserSpotifyId = async (
   }
 };
 
-// export const getAllFriends = async (req: Request, res: Response) => {
-//   try {
-//       // Replace this URL with the endpoint that fetches friends from Spotify
-//       const response = await axios.get('https://api.spotify.com/v1/me/friends', {
-//           headers: {
-//               Authorization: `Bearer ${accessToken}`,
-//           },
-//       });
-//       return response.data.friends; // Adjust based on the API response structure
-//   } catch (error) {
-//       console.error('Error fetching friends:', error.message);
-//       throw new Error('Failed to fetch friends from Spotify');
-//   }
-// };
-
 export const addFollower = async (req: Request, res: Response) => {
+  // change this to use the MongoId instead of the username
+  
+  console.log('req.params.mongoId:', req.params.mongoId);
+  console.log('req.body.follower:', req.body.follower);
+
+  
   try {
     const UserModel = getModel<IUser>('User');
     const userToFollow = await UserModel.findOne({
-      username: req.params.username,
+      _id: req.params.mongoId,
     });
     // follower is the id of the user (you) that is requesting to follow
-    const follower = await UserModel.findOne({ username: req.body.follower });
-    console.log('userToFollow:', userToFollow?.username);
-    console.log('follower:', follower?.username);
+    const follower = await UserModel.findOne({ _id: req.body.follower });
+    console.log('userToFollow:', userToFollow?._id);
+    console.log('follower:', follower?._id);
     if (!userToFollow) {
       res.status(404).send('User not found');
       return;
