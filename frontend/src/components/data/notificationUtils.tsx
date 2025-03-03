@@ -8,6 +8,7 @@ export interface Notification {
   message: string;
   read: boolean;
   createdAt: string;
+  component: React.ReactElement;
 }
 
 interface UserData {
@@ -18,45 +19,25 @@ interface UserData {
 }
 
 export const returnNotifications = async (): Promise<Notification[]> => {
-  return [
-    {
-      id: '1',
-      type: 'follow',
-      message: 'Colt followed you!',
-      read: false,
-      createdAt: '2021-10-01T00:00:00Z',
-    },
-    {
-      id: '2',
-      type: 'new playlist',
-      message: 'Gale1 added a new playlist!',
-      read: false,
-      createdAt: '2021-10-01T00:00:00Z',
-    },
-    {
-      id: '3',
-      type: 'like',
-      message: 'Colt liked your playlist: shift to fall!',
-      read: false,
-      createdAt: '2021-10-01T00:00:00Z',
-    },
-  ];
-};
+  const notifications = await fetchNotifications();
 
-export const fetchNotifications = async (): Promise<void> => {
+  return notifications.map((notification) => ({
+    ...notification,
+    component: <NotificationBlurb key={notification.id} notification={notification} />,
+  }));
+}
+
+export const fetchNotifications = async (): Promise<Notification[]> => {
   const localStorageUsername = window.localStorage.getItem('username');
   try {
-
     const userResponse = await axios.get<UserData>(`http://localhost:8000/api/user/${localStorageUsername}`);
-    console.log('userResponse');
-    console.log(userResponse.data);
     const userMongoId = userResponse.data?._id;
-    console.log('mongoId');
-    console.log(userMongoId);
 
-    const response = await axios.get(`http://localhost:8000/api/notification/all/${userMongoId}`);
-    console.log("in notificationsUtils fetching notifications", response.data);
+    const response = await axios.get<Notification[]>(`http://localhost:8000/api/notification/all/${userMongoId}`);
+    return response.data;
   } catch (error) {
     console.error(error);
+    return [];
   }
 }
+

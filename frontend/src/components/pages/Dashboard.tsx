@@ -134,7 +134,7 @@ export const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
-        {<NotificationsDrawer notifications={notifications} />}
+        {<NotificationsDrawer />}
         <Input
           placeholder="/genre, /tag, /person"
           value={searchQuery}

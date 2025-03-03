@@ -4,22 +4,15 @@ import {
   Button,
   Drawer,
   List,
-  ListItem,
-  ListItemText,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 
-import { Notification, fetchNotifications } from '../../data/notificationUtils';
+import { Notification, returnNotifications } from '../../data/notificationUtils';
 import { NotificationBlurb } from './NotificationBlurb';
 
-interface NotificationDrawerProps {
-  notifications: Notification[];
-}
-
-export default function NotificationDrawer({
-  notifications,
-}: NotificationDrawerProps) {
+export default function NotificationDrawer() {
   const [open, setOpen] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Toggle Drawer Function
   const toggleDrawer =
@@ -36,9 +29,13 @@ export default function NotificationDrawer({
   };
 
   useEffect(() => {
-    console.log('Fetching notifications');
+    const fetchNotifications = async () => {
+      const fetchedNotifications = await returnNotifications();
+      setNotifications(fetchedNotifications);
+    };
+
     fetchNotifications();
-  }, [setOpen]);
+  }, []);
 
   return (
     <Box sx={{ position: 'relative', marginBottom: '20px' }}>
