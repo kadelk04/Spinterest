@@ -1,6 +1,5 @@
 import React from 'react';
 import axios from 'axios';
-import { NotificationBlurb } from '../pages/DashboardComponents/NotificationBlurb';
 
 export interface Notification {
   _id: string;
@@ -44,4 +43,37 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
     return [];
   }
 }
+
+export const acceptFollowRequest = async (notificationId: string): Promise<void> => {
+  try {
+    console.log("accepting follow req", notificationId);
+    // add them to their following array, add requested user to their followers array
+
+
+    // const followResponse = await axios.put(
+    //   `http://localhost:8000/api/user/${username}/follow`,
+    //   {
+    //     headers: { authorization: localStorage.getItem('jwttoken') },
+    //     follower: myUsername,
+    //   }
+    // );
+    // console.log('Followed user:', followResponse.data);
+
+
+    // delete the notification
+    const deleteResponse = await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export const deleteFollowRequest = async (notificationId: string): Promise<void> => {
+  try {
+    console.log("deleting follow req", notificationId);
+    const deleteResponse = await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 

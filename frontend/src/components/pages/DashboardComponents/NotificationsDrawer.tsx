@@ -61,7 +61,7 @@ export default function NotificationDrawer() {
         <Box
           sx={{ width: 300, p: 2 }}
           role="presentation"
-          onClick={toggleDrawer(false)}
+          //onClick={toggleDrawer(false)}
           onKeyDown={toggleDrawer(false)}
         >
           <h3>Notifications</h3>

@@ -1,4 +1,3 @@
-// this will function similarly to how the PlaylistWidgets are loaded onto the Dashboard
 import { useEffect, useState } from 'react';
 import {
   Typography,
@@ -6,18 +5,24 @@ import {
   CardContent,
   Stack,
   Chip,
+  Button
 } from '@mui/material';
 
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-
-import { Notification } from '../../data/notificationUtils';
+import { Notification, acceptFollowRequest, deleteFollowRequest } from '../../data/notificationUtils';
 
 interface NotificationBlurbProps {
   notification: Notification;
 }
 
 export const NotificationBlurb = ({ notification }: NotificationBlurbProps) => {
+  const handleAccept = () => {
+    acceptFollowRequest(notification._id); 
+  };
+
+  const handleDelete = () => {
+    deleteFollowRequest(notification._id);
+  };
+
   return (
     <Card
       sx={{
@@ -38,6 +43,24 @@ export const NotificationBlurb = ({ notification }: NotificationBlurbProps) => {
         <Typography variant="caption" color="textSecondary">
           {new Date(notification.createdAt).toLocaleString()}
         </Typography>
+        {notification.type === 'follow_request' && (
+          <Stack direction="row" spacing={1} sx={{ marginTop: 1 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAccept}
+            >
+              Accept
+            </Button>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleDelete}
+            >
+              Delete
+            </Button>
+          </Stack>
+        )}
       </CardContent>
     </Card>
   );

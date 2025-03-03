@@ -32,15 +32,8 @@ export const followUser = async (username: string, myUsername: string) => {
       }
     }
 
-    const followResponse = await axios.put(
-      `http://localhost:8000/api/user/${username}/follow`,
-      {
-        headers: { authorization: localStorage.getItem('jwttoken') },
-        follower: myUsername,
-      }
-    );
-    console.log('Followed user:', followResponse.data);
-    return true;
+    return await followUserDirect(username, myUsername);
+    
   } catch (error) {
     console.error('Error following user:', error);
     return false;
@@ -81,3 +74,21 @@ export const fetchFollowStatus = async (
     return false;
   }
 };
+
+// this function is called by in notificationUtils.tsx for a user to accept a follow request
+export const followUserDirect = async (username: string, myUsername: string) => {
+  try {
+    const followResponse = await axios.put(
+      `http://localhost:8000/api/user/${username}/follow`,
+      {
+        headers: { authorization: localStorage.getItem('jwttoken') },
+        follower: myUsername,
+      }
+    );
+    console.log('Followed user:', followResponse.data);
+    return true;
+  } catch (error) {
+    console.error('Error following user:', error);
+    return false;
+  }
+}
