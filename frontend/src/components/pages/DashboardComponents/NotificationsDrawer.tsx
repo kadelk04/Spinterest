@@ -69,7 +69,7 @@ export default function NotificationDrawer() {
             {notifications.length > 0 ? (
               notifications.map((notification) => (
                 <NotificationBlurb
-                  key={notification.id}
+                  key={notification._id}
                   notification={notification}
                 />
               ))

@@ -3,12 +3,11 @@ import axios from 'axios';
 import { NotificationBlurb } from '../pages/DashboardComponents/NotificationBlurb';
 
 export interface Notification {
-  id: string;
+  _id: string;
   type: string;
   message: string;
   read: boolean;
   createdAt: string;
-  component: React.ReactElement;
 }
 
 interface UserData {
@@ -20,10 +19,15 @@ interface UserData {
 
 export const returnNotifications = async (): Promise<Notification[]> => {
   const notifications = await fetchNotifications();
+  console.log(notifications);
 
   return notifications.map((notification) => ({
-    ...notification,
-    component: <NotificationBlurb key={notification.id} notification={notification} />,
+    _id: notification._id.toString(), // Map _id to id and ensure it's a string
+    type: notification.type,
+    message: notification.message,
+    read: false, // Assuming this field is required; adjust as needed
+    createdAt: notification.createdAt,
+    component: null, // Remove this field or set it to null
   }));
 }
 
