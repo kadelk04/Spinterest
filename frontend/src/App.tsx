@@ -10,6 +10,7 @@ import { Theme } from './components/common/Theme';
 
 import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
+import { Settings } from './components/pages/Settings';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -42,6 +43,7 @@ export default function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile/:username" element={<Profile />} />
               <Route path="/" element={<Login />} />
+              <Route path="/settings" element={<Settings />} />
             </Routes>
           </Box>
         </Box>
