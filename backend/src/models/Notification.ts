@@ -1,11 +1,13 @@
 import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 import { IUser } from './User';
+import { send } from 'process';
 
 export interface INotification {
   title: string;
   type: 'new_playlist' | 'saved_playlist' | 'follow_request' | 'like';
   receiver: mongoose.Types.ObjectId[];
+  sender: mongoose.Types.ObjectId;
   metadata?: Record<string, any>;
   status?: 'pending' | 'accepted';
   createdAt: Date;
@@ -34,6 +36,11 @@ export const NotificationSchema = new mongoose.Schema({
       ref: 'User',
     },
   ],
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   metadata: {
     type: Object,
     default: {},
