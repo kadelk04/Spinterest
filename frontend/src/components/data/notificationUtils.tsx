@@ -45,8 +45,6 @@ export const returnNotifications = async (): Promise<Notification[]> => {
 
 export const fetchNotifications = async (): Promise<void> => {
   const localStorageUsername = window.localStorage.getItem('username');
-
-  
   try {
 
     const userResponse = await axios.get<UserData>(`http://localhost:8000/api/user/${localStorageUsername}`);
@@ -57,7 +55,7 @@ export const fetchNotifications = async (): Promise<void> => {
     console.log(userMongoId);
 
     const response = await axios.get(`http://localhost:8000/api/notification/all/${userMongoId}`);
-    console.log(response.data);
+    console.log("in notificationsUtils fetching notifications", response.data);
   } catch (error) {
     console.error(error);
   }
