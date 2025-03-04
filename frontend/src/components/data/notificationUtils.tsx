@@ -46,8 +46,7 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
   }
 }
 
-export const acceptFollowRequest = async (notificationId: string): Promise<void> => {
-
+export const acceptFollowRequest = async (notificationId: string): Promise<Boolean> => {
   // colter follow req
  // {"_id":{"$oid":"67c3d08377794649451db4b5"},"title":"Follow Request","message":"colt requested to follow you!","type":"follow_request","receiver":[{"$oid":"679bea43f63834e135f2773c"}],"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67b4d7faa565ae31eba7e443"}}
 
@@ -96,8 +95,11 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
     );
     console.log('Followed user:', followResponse.data);
 
+    return true;
+
   } catch (error) {
     console.error(error);
+    return false;
   }
 }
 
