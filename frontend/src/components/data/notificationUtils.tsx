@@ -47,31 +47,48 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
 }
 
 export const acceptFollowRequest = async (notificationId: string): Promise<void> => {
+
+
   try {
     console.log("accepting follow req", notificationId);
     // add them to their following array, add requested user to their followers array
 
-    // create new notifcation of type follow
-
     // try {
-    //   const notificationResponse = await axios.post(
-    //     `http://localhost:8000/api/notification/follow/${userMongoId}`,)
-    // }
-    // catch (notificationError) {
-    //   console.error('Error creating follow notification:', notificationError);
-    //   throw new Error('Failed to create follow notification');
+    //   // update the notification 
+    //   const updateResponse = await axios.put(`http://localhost:8000/api/notification/update/${notificationId}`);
+    // } catch (updateError) {
+    //   console.error('Error updating notification:', updateError);
+    //   throw new Error('Failed to update notification');
     // }
 
+    // get the userMongoId and myMongoId from receiver and sender stored in the notification
+    let userMongoId;
+    let myMongoId;
+    try {
+      const notificationResponse = await axios.get(`http://localhost:8000/api/notification/${notificationId}`);
+      
+      console.log("notification response", notificationResponse.data);
 
-    //const FollowResponse = await followUserDirect(notificationId);
-    // const followResponse = await axios.put(
-    //   `http://localhost:8000/api/user/${username}/follow`,
-    //   {
-    //     headers: { authorization: localStorage.getItem('jwttoken') },
-    //     follower: myUsername,
-    //   }
-    // );
-    // console.log('Followed user:', followResponse.data);
+      userMongoId = (notificationResponse.data as { receiver: string[] }).receiver[0];
+      myMongoId = (notificationResponse.data as { sender: string }).sender;
+
+      console.log("userMongoId", userMongoId);
+      console.log("myMongoId", myMongoId);
+      
+    } catch (notificationError) {
+      console.error('Error fetching notification data:', notificationError);
+      throw new Error('Failed to fetch notification data');
+    }
+
+
+    const followResponse = await axios.put(
+      `http://localhost:8000/api/user/${userMongoId}/follow`,
+      {
+        headers: { authorization: localStorage.getItem('jwttoken') },
+        follower: myMongoId,
+      }
+    );
+    console.log('Followed user:', followResponse.data);
 
 
     // delete the notification

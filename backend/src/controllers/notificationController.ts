@@ -49,6 +49,7 @@ export const createFollowRequestNotification = async (req: Request, res: Respons
       receiver: [userMongoId],
       createdAt: new Date(),
       sender: myMongoId,
+      status: 'pending',
     });
     res.status(200).json(newNotification);
     return;
@@ -190,7 +191,56 @@ export const getAllNotifications = async (
 export const updateNotification = async (
   req: Request,
   res: Response
-): Promise<void> => {};
+): Promise<void> => {
+  console.log('in updateNotification in notificationController.ts');
+  const { notificationId } = req.params;
+  if (!notificationId) {
+    res.status(400).send('Notification ID is required');
+    return;
+  }
+
+  // get the username correlated to sender
+  let sender;
+  try {
+    const User = getModel<UserResponse>('User');
+    const response = await User.findOne({ _id: req.body.sender });
+    if (!response) {
+      res.status(404).send('User not found');
+      return;
+    }
+    sender = response.username;
+    console.log(`sender: ${sender}`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error finding user');
+    return;
+  }
+  
+  // change the notification from follow_request to follow
+  // update the status to accepted
+  try {
+    const Notification = getModel<INotification>('Notification');
+    const notification = await Notification.findById(notificationId);
+    if (!notification) {
+      res.status(404).send('Notification not found');
+      return;
+    }
+
+    const updatedNotification = await Notification.findByIdAndUpdate(
+      notificationId,
+      { 
+      type: 'follow',
+      message: `${sender} followed you!`,
+      status: 'accepted'
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedNotification);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error updating notification');
+  }
+};
 
 /**
  * Delete Notification
@@ -213,3 +263,22 @@ export const respondToFollowRequest = async (
   req: Request,
   res: Response
 ): Promise<void> => {};
+
+export const getNotification = async (
+  req: Request,
+  res: Response
+): Promise<void> => { 
+  try {
+    const Notification = getModel<INotification>('Notification');
+    const notification = await Notification.findById(req.params.notificationId);
+    if (!notification) {
+      res.status(404).send('Notification not found');
+      return;
+    }
+    res.status(200).json(notification);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error retrieving notification');
+  }
+};
+
