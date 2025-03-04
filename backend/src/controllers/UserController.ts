@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { IUser } from '../models/User';
+<<<<<<< HEAD
 import { INotification } from '../models/Notification';
 import { getFriends } from '../controllers/spotifyController';
+=======
+>>>>>>> main
 
 /**
  * Retrieve a user by their username

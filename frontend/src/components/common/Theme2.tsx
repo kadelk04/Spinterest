@@ -2,14 +2,17 @@ import React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+  typography: {
+    fontFamily: 'Open Sans',
+  },
   palette: {
-    mode: 'light',
+    mode: 'dark',
     background: {
       default: '#ffffff',
       paper: '#fdfafb',
     },
     primary: {
-      main: '#CFBCFF',
+      main: '#C6D9E8',
       light: '#E8DEF8',
       dark: '#65548F',
     },

@@ -13,7 +13,6 @@ import { grey } from '@mui/material/colors';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
-  let signedIn = localStorage.getItem('spotify_token');
 
   return (
     <Theme>
@@ -42,6 +41,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/profile/:username" element={<Profile />} />
+              <Route path="/" element={<Login />} />
             </Routes>
           </Box>
         </Box>

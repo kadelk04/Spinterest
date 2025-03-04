@@ -1,4 +1,9 @@
-import { FunctionComponent, useState, useEffect } from 'react';
+import React, {
+  FunctionComponent,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
@@ -49,6 +54,7 @@ export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
@@ -62,14 +68,7 @@ export const Profile: FunctionComponent = () => {
   );
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const username = window.location.pathname.split('/').pop() || '';
-    setProfileUsername(username);
-    fetchProfile(); // Fetch profile when username changes
-  }, [window.location.pathname]); // Remove separate useEffect for fetchProfile
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!accessToken && !refreshToken) return;
 
     // the purpose of this ugly looking code is to check if you are trying to view YOUR profile or someone elses,
@@ -177,7 +176,7 @@ export const Profile: FunctionComponent = () => {
       console.error('Error fetching profile', error);
       setLoadingFriends(false);
     }
-  };
+  }, [accessToken, refreshToken, localStorageUsername]);
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
@@ -227,8 +226,10 @@ export const Profile: FunctionComponent = () => {
   };
 
   useEffect(() => {
-    fetchProfile();
-  }, [accessToken, refreshToken]);
+    const username = window.location.pathname.split('/').pop() || '';
+    setProfileUsername(username);
+    fetchProfile(); // Fetch profile when username changes
+  }, [fetchProfile, accessToken, refreshToken]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>

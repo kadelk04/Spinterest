@@ -8,9 +8,11 @@ import {
   Paper,
   Button,
   Avatar,
+  Skeleton,
+  Grid2,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
+//import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
 import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
@@ -21,17 +23,59 @@ import 'react-resizable/css/styles.css';
 import { returnWidgets, Widget } from '../data/playlistUtils';
 import { returnNotifications, Notification } from '../data/notificationUtils';
 
+interface User {
+  _id: string;
+  username: string;
+  location?: string;
+  images?: { url: string }[];
+}
+
 export const Dashboard = () => {
   const navigate = useNavigate();
   //const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
+  const [widgets, setWidgets] = useState<Widget[]>([]);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  // useEffect(() => {
+  //   // 16 skeleton widgets
+  //   const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
+  //     id: `skeleton-${i}`,
+  //     cover: '',
+  //     owner: '',
+  //     title: '',
+  //     description: '',
+  //     genres: [],
+  //     component: (
+  //       <Skeleton
+  //         key={i}
+  //         variant="rounded"
+  //         width={250}
+  //         height={420}
+  //         sx={{ borderRadius: '20px' }}
+  //       />
+  //     ),
+  //   }));
+  //   setWidgets(skeletonArray);
+  //   returnWidgets().then((widgets) => {
+  //     setWidgets(widgets);
+  //   });
+  // }, []);
+
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setWindowWidth(window.innerWidth - 120);
+  //   };
+
+  //   window.addEventListener('resize', handleResize);
+  //   return () => window.removeEventListener('resize', handleResize);
+  // }, []);
 
   useEffect(() => {
     // returnWidgets().then((widgets) => {
@@ -40,15 +84,7 @@ export const Dashboard = () => {
     returnNotifications().then((notifications) => {
       setNotifications(notifications);
     });
-  }, []);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth - 120);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    console.log("widgets", widgets);
   }, []);
 
   const handleSearch = async (username: string) => {
@@ -220,6 +256,14 @@ export const Dashboard = () => {
         )}
       </Box>
 
+      {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
+        {widgets.map((widget) => (
+          <Grid2 key={widget.id} xs={12} sm={6} md={4} lg={3}>
+            {widget.component}
+          </Grid2>
+        ))}
+      </Grid2> */}
+
       {/* <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
@@ -246,6 +290,25 @@ export const Dashboard = () => {
             })}
           </div>
         ))}
+        {widgets.map((widget) => {
+          const { component, ...rest } = widget;
+          return (
+            <div
+              key={widget.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {React.cloneElement(component, {
+                dragHandleClass: 'drag-handle',
+                noDragClass: 'no-drag',
+                ...rest,
+              })}
+            </div>
+          );
+        })}
       </ResponsiveGridLayout> */}
     </Box>
   );

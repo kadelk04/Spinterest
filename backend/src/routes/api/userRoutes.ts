@@ -21,7 +21,7 @@ import {
   updateFavorite,
 } from '../../controllers/favoritesController';
 import { getPlaylistsByUsername } from '../../controllers/playlistController';
-import { authenticateUser, registerUser } from '../../middleware/auth';
+import { registerUser } from '../../middleware/auth';
 
 const router = Router();
 
