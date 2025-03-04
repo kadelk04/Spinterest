@@ -92,9 +92,6 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
     );
     console.log('Followed user:', followResponse.data);
 
-
-    // delete the notification
-    //const deleteResponse = await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
   } catch (error) {
     console.error(error);
   }

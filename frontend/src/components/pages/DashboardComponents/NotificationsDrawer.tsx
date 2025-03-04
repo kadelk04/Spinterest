@@ -5,9 +5,11 @@ import {
   Drawer,
   List,
   IconButton,
+  CircularProgress,
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import CloseIcon from '@mui/icons-material/Close';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 import { Notification, returnNotifications } from '../../data/notificationUtils';
 import { NotificationBlurb } from './NotificationBlurb';
@@ -15,6 +17,7 @@ import { NotificationBlurb } from './NotificationBlurb';
 export default function NotificationDrawer() {
   const [open, setOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Toggle Drawer Function
   const toggleDrawer =
@@ -30,10 +33,9 @@ export default function NotificationDrawer() {
       setOpen(open);
   };
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      // only displaying the 6 most recent notifications
-      // prioritizing follow requests
+  const fetchNotifications = async () => {
+    setLoading(true); 
+    try {
       const fetchedNotifications = await returnNotifications();
       const sortedNotifications = fetchedNotifications.sort((a, b) => {
         if (a.type === 'follow_request' && b.type !== 'follow_request') {
@@ -45,8 +47,14 @@ export default function NotificationDrawer() {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
       setNotifications(sortedNotifications.slice(0, 6));
-    };
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+    } finally {
+      setLoading(false); 
+    }
+  };
 
+  useEffect(() => {
     fetchNotifications();
   }, []);
 
@@ -82,6 +90,18 @@ export default function NotificationDrawer() {
               <CloseIcon />
             </IconButton>
           </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<RefreshIcon />}
+              onClick={fetchNotifications} 
+              disabled={loading} 
+            >
+              {loading ? <CircularProgress size={20} /> : 'Update'}
+            </Button>
+          </Box>
+
           <List>
             {notifications.length > 0 ? (
               notifications.map((notification) => (

@@ -228,6 +228,7 @@ export const updateNotification = async (
     const updatedNotification = await Notification.findByIdAndUpdate(
       notificationId,
       {
+        title: 'New Follower',
         type: 'follow',
         message: `${senderUsername} followed you!`,
         status: 'accepted',
