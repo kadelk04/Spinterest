@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../pages/DashboardComponents/PlaylistWidget';
 
@@ -8,7 +8,7 @@ export interface Widget {
   owner: string;
   title: string;
   genres: string[];
-  component: React.ReactElement;
+  component: ReactElement;
 }
 
 export interface WidgetData {
@@ -210,8 +210,6 @@ export const buildWidgets = async (
             owner={playlist.owner.display_name}
             title={playlist.title}
             genres={topGenres}
-            dragHandleClass="drag-handle"
-            noDragClass="no-drag"
           />
         ),
       };

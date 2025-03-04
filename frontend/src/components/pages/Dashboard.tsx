@@ -7,7 +7,6 @@ import {
   InputAdornment,
   Paper,
   Avatar,
-  Skeleton,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
@@ -35,6 +34,7 @@ export const Dashboard = () => {
   const [searchError, setSearchError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,6 +44,13 @@ export const Dashboard = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    returnWidgets().then((widgets) => {
+      setWidgets(widgets);
+    });
+    console.log('widgets', widgets);
+  }, [widgets]);
 
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
@@ -87,10 +94,7 @@ export const Dashboard = () => {
 
       const profileResponse = await fetch(
         `http://localhost:8000/api/user/profile/${username}`,
-        {
-          method: 'GET',
-          credentials: 'omit',
-        }
+        { method: 'GET', credentials: 'omit' }
       );
 
       if (!profileResponse.ok) {
@@ -165,46 +169,40 @@ export const Dashboard = () => {
               zIndex: 1000,
             }}
           >
-            {isSearching ? (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
-                <Typography color="textSecondary">Searching...</Typography>
-              </Box>
-            ) : (
-              searchResults.map((user) => (
-                <Box
-                  key={user._id}
-                  onClick={() => handleUserClick(user.username)}
+            {searchResults.map((user) => (
+              <Box
+                key={user._id}
+                onClick={() => handleUserClick(user.username)}
+                sx={{
+                  p: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    cursor: 'pointer',
+                  },
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                <Avatar
+                  src={user.images?.[0]?.url || '/broken-image.jpg'}
                   sx={{
-                    p: 2,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      cursor: 'pointer',
-                    },
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
+                    width: 40,
+                    height: 40,
+                    bgcolor: '#7C6BBB', // Same purple as your profile avatar
                   }}
-                >
-                  <Avatar
-                    src={user.images?.[0]?.url || '/broken-image.jpg'}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: '#7C6BBB', // Same purple as your profile avatar
-                    }}
-                  />
-                  <Box>
-                    <Typography variant="body1">{user.username}</Typography>
-                    {user.location && (
-                      <Typography variant="body2" color="text.secondary">
-                        {user.location}
-                      </Typography>
-                    )}
-                  </Box>
+                />
+                <Box>
+                  <Typography variant="body1">{user.username}</Typography>
+                  {user.location && (
+                    <Typography variant="body2" color="text.secondary">
+                      {user.location}
+                    </Typography>
+                  )}
                 </Box>
-              ))
-            )}
+              </Box>
+            ))}
           </Paper>
         )}
 
@@ -212,6 +210,14 @@ export const Dashboard = () => {
           {searchError}
         </Typography>
       </Box>
+
+      {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
+        {widgets.map((widget) => (
+          <Grid2 key={widget.id} xs={12} sm={6} md={4} lg={3}>
+            {widget.component}
+          </Grid2>
+        ))}
+      </Grid2> */}
 
       <ResponsiveGridLayout
         className="layout"

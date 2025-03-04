@@ -11,13 +11,10 @@ import {
 import {
   AddOutlined,
   FavoriteBorderOutlined,
-  DragIndicator,
   PushPinOutlined,
   PushPin,
 } from '@mui/icons-material';
 
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 import { usePinnedPlaylists } from '../../data/pinnedPlaylistUtils';
 
 export const PlaylistWidget = ({
@@ -26,18 +23,15 @@ export const PlaylistWidget = ({
   title,
   owner,
   genres,
-  dragHandleClass,
-  noDragClass,
 }: {
   playlistId: string;
-  cover: string | File;
+  cover: string;
   title: string;
   owner: string;
   genres: string[];
-  dragHandleClass: string;
-  noDragClass: string;
 }) => {
   const { clicked, handlePinClick } = usePinnedPlaylists(playlistId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -57,24 +51,7 @@ export const PlaylistWidget = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {isHovered && (
-        <IconButton
-          className={dragHandleClass}
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 1)',
-            },
-          }}
-        >
-          <DragIndicator />
-        </IconButton>
-      )}
-      <CardContent className={noDragClass} sx={{ padding: 0 }}>
-        {/* <DragIndicator/> */}
+      <CardContent sx={{ padding: 0 }}>
         {typeof cover === 'string' ? (
           <Box
             component="img"
@@ -161,11 +138,7 @@ export const PlaylistWidget = ({
         <Stack
           direction="row"
           spacing={2}
-          sx={{
-            justifyContent: 'flex-end',
-            marginTop: '10%',
-            width: '100%',
-          }}
+          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
         >
           <IconButton
             onClick={handlePinClick}
