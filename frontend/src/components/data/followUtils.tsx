@@ -57,7 +57,7 @@ export const followUser = async (username: string, myUsername: string) => {
       console.log("privacy is false");
       try {
         const notificationResponse = await axios.post(
-          `http://localhost:8000/api/notification/follow/${myMongoId}`,
+          `http://localhost:8000/api/notification/follow/${userMongoId}`,
           { follower: myMongoId }
         );
         console.log('Notification created:', notificationResponse.data);
