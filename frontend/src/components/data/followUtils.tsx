@@ -4,6 +4,19 @@ import axios from 'axios';
 // logic for following
 // called by handleFollowToggle in Profile.tsx
 
+// helper function
+const getUserMongoId = async (username: string) => {
+  try {
+    const userResponse = await axios.get(
+      `http://localhost:8000/api/user/${username}`
+    );
+    return (userResponse.data as { _id: string })._id;
+  } catch (error) {
+    console.error(`Error fetching user data for ${username}:`, error);
+    throw new Error('Failed to fetch user data');
+  }
+};
+
 export const followUser = async (username: string, myUsername: string) => {
 
   if (!username || !myUsername) {
@@ -18,27 +31,8 @@ export const followUser = async (username: string, myUsername: string) => {
 
     console.log('Privacy response:', privacyResponse.data);
 
-    let userMongoId;
-    try {
-      const userResponse = await axios.get(
-      `http://localhost:8000/api/user/${username}`
-      );
-      userMongoId = (userResponse.data as { _id: string })._id;
-    } catch (userError) {
-      console.error('Error fetching user data:', userError);
-      throw new Error('Failed to fetch user data');
-    }
-
-    let myMongoId;
-    try {
-      const myResponse = await axios.get(
-      `http://localhost:8000/api/user/${myUsername}`
-      );
-      myMongoId = (myResponse.data as { _id: string })._id;
-    } catch (myUserError) {
-      console.error('Error fetching my user data:', myUserError);
-      throw new Error('Failed to fetch my user data');
-    }
+    let userMongoId = await getUserMongoId(username);
+    let myMongoId = await getUserMongoId(myUsername);
 
     if (privacyResponse.data === true) {
       try {
@@ -76,12 +70,17 @@ export const followUser = async (username: string, myUsername: string) => {
 };
 export const unfollowUser = async (username: string, myUsername: string) => {
   // don't create a notification lol
+  let userMongoId = await getUserMongoId(username);
+  let myMongoId = await getUserMongoId(myUsername);
+
+  console.log('Unfollowing user:', userMongoId, myMongoId);
+  
   try {
     const unfollowResponse = await axios.put(
-      `http://localhost:8000/api/user/${username}/unfollow`,
+      `http://localhost:8000/api/user/${userMongoId}/unfollow`,
       {
         headers: { authorization: localStorage.getItem('jwttoken') },
-        unfollower: myUsername,
+        unfollower: myMongoId,
       }
     );
     console.log('Unfollowed user:', unfollowResponse.data);
@@ -111,13 +110,13 @@ export const fetchFollowStatus = async (
 };
 
 // this function is called by in notificationUtils.tsx for a user to accept a follow request
-export const followUserDirect = async (mongoId: string, myMongoId: string) => {
+export const followUserDirect = async (userMongoId: string, myMongoId: string) => {
 
-  console.log('Following user:', mongoId, myMongoId);
+  console.log('Following user:', userMongoId, myMongoId);
   try {
     // calling addFollower in userController
     const followResponse = await axios.put(
-      `http://localhost:8000/api/user/${mongoId}/follow`,
+      `http://localhost:8000/api/user/${userMongoId}/follow`,
       {
         headers: { authorization: localStorage.getItem('jwttoken') },
         follower: myMongoId,

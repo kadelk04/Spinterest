@@ -16,10 +16,8 @@ interface UserResponse {
  * @returns
  */
 export const createFollowRequestNotification = async (req: Request, res: Response) => {
-  console.log('in createNotification in notificationController.ts');
   const userMongoId = req.params.userMongoId;
   const myMongoId  = req.body.follower;
-  console.log(`my mongoId: ${myMongoId}`);
 
   // get the username correlated to myMongoId
   let follower;
@@ -61,12 +59,9 @@ export const createFollowRequestNotification = async (req: Request, res: Respons
 };
 
 export const createFollowNotification = async (req: Request, res: Response) => {
-  console.log('in createNotification in notificationController.ts');
   const userMongoId = req.params.userMongoId;
   const myMongoId  = req.body.follower;
-  console.log(`my mongoId: ${myMongoId}`);
-
-  // get the username correlated to myMongoId
+  
   let follower;
   try {
     const User = getModel<UserResponse>('User');
@@ -84,7 +79,6 @@ export const createFollowNotification = async (req: Request, res: Response) => {
     return;
   }
 
-  console.log('in createNotification in notificationController.ts');
   try {
     const Notification = getModel<INotification>('Notification');
     const newNotification = await Notification.create({
@@ -109,14 +103,10 @@ export const createFollowNotification = async (req: Request, res: Response) => {
  * @param res
  * @returns
  */
-export const findFollowRequestNotification = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  console.log('in findFollowRequestNotification in notificationController.ts');
+export const findFollowRequestNotification = async (req: Request, res: Response ): Promise<void> => {
   const { userMongoId } = req.params;
   const { follower } = req.query;
-  console.log(`username: ${userMongoId}, follower: ${follower}`);
+
   if (!userMongoId || !follower) {
     res.status(400).send('Username and follower are required');
     return;
@@ -148,33 +138,20 @@ export const findFollowRequestNotification = async (
  * @param res
  * @returns
  */
-export const getAllNotifications = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  console.log('in getAllNotifications in notificationController.ts');
-  console.log("before", req.params.userMongoId);
+export const getAllNotifications = async ( req: Request, res: Response ): Promise<void> => {
   const userMongoId = req.params.userMongoId;
-  //const userMongoId = new mongoose.Types.ObjectId(req.params.mongoId);
-
-  console.log(`my mongoId: ${userMongoId}`);
-
   if (!userMongoId) {
     res.status(400).send('User ID is required');
     return;
   }
-
   try {
-    console.log('in try block');
     const Notification = getModel<INotification>('Notification');
     const notifications = await Notification.find({ receiver: userMongoId });
 
-    console.log(notifications);
     if (notifications.length === 0) {
       res.status(404).send('No notifications found');
       return;
     }
-
     res.status(200).json(notifications);
   } catch (err) {
     console.log(err);
@@ -188,25 +165,16 @@ export const getAllNotifications = async (
  * @param res
  * @returns
  */
-export const updateNotification = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  console.log('in updateNotification in notificationController.ts');
-
+export const updateNotification = async (req: Request, res: Response): Promise<void> => {
   const { notificationId } = req.params;
-  console.log(`notificationId: ${notificationId}`);
-
   if (!notificationId) {
     res.status(400).send('Notification ID is required');
     return;
   }
-
   try {
     const Notification = getModel<INotification>('Notification');
     const User = getModel<UserResponse>('User');
 
-    // Find the notification
     const notification = await Notification.findById(notificationId);
     if (!notification) {
       res.status(404).send('Notification not found');
@@ -222,7 +190,6 @@ export const updateNotification = async (
     }
 
     const senderUsername = senderUser.username;
-    console.log(`senderUsername: ${senderUsername}`);
 
     // Update the notification
     const updatedNotification = await Notification.findByIdAndUpdate(
@@ -253,10 +220,7 @@ export const deleteNotification = async (
   req: Request,
   res: Response
 ): Promise<void> => {
-  console.log('in deleteNotification in notificationController.ts');
   const { notificationId } = req.params;
-  console.log(`notificationId: ${notificationId}`);
-
   if (!notificationId) {
     res.status(400).send('Notification ID is required');
     return;

@@ -257,16 +257,14 @@ export const getUserSpotifyId = async (
 };
 
 export const addFollower = async (req: Request, res: Response) => {
-  // change this to use the MongoId instead of the username
-  
-  console.log('req.params.mongoId:', req.params.mongoId);
+  console.log('req.params.mongoId:', req.params.userMongoId);
   console.log('req.body.follower:', req.body.follower);
 
   
   try {
     const UserModel = getModel<IUser>('User');
     const userToFollow = await UserModel.findOne({
-      _id: req.params.mongoId,
+      _id: req.params.userMongoId,
     });
     // follower is the id of the user (you) that is requesting to follow
     const follower = await UserModel.findOne({ _id: req.body.follower });
@@ -293,7 +291,7 @@ export const addFollower = async (req: Request, res: Response) => {
 
 export const getFollowers = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.username });
+  const user = await UserModel.findOne({ username: req.params.userMongoId });
   if (!user) {
     res.status(404).send('User not found');
     return;
@@ -302,7 +300,7 @@ export const getFollowers = async (req: Request, res: Response) => {
 };
 export const getFollowing = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.username });
+  const user = await UserModel.findOne({ username: req.params.userMongoId });
   if (!user) {
     res.status(404).send('User not found');
     return;
@@ -313,10 +311,10 @@ export const removeFollower = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
   try {
     const userToUnfollow = await UserModel.findOne({
-      username: req.params.username,
+      _id: req.params.userMongoId,
     });
     const unfollower = await UserModel.findOne({
-      username: req.body.unfollower,
+      _id: req.body.unfollower,
     });
     if (!userToUnfollow) {
       res.status(404).send('User not found');

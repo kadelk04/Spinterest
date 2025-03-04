@@ -44,10 +44,10 @@ router.patch('/:username/favorites', updateFavorite);
 router.get('/:username/privacy', checkPrivacy);
 
 // follow + unfollow routes
-router.put('/:mongoId/follow', addFollower);
-router.get('/:username/followers', getFollowers);
-router.get('/:username/following', getFollowing);
-router.put('/:username/unfollow', removeFollower);
+router.put('/:userMongoId/follow', addFollower);
+router.get('/:userMongoId/followers', getFollowers);
+router.get('/:userMongoId/following', getFollowing);
+router.put('/:userMongoId/unfollow', removeFollower);
 
 //view user profile
 router.get('/profile/:username', viewProfile); // updated route
