@@ -54,13 +54,13 @@ export const followUser = async (username: string, myUsername: string) => {
         throw new Error('Failed to create follow request notification');
       }
     } else if (privacyResponse.data === false) {
+      console.log("privacy is false");
       try {
         const notificationResponse = await axios.post(
           `http://localhost:8000/api/notification/follow/${myMongoId}`,
           { follower: myMongoId }
         );
         console.log('Notification created:', notificationResponse.data);
-        return 'pending';
       } catch (notificationError) {
         console.error('Error creating follow notification:', notificationError);
         throw new Error('Failed to create follow notification');

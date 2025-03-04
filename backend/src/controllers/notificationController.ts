@@ -60,37 +60,23 @@ export const createFollowRequestNotification = async (req: Request, res: Respons
 };
 
 export const createFollowNotification = async (req: Request, res: Response) => {
-  const toBeFollowed = req.params.username;
-  const { follower } = req.body;
-  
-  let senderObjectId;
-  try {
-    const User = getModel<UserResponse>('User');
-    // can use getUserByUsername in UserController.ts
-    const response = await User.findOne({ username: follower });
-    if (!response) {
-      res.status(404).send('User not found');
-      return;
-    }
-    senderObjectId = response._id;
-    console.log(`toBeFollowedObjectId: ${senderObjectId}`);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send('Error finding user');
-    return;
-  }
+  console.log('in createNotification in notificationController.ts');
+  const userMongoId = req.params.userMongoId;
+  const myMongoId  = req.body.follower;
+  console.log(`my mongoId: ${myMongoId}`);
 
-  let toBeFollowedObjectId;
+  // get the username correlated to myMongoId
+  let follower;
   try {
     const User = getModel<UserResponse>('User');
-    // can use getUserByUsername in UserController.ts
-    const response = await User.findOne({ username: toBeFollowed });
+    const response
+      = await User.findOne({ _id: myMongoId });
     if (!response) {
       res.status(404).send('User not found');
       return;
     }
-    toBeFollowedObjectId = response._id;
-    console.log(`toBeFollowedObjectId: ${toBeFollowedObjectId}`);
+    follower = response.username;
+    console.log(`follower: ${follower}`);
   } catch (err) {
     console.log(err);
     res.status(500).send('Error finding user');
@@ -104,9 +90,9 @@ export const createFollowNotification = async (req: Request, res: Response) => {
       title: 'New Follower',
       type: 'follow',
       message: `${follower} followed you!`,
-      receiver: [toBeFollowedObjectId],
+      receiver: [userMongoId],
       createdAt: new Date(),
-      sender: senderObjectId,
+      sender: myMongoId,
     });
     res.status(200).json(newNotification);
     return;

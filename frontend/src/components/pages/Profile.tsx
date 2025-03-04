@@ -155,6 +155,7 @@ export const Profile: FunctionComponent = () => {
         console.log('Follow Request Response:', followRequestResponse);
 
         if (followRequestResponse){
+          console.log("PENDING FOLLOW REQ");
           setPendingFollow(true);
         }
 
@@ -219,6 +220,7 @@ export const Profile: FunctionComponent = () => {
       if (followSuccess === true) {
         setFollowing(true);
       } else if (followSuccess === 'pending') {
+        console.log("PENDING CUZ THEY ARE PRIV");
         setPendingFollow(true);
       }
     }
