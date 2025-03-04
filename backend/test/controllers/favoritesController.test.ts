@@ -72,9 +72,9 @@ describe('FavoritesController', () => {
       FavoritesModel.create.mockResolvedValue({});
       const body: IFavorites = {
         userId: '1',
-        genre: 'Genre1',
-        artist: 'Artist1',
-        album: 'Album1',
+        genre: ['Genre1'],
+        artist: ['Artist1'],
+        album: ['Album1'],
       };
       const response = await request(app).post('/favorites').send(body);
 
@@ -88,9 +88,9 @@ describe('FavoritesController', () => {
       );
       const body: IFavorites = {
         userId: '1',
-        genre: 'Genre1',
-        artist: 'Artist1',
-        album: 'Album1',
+        genre: ['Genre1'],
+        artist: ['Artist1'],
+        album: ['Album1'],
       };
 
       const response = await request(app).post('/favorites').send(body);
@@ -107,9 +107,9 @@ describe('FavoritesController', () => {
       });
       const body: IFavorites = {
         userId: '1',
-        genre: 'Genre1',
-        artist: 'Artist1',
-        album: 'Album1',
+        genre: ['Genre1'],
+        artist: ['Artist1'],
+        album: ['Album1'],
       };
       const response = await request(app).delete('/favorites').send(body);
 
@@ -124,9 +124,9 @@ describe('FavoritesController', () => {
 
       const body: IFavorites = {
         userId: '1',
-        genre: 'Genre1',
-        artist: 'Artist1',
-        album: 'Album1',
+        genre: ['Genre1'],
+        artist: ['Artist1'],
+        album: ['Album1'],
       };
       const response = await request(app).delete('/favorites').send(body);
 
@@ -140,9 +140,9 @@ describe('FavoritesController', () => {
       });
       const body: IFavorites = {
         userId: '1',
-        genre: 'Genre1',
-        artist: 'Artist1',
-        album: 'Album1',
+        genre: ['Genre1'],
+        artist: ['Artist1'],
+        album: ['Album1'],
       };
       const response = await request(app).delete('/favorites').send(body);
       expect(response.text).toBe('Favorite not found');

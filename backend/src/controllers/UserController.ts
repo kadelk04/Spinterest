@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { IUser } from '../models/User';
+import { INotification } from '../models/Notification';
+import { getFriends } from '../controllers/spotifyController';
+
 
 /**
  * Retrieve a user by their username
@@ -253,31 +256,20 @@ export const getUserSpotifyId = async (
   }
 };
 
-// export const getAllFriends = async (req: Request, res: Response) => {
-//   try {
-//       // Replace this URL with the endpoint that fetches friends from Spotify
-//       const response = await axios.get('https://api.spotify.com/v1/me/friends', {
-//           headers: {
-//               Authorization: `Bearer ${accessToken}`,
-//           },
-//       });
-//       return response.data.friends; // Adjust based on the API response structure
-//   } catch (error) {
-//       console.error('Error fetching friends:', error.message);
-//       throw new Error('Failed to fetch friends from Spotify');
-//   }
-// };
-
 export const addFollower = async (req: Request, res: Response) => {
+  console.log('req.params.mongoId:', req.params.userMongoId);
+  console.log('req.body.follower:', req.body.follower);
+
+  
   try {
     const UserModel = getModel<IUser>('User');
     const userToFollow = await UserModel.findOne({
-      username: req.params.username,
+      _id: req.params.userMongoId,
     });
     // follower is the id of the user (you) that is requesting to follow
-    const follower = await UserModel.findOne({ username: req.body.follower });
-    console.log('userToFollow:', userToFollow?.username);
-    console.log('follower:', follower?.username);
+    const follower = await UserModel.findOne({ _id: req.body.follower });
+    console.log('userToFollow:', userToFollow?._id);
+    console.log('follower:', follower?._id);
     if (!userToFollow) {
       res.status(404).send('User not found');
       return;
@@ -296,9 +288,10 @@ export const addFollower = async (req: Request, res: Response) => {
     res.status(500).send('Error adding follower');
   }
 };
+
 export const getFollowers = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.username });
+  const user = await UserModel.findOne({ username: req.params.userMongoId });
   if (!user) {
     res.status(404).send('User not found');
     return;
@@ -307,7 +300,7 @@ export const getFollowers = async (req: Request, res: Response) => {
 };
 export const getFollowing = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.username });
+  const user = await UserModel.findOne({ username: req.params.userMongoId });
   if (!user) {
     res.status(404).send('User not found');
     return;
@@ -318,10 +311,10 @@ export const removeFollower = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
   try {
     const userToUnfollow = await UserModel.findOne({
-      username: req.params.username,
+      _id: req.params.userMongoId,
     });
     const unfollower = await UserModel.findOne({
-      username: req.body.unfollower,
+      _id: req.body.unfollower,
     });
     if (!userToUnfollow) {
       res.status(404).send('User not found');
@@ -345,5 +338,20 @@ export const removeFollower = async (req: Request, res: Response) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error removing follower');
+  }
+};
+
+export const checkPrivacy = async (req: Request, res: Response) => {
+  try {
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username: req.params.username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send(user.isPrivate);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error checking privacy');
   }
 };

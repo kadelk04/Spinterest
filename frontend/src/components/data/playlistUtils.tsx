@@ -99,6 +99,86 @@ export const fetchPlaylists = async (
   }
 };
 
+export const likePlaylist = async (playlistId: string) => {
+  console.log('in likePlaylist');
+  try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
+    const response = await axios.put(
+      `http://localhost:8000/api/playlist/${playlistId}/like`,
+      {
+        params: {
+          playlistId: playlistId,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error liking playlist:', error);
+    throw error;
+  }
+};
+
+// Pinning playlist
+export const togglePinPlaylist = async (
+  username: string,
+  playlistId: string
+) => {
+  try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
+    const response = await axios.put(
+      `http://localhost:8000/api/profile/pinPlaylist/${username}/${playlistId}`,
+      {},
+      {
+        headers: { authorization: token },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling pinned playlist:', error);
+    throw error;
+  }
+};
+
+export const fetchPinPlaylist = async (
+  username: string
+): Promise<WidgetData[]> => {
+  try {
+    // Fetch pinned playlists from your backend
+    const response = await axios.get<PlaylistResponse>(
+      `http://localhost:8000/profile/getPinnedPlaylists`,
+      { params: { user: username } }
+    );
+
+    const data = response.data;
+    console.log('Pinned Playlists:', data);
+
+    // Fetch cover image for each playlist from Spotify API
+    const pinnedPlaylists: WidgetData[] = data.items
+      .filter((playlist: PlaylistData) => playlist)
+      .map((playlist: PlaylistData) => ({
+        id: playlist.id,
+        cover: playlist.images[0]?.url || '',
+        owner: playlist.owner,
+        title: playlist.name,
+      }));
+
+    return pinnedPlaylists;
+  } catch (error) {
+    console.error('Error fetching pinned playlists from user:', error);
+    return [];
+  }
+};
+
 export const buildWidgets = async (
   playlists: WidgetData[],
   accessToken: string
