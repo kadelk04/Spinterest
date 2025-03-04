@@ -5,7 +5,7 @@ import { send } from 'process';
 
 export interface INotification {
   title: string;
-  type: 'new_playlist' | 'saved_playlist' | 'follow_request' | 'like' | 'follow' | 'follow_accept'; 
+  type: 'new_playlist' | 'saved_playlist' | 'follow_request' | 'like' | 'follow'; 
   receiver: mongoose.Types.ObjectId[];
   sender: mongoose.Types.ObjectId;
   metadata?: Record<string, any>;
@@ -25,7 +25,6 @@ export const NotificationSchema = new mongoose.Schema({
       'saved_playlist',
       'follow',
       'follow_request',
-      'follow_accept',
     ],
     required: true,
   },
