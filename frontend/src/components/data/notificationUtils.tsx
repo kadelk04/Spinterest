@@ -54,9 +54,13 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
     // create new notifcation of type follow
 
     // try {
-    //   notificationResponse = await axios.put
+    //   const notificationResponse = await axios.post(
+    //     `http://localhost:8000/api/notification/follow/${userMongoId}`,)
     // }
-
+    // catch (notificationError) {
+    //   console.error('Error creating follow notification:', notificationError);
+    //   throw new Error('Failed to create follow notification');
+    // }
 
 
     //const FollowResponse = await followUserDirect(notificationId);

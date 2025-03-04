@@ -6,10 +6,11 @@ import axios from 'axios';
 
 export const followUser = async (username: string, myUsername: string) => {
 
+  if (!username || !myUsername) {
+    throw new Error('A username is undefined');
+  }
+
   try {
-    if (!username || !myUsername) {
-      throw new Error('A username is undefined');
-    }
     // first find if user is private or public -- add a new UserController method
     const privacyResponse = await axios.get(
       `http://localhost:8000/api/user/${username}/privacy`
@@ -17,13 +18,34 @@ export const followUser = async (username: string, myUsername: string) => {
 
     console.log('Privacy response:', privacyResponse.data);
 
+    let userMongoId;
+    try {
+      const userResponse = await axios.get(
+      `http://localhost:8000/api/user/${username}`
+      );
+      userMongoId = (userResponse.data as { _id: string })._id;
+    } catch (userError) {
+      console.error('Error fetching user data:', userError);
+      throw new Error('Failed to fetch user data');
+    }
+
+    let myMongoId;
+    try {
+      const myResponse = await axios.get(
+      `http://localhost:8000/api/user/${myUsername}`
+      );
+      myMongoId = (myResponse.data as { _id: string })._id;
+    } catch (myUserError) {
+      console.error('Error fetching my user data:', myUserError);
+      throw new Error('Failed to fetch my user data');
+    }
+
     if (privacyResponse.data === true) {
       try {
-        console.log('username and myUsername: ', username, myUsername);
-        console.log('Type of username:', typeof username);
+        console.log("myMongoId", myMongoId);  
         const notificationResponse = await axios.post(
-          `http://localhost:8000/api/notification/followRequest/${username}`,
-          { follower: myUsername }
+          `http://localhost:8000/api/notification/followRequest/${userMongoId}`,
+          { follower: myMongoId }
         );
         console.log('Notification created:', notificationResponse.data);
         return 'pending';
@@ -33,11 +55,9 @@ export const followUser = async (username: string, myUsername: string) => {
       }
     } else if (privacyResponse.data === false) {
       try {
-        console.log('username and myUsername: ', username, myUsername);
-        console.log('Type of username:', typeof username);
         const notificationResponse = await axios.post(
-          `http://localhost:8000/api/notification/follow/${username}`,
-          { follower: myUsername, privacy: true }
+          `http://localhost:8000/api/notification/follow/${myMongoId}`,
+          { follower: myMongoId }
         );
         console.log('Notification created:', notificationResponse.data);
         return 'pending';
@@ -47,31 +67,7 @@ export const followUser = async (username: string, myUsername: string) => {
       }
     }
 
-    // first get the mongo ids of username and myUsername
-    let userMongo;
-    try {
-      const userResponse = await axios.get(
-      `http://localhost:8000/api/user/${username}`
-      );
-      userMongo = (userResponse.data as { _id: string })._id;
-      console.log("this is userMongo", userMongo);
-    } catch (userError) {
-      console.error('Error fetching user data:', userError);
-      throw new Error('Failed to fetch user data');
-    }
-
-    let myMongo;
-    try {
-      const myResponse = await axios.get(
-      `http://localhost:8000/api/user/${myUsername}`
-      );
-      myMongo = (myResponse.data as { _id: string })._id;
-    } catch (myUserError) {
-      console.error('Error fetching my user data:', myUserError);
-      throw new Error('Failed to fetch my user data');
-    }
-
-    return await followUserDirect(userMongo, myMongo);
+    return await followUserDirect(userMongoId, myMongoId);
 
   } catch (error) {
     console.error('Error following user:', error);

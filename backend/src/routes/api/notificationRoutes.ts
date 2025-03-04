@@ -10,8 +10,8 @@ import {
 } from '../../controllers/notificationController';
 const router = Router();
 
-router.post('/followRequest/:username', createFollowRequestNotification);
-router.post('/follow/:username', createFollowNotification);
+router.post('/followRequest/:userMongoId', createFollowRequestNotification);
+router.post('/follow/:userMongoId', createFollowNotification);
 router.get('/getFollowRequest/:userMongoId', findFollowRequestNotification);
 router.get('/all/:userMongoId', getAllNotifications);
 

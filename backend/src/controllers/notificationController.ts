@@ -17,42 +17,22 @@ interface UserResponse {
  */
 export const createFollowRequestNotification = async (req: Request, res: Response) => {
   console.log('in createNotification in notificationController.ts');
-  const toBeFollowed = req.params.username;
-  const { follower } = req.body;
-  console.log(`username: ${toBeFollowed}, follower: ${follower}`);
-  if (!toBeFollowed || !follower) {
-    throw new Error('toBeFollowed or follower is undefined');
-  }
-  console.log(`username: ${toBeFollowed}, follower: ${follower}`);
+  const userMongoId = req.params.userMongoId;
+  const myMongoId  = req.body.follower;
+  console.log(`my mongoId: ${myMongoId}`);
 
-  let senderObjectId;
+  // get the username correlated to myMongoId
+  let follower;
   try {
     const User = getModel<UserResponse>('User');
-    // can use getUserByUsername in UserController.ts
-    const response = await User.findOne({ username: follower });
+    const response
+      = await User.findOne({ _id: myMongoId });
     if (!response) {
       res.status(404).send('User not found');
       return;
     }
-    senderObjectId = response._id;
-    console.log(`toBeFollowedObjectId: ${senderObjectId}`);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send('Error finding user');
-    return;
-  }
-
-  let toBeFollowedObjectId;
-  try {
-    const User = getModel<UserResponse>('User');
-    // can use getUserByUsername in UserController.ts
-    const response = await User.findOne({ username: toBeFollowed });
-    if (!response) {
-      res.status(404).send('User not found');
-      return;
-    }
-    toBeFollowedObjectId = response._id;
-    console.log(`toBeFollowedObjectId: ${toBeFollowedObjectId}`);
+    follower = response.username;
+    console.log(`follower: ${follower}`);
   } catch (err) {
     console.log(err);
     res.status(500).send('Error finding user');
@@ -66,9 +46,9 @@ export const createFollowRequestNotification = async (req: Request, res: Respons
       title: 'Follow Request',
       type: 'follow_request',
       message: `${follower} requested to follow you!`,
-      receiver: [toBeFollowedObjectId],
+      receiver: [userMongoId],
       createdAt: new Date(),
-      sender: senderObjectId,
+      sender: myMongoId,
     });
     res.status(200).json(newNotification);
     return;
