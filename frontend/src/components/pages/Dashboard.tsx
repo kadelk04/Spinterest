@@ -7,6 +7,7 @@ import {
   InputAdornment,
   Paper,
   Button,
+  Skeleton,
   Avatar,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
@@ -39,30 +40,30 @@ export const Dashboard = () => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  // useEffect(() => {
-  //   // 16 skeleton widgets
-  //   const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
-  //     id: `skeleton-${i}`,
-  //     cover: '',
-  //     owner: '',
-  //     title: '',
-  //     description: '',
-  //     genres: [],
-  //     component: (
-  //       <Skeleton
-  //         key={i}
-  //         variant="rounded"
-  //         width={250}
-  //         height={420}
-  //         sx={{ borderRadius: '20px' }}
-  //       />
-  //     ),
-  //   }));
-  //   setWidgets(skeletonArray);
-  //   returnWidgets().then((widgets) => {
-  //     setWidgets(widgets);
-  //   });
-  // }, []);
+  useEffect(() => {
+    // 16 skeleton widgets
+    const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
+      id: `skeleton-${i}`,
+      cover: '',
+      owner: '',
+      title: '',
+      description: '',
+      genres: [],
+      component: (
+        <Skeleton
+          key={i}
+          variant="rounded"
+          width={250}
+          height={420}
+          sx={{ borderRadius: '20px' }}
+        />
+      ),
+    }));
+    setWidgets(skeletonArray);
+    returnWidgets().then((widgets) => {
+      setWidgets(widgets);
+    });
+  }, []);
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth - 120);
