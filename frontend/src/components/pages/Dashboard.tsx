@@ -7,6 +7,7 @@ import {
   InputAdornment,
   Paper,
   Avatar,
+  Skeleton,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
@@ -34,7 +35,6 @@ export const Dashboard = () => {
   const [searchError, setSearchError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,13 +44,6 @@ export const Dashboard = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  useEffect(() => {
-    returnWidgets().then((widgets) => {
-      setWidgets(widgets);
-    });
-    console.log('widgets', widgets);
-  }, [widgets]);
 
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
