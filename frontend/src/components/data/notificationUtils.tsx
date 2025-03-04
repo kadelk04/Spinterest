@@ -57,7 +57,7 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
     try {
       // update the notification 
       await axios.put(`http://localhost:8000/api/notification/update/${notificationId}`);
-      
+
     } catch (updateError) {
       console.error('Error updating notification:', updateError);
       throw new Error('Failed to update notification');
@@ -103,7 +103,7 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
 export const deleteFollowRequest = async (notificationId: string): Promise<void> => {
   try {
     console.log("deleting follow req", notificationId);
-    const deleteResponse = await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
+    await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
   } catch (error) {
     console.error(error);
   }

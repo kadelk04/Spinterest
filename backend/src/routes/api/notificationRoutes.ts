@@ -4,7 +4,6 @@ import {
   getAllNotifications,
   updateNotification,
   deleteNotification,
-  respondToFollowRequest,
   findFollowRequestNotification,
   createFollowNotification,
   getNotification,
@@ -17,5 +16,6 @@ router.get('/getFollowRequest/:userMongoId', findFollowRequestNotification);
 router.get('/all/:userMongoId', getAllNotifications);
 router.get('/:notificationId', getNotification);
 router.put('/update/:notificationId', updateNotification);
+router.delete('/delete/:notificationId', deleteNotification);
 
 export default router;

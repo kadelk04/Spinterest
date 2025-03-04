@@ -32,8 +32,19 @@ export default function NotificationDrawer() {
 
   useEffect(() => {
     const fetchNotifications = async () => {
+      // only displaying the 6 most recent notifications
+      // prioritizing follow requests
       const fetchedNotifications = await returnNotifications();
-      setNotifications(fetchedNotifications);
+      const sortedNotifications = fetchedNotifications.sort((a, b) => {
+        if (a.type === 'follow_request' && b.type !== 'follow_request') {
+          return -1;
+        }
+        if (a.type !== 'follow_request' && b.type === 'follow_request') {
+          return 1;
+        }
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+      setNotifications(sortedNotifications.slice(0, 6));
     };
 
     fetchNotifications();

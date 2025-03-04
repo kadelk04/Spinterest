@@ -251,19 +251,37 @@ export const updateNotification = async (
 export const deleteNotification = async (
   req: Request,
   res: Response
-): Promise<void> => {};
+): Promise<void> => {
+  console.log('in deleteNotification in notificationController.ts');
+  const { notificationId } = req.params;
+  console.log(`notificationId: ${notificationId}`);
+
+  if (!notificationId) {
+    res.status(400).send('Notification ID is required');
+    return;
+  }
+
+  try {
+    const Notification = getModel<INotification>('Notification');
+    const notification = await Notification.findByIdAndDelete(notificationId);
+    if (!notification) {
+      res.status(404).send('Notification not found');
+      return;
+    }
+    res.status(200).send('Notification deleted');
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error deleting notification');
+  }
+};
+
 
 /**
- * Accept or Reject Follow Request
+ * Get notification request by id
  * @param req
  * @param res
  * @returns
  */
-export const respondToFollowRequest = async (
-  req: Request,
-  res: Response
-): Promise<void> => {};
-
 export const getNotification = async (
   req: Request,
   res: Response
