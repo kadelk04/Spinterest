@@ -48,18 +48,20 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
 
 export const acceptFollowRequest = async (notificationId: string): Promise<void> => {
 
+ // {"_id":{"$oid":"67c3d08377794649451db4b5"},"title":"Follow Request","message":"colt requested to follow you!","type":"follow_request","receiver":[{"$oid":"679bea43f63834e135f2773c"}],"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67b4d7faa565ae31eba7e443"}}
 
   try {
     console.log("accepting follow req", notificationId);
     // add them to their following array, add requested user to their followers array
 
-    // try {
-    //   // update the notification 
-    //   const updateResponse = await axios.put(`http://localhost:8000/api/notification/update/${notificationId}`);
-    // } catch (updateError) {
-    //   console.error('Error updating notification:', updateError);
-    //   throw new Error('Failed to update notification');
-    // }
+    try {
+      // update the notification 
+      await axios.put(`http://localhost:8000/api/notification/update/${notificationId}`);
+      
+    } catch (updateError) {
+      console.error('Error updating notification:', updateError);
+      throw new Error('Failed to update notification');
+    }
 
     // get the userMongoId and myMongoId from receiver and sender stored in the notification
     let userMongoId;

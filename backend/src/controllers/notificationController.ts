@@ -193,52 +193,52 @@ export const updateNotification = async (
   res: Response
 ): Promise<void> => {
   console.log('in updateNotification in notificationController.ts');
+
   const { notificationId } = req.params;
+  console.log(`notificationId: ${notificationId}`);
+
   if (!notificationId) {
     res.status(400).send('Notification ID is required');
     return;
   }
 
-  // get the username correlated to sender
-  let sender;
-  try {
-    const User = getModel<UserResponse>('User');
-    const response = await User.findOne({ _id: req.body.sender });
-    if (!response) {
-      res.status(404).send('User not found');
-      return;
-    }
-    sender = response.username;
-    console.log(`sender: ${sender}`);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send('Error finding user');
-    return;
-  }
-  
-  // change the notification from follow_request to follow
-  // update the status to accepted
   try {
     const Notification = getModel<INotification>('Notification');
+    const User = getModel<UserResponse>('User');
+
+    // Find the notification
     const notification = await Notification.findById(notificationId);
     if (!notification) {
       res.status(404).send('Notification not found');
       return;
     }
 
+    // Get the sender's username
+    const sender = notification.sender;
+    const senderUser = await User.findOne({ _id: sender });
+    if (!senderUser) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    const senderUsername = senderUser.username;
+    console.log(`senderUsername: ${senderUsername}`);
+
+    // Update the notification
     const updatedNotification = await Notification.findByIdAndUpdate(
       notificationId,
-      { 
-      type: 'follow',
-      message: `${sender} followed you!`,
-      status: 'accepted'
+      {
+        type: 'follow',
+        message: `${senderUsername} followed you!`,
+        status: 'accepted',
       },
       { new: true }
     );
+
     res.status(200).json(updatedNotification);
   } catch (err) {
-    console.log(err);
-    res.status(500).send('Error updating notification');
+    console.error('Error in updateNotification:', err);
+    res.status(500).send('Internal server error');
   }
 };
 
