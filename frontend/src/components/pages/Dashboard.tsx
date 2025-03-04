@@ -8,11 +8,9 @@ import {
   Paper,
   Button,
   Avatar,
-  Skeleton,
-  Grid2,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-//import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
+import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
 import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
@@ -32,15 +30,13 @@ interface User {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  //const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
+  const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
-  const [widgets, setWidgets] = useState<Widget[]>([]);
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   // useEffect(() => {
@@ -67,14 +63,14 @@ export const Dashboard = () => {
   //     setWidgets(widgets);
   //   });
   // }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth - 120);
+    };
 
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setWindowWidth(window.innerWidth - 120);
-  //   };
-
-  //   window.addEventListener('resize', handleResize);
-  //   return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   // }, []);
 
   useEffect(() => {
@@ -84,8 +80,8 @@ export const Dashboard = () => {
     returnNotifications().then((notifications) => {
       setNotifications(notifications);
     });
-    console.log("widgets", widgets);
-  }, []);
+    console.log('widgets', widgets);
+  }, [widgets]);
 
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
@@ -94,7 +90,6 @@ export const Dashboard = () => {
     }
 
     setIsSearching(true);
-    setError('');
 
     try {
       const response = await fetch(
@@ -115,7 +110,6 @@ export const Dashboard = () => {
       setShowDropdown(true); // Show dropdown when we have results
     } catch (err) {
       console.error('Search error:', err);
-      setError('Error searching for user');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -129,10 +123,7 @@ export const Dashboard = () => {
 
       const profileResponse = await fetch(
         `http://localhost:8000/api/user/profile/${username}`,
-        {
-          method: 'GET',
-          credentials: 'omit',
-        }
+        { method: 'GET', credentials: 'omit' }
       );
 
       if (!profileResponse.ok) {
@@ -152,7 +143,6 @@ export const Dashboard = () => {
       setSearchQuery('');
     } catch (err) {
       console.error('Error navigating to profile:', err);
-      setError(err instanceof Error ? err.message : 'Error accessing profile');
     }
   };
 
@@ -165,7 +155,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  //const layouts = getLayouts(widgets);
+  const layouts = getLayouts(widgets);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -206,54 +196,48 @@ export const Dashboard = () => {
               zIndex: 1000,
             }}
           >
-            {isSearching ? (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
-                <Typography color="textSecondary">Searching...</Typography>
-              </Box>
-            ) : (
-              searchResults.map((user) => (
-                <Box
-                  key={user._id}
-                  onClick={() => handleUserClick(user.username)}
+            {searchResults.map((user) => (
+              <Box
+                key={user._id}
+                onClick={() => handleUserClick(user.username)}
+                sx={{
+                  p: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    cursor: 'pointer',
+                  },
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                <Avatar
+                  src={user.images?.[0]?.url || '/broken-image.jpg'}
                   sx={{
-                    p: 2,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      cursor: 'pointer',
-                    },
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
+                    width: 40,
+                    height: 40,
+                    bgcolor: '#7C6BBB', // Same purple as your profile avatar
                   }}
-                >
-                  <Avatar
-                    src={user.images?.[0]?.url || '/broken-image.jpg'}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: '#7C6BBB', // Same purple as your profile avatar
-                    }}
-                  />
-                  <Box>
-                    <Typography variant="body1">{user.username}</Typography>
-                    {user.location && (
-                      <Typography variant="body2" color="text.secondary">
-                        {user.location}
-                      </Typography>
-                    )}
-                  </Box>
+                />
+                <Box>
+                  <Typography variant="body1">{user.username}</Typography>
+                  {user.location && (
+                    <Typography variant="body2" color="text.secondary">
+                      {user.location}
+                    </Typography>
+                  )}
                 </Box>
-              ))
-            )}
+              </Box>
+            ))}
           </Paper>
         )}
 
-        {error && (
+        {/* {error && (
           <Typography color="error" sx={{ mt: 1 }}>
             {error}
           </Typography>
-        )}
+        )} */}
       </Box>
 
       {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
@@ -264,7 +248,7 @@ export const Dashboard = () => {
         ))}
       </Grid2> */}
 
-      {/* <ResponsiveGridLayout
+      <ResponsiveGridLayout
         className="layout"
         layouts={layouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -309,7 +293,7 @@ export const Dashboard = () => {
             </div>
           );
         })}
-      </ResponsiveGridLayout> */}
+      </ResponsiveGridLayout>
     </Box>
   );
 };
