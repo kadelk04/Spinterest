@@ -12,11 +12,10 @@ import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
+import { usePlaylists } from '../data/PlaylistContext';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-
-import { returnWidgets, Widget } from '../data/playlistUtils';
 
 interface User {
   _id: string;
@@ -27,38 +26,16 @@ interface User {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+  const { playlists, isLoading } = usePlaylists();
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
 
-  // useEffect(() => {
-  //   // 16 skeleton widgets
-  //   const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
-  //     id: `skeleton-${i}`,
-  //     cover: '',
-  //     owner: '',
-  //     title: '',
-  //     description: '',
-  //     genres: [],
-  //     component: (
-  //       <Skeleton
-  //         key={i}
-  //         variant="rounded"
-  //         width={250}
-  //         height={420}
-  //         sx={{ borderRadius: '20px' }}
-  //       />
-  //     ),
-  //   }));
-  //   setWidgets(skeletonArray);
-  //   returnWidgets().then((widgets) => {
-  //     setWidgets(widgets);
-  //   });
-  // }, []);
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth - 120);
@@ -67,7 +44,6 @@ export const Dashboard = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  // }, []);
 
   useEffect(() => {
     returnWidgets().then((widgets) => {
@@ -83,6 +59,7 @@ export const Dashboard = () => {
     }
 
     setIsSearching(true);
+    setSearchError('');
 
     try {
       const response = await fetch(
@@ -103,6 +80,7 @@ export const Dashboard = () => {
       setShowDropdown(true); // Show dropdown when we have results
     } catch (err) {
       console.error('Search error:', err);
+      setSearchError('Error searching for user');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -136,6 +114,9 @@ export const Dashboard = () => {
       setSearchQuery('');
     } catch (err) {
       console.error('Error navigating to profile:', err);
+      setSearchError(
+        err instanceof Error ? err.message : 'Error accessing profile'
+      );
     }
   };
 
@@ -148,7 +129,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(widgets);
+  const layouts = getLayouts(playlists);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -225,11 +206,9 @@ export const Dashboard = () => {
           </Paper>
         )}
 
-        {/* {error && (
-          <Typography color="error" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )} */}
+        <Typography color="error" sx={{ mt: 1 }}>
+          {searchError}
+        </Typography>
       </Box>
 
       {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
@@ -251,25 +230,43 @@ export const Dashboard = () => {
         draggableCancel=".no-drag"
         isResizable={false}
       >
-        {widgets.map((widget) => {
-          const { component, ...rest } = widget;
-          return (
-            <div
-              key={widget.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {React.cloneElement(component, {
-                dragHandleClass: 'drag-handle',
-                noDragClass: 'no-drag',
-                ...rest,
-              })}
-            </div>
-          );
-        })}
+        {isLoading
+          ? Array.from({ length: 16 }, (_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Skeleton
+                  variant="rounded"
+                  width={250}
+                  height={420}
+                  sx={{ borderRadius: '20px' }}
+                />
+              </div>
+            ))
+          : playlists.map((widget) => {
+              const { component, ...rest } = widget;
+              return (
+                <div
+                  key={widget.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {React.cloneElement(component, {
+                    dragHandleClass: 'drag-handle',
+                    noDragClass: 'no-drag',
+                    ...rest,
+                  })}
+                </div>
+              );
+            })}
       </ResponsiveGridLayout>
     </Box>
   );
