@@ -15,6 +15,7 @@ import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
 import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
+import { usePlaylists } from '../data/PlaylistContext';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -33,9 +34,11 @@ export const Dashboard = () => {
   const navigate = useNavigate();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
+  const { playlists, isLoading } = usePlaylists();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -63,6 +66,9 @@ export const Dashboard = () => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
+    returnNotifications().then((notifications) => {
+      setNotifications(notifications);
+    });
   }, []);
   useEffect(() => {
     const handleResize = () => {
@@ -72,17 +78,6 @@ export const Dashboard = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  // }, []);
-
-  useEffect(() => {
-    // returnWidgets().then((widgets) => {
-    //   setWidgets(widgets);
-    // });
-    returnNotifications().then((notifications) => {
-      setNotifications(notifications);
-    });
-    console.log('widgets', widgets);
-  }, [widgets]);
 
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
@@ -91,6 +86,7 @@ export const Dashboard = () => {
     }
 
     setIsSearching(true);
+    setSearchError('');
 
     try {
       const response = await fetch(
@@ -111,6 +107,7 @@ export const Dashboard = () => {
       setShowDropdown(true); // Show dropdown when we have results
     } catch (err) {
       console.error('Search error:', err);
+      setSearchError('Error searching for user');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -144,6 +141,9 @@ export const Dashboard = () => {
       setSearchQuery('');
     } catch (err) {
       console.error('Error navigating to profile:', err);
+      setSearchError(
+        err instanceof Error ? err.message : 'Error accessing profile'
+      );
     }
   };
 
@@ -156,7 +156,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(widgets);
+  const layouts = getLayouts(playlists);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -234,11 +234,9 @@ export const Dashboard = () => {
           </Paper>
         )}
 
-        {/* {error && (
-          <Typography color="error" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )} */}
+        <Typography color="error" sx={{ mt: 1 }}>
+          {searchError}
+        </Typography>
       </Box>
 
       {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
@@ -260,40 +258,43 @@ export const Dashboard = () => {
         draggableCancel=".no-drag"
         isResizable={false}
       >
-        {widgets.map((widget) => (
-          <div
-            key={widget.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {React.cloneElement(widget.component, {
-              dragHandleClass: 'drag-handle',
-              noDragClass: 'no-drag',
+        {isLoading
+          ? Array.from({ length: 16 }, (_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Skeleton
+                  variant="rounded"
+                  width={250}
+                  height={420}
+                  sx={{ borderRadius: '20px' }}
+                />
+              </div>
+            ))
+          : playlists.map((widget) => {
+              const { component, ...rest } = widget;
+              return (
+                <div
+                  key={widget.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {React.cloneElement(component, {
+                    dragHandleClass: 'drag-handle',
+                    noDragClass: 'no-drag',
+                    ...rest,
+                  })}
+                </div>
+              );
             })}
-          </div>
-        ))}
-        {widgets.map((widget) => {
-          const { component, ...rest } = widget;
-          return (
-            <div
-              key={widget.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {React.cloneElement(component, {
-                dragHandleClass: 'drag-handle',
-                noDragClass: 'no-drag',
-                ...rest,
-              })}
-            </div>
-          );
-        })}
       </ResponsiveGridLayout>
     </Box>
   );
