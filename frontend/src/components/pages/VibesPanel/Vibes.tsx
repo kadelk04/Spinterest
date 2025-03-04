@@ -2,32 +2,36 @@ import { Drawer, Box, Typography, IconButton, Button } from "@mui/material";
 import { Close } from "@mui/icons-material"; 
 import { useVibes } from "./VibesContext";
 
-export const Vibes = () => {
+interface VibesProps{
+    expanded: boolean;
+} 
+
+export const Vibes = ({ expanded }: VibesProps) => {
     const { isOpen, closeVibes } = useVibes();
-    const navbarWidth = 80; 
 
     return (
-        <Drawer 
-            anchor="left" 
-            open={isOpen} 
+        <Drawer
+            anchor="left"
+            open={isOpen}
             onClose={closeVibes}
-            ModalProps={{
-              BackdropProps: { invisible: true }, 
-            }}
+            ModalProps={{ BackdropProps: { invisible: true } }}
             sx={{
+                position: "absolute",       
+                zIndex: (theme) => theme.zIndex.drawer - 1,
                 "& .MuiDrawer-paper": {
-                  width: 350,
-                  bgcolor: "secondary.light",
-                  padding: 3,
-                  height: "100vh",
-                  position: "fixed",
-                  left: `${navbarWidth}px`, 
-                  borderTopRightRadius: "16px",
-                  borderBottomRightRadius: "16px",
-                  boxShadow: "4px 0px 8px rgba(0, 0, 0, 0.2)", 
-                  overflow: "hidden", 
+                    width: 350,
+                    bgcolor: "secondary.light",
+                    padding: 3,
+                    height: "100vh",
+                    borderTopRightRadius: "16px",
+                    borderBottomRightRadius: "16px",
+                    left: expanded ? "180px" : "90px",
+                    transition: "left 0.3s ease", 
+                    boxShadow: "4px 0px 8px rgba(0, 0, 0, 0.2)",
+                    overflow: "hidden",
                 },
-              }}>
+            }}
+            >
             <Box
               sx={{
                 width: 350,

@@ -31,10 +31,7 @@ interface ItemProps {
 }
 
 export const Navbar: FunctionComponent<NavbarProps> = (props) => {
-  const location = useLocation();
-  const [spotifyId, setSpotifyId] = useState<string | null>(null);
   const { openVibes } = useVibes();
-  //const [username, setUsername] = useState<string>("");
   const signedIn = localStorage.getItem('spotify_token');
   const username = localStorage.getItem('username');
 
