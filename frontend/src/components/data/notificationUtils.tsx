@@ -53,6 +53,12 @@ export const acceptFollowRequest = async (notificationId: string): Promise<void>
 
     // create new notifcation of type follow
 
+    // try {
+    //   notificationResponse = await axios.put
+    // }
+
+
+
     //const FollowResponse = await followUserDirect(notificationId);
     // const followResponse = await axios.put(
     //   `http://localhost:8000/api/user/${username}/follow`,

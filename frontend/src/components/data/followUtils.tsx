@@ -22,14 +22,28 @@ export const followUser = async (username: string, myUsername: string) => {
         console.log('username and myUsername: ', username, myUsername);
         console.log('Type of username:', typeof username);
         const notificationResponse = await axios.post(
+          `http://localhost:8000/api/notification/followRequest/${username}`,
+          { follower: myUsername }
+        );
+        console.log('Notification created:', notificationResponse.data);
+        return 'pending';
+      } catch (notificationError) {
+        console.error('Error creating follow request notification:', notificationError);
+        throw new Error('Failed to create follow request notification');
+      }
+    } else if (privacyResponse.data === false) {
+      try {
+        console.log('username and myUsername: ', username, myUsername);
+        console.log('Type of username:', typeof username);
+        const notificationResponse = await axios.post(
           `http://localhost:8000/api/notification/follow/${username}`,
           { follower: myUsername, privacy: true }
         );
         console.log('Notification created:', notificationResponse.data);
         return 'pending';
       } catch (notificationError) {
-        console.error('Error creating notification:', notificationError);
-        throw new Error('Failed to create notification');
+        console.error('Error creating follow notification:', notificationError);
+        throw new Error('Failed to create follow notification');
       }
     }
 

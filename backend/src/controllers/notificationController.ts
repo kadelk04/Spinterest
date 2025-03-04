@@ -15,17 +15,16 @@ interface UserResponse {
  * @param res
  * @returns
  */
-export const createFollowNotification = async (req: Request, res: Response) => {
+export const createFollowRequestNotification = async (req: Request, res: Response) => {
   console.log('in createNotification in notificationController.ts');
   const toBeFollowed = req.params.username;
-  const { follower, privacy } = req.body;
+  const { follower } = req.body;
   console.log(`username: ${toBeFollowed}, follower: ${follower}`);
   if (!toBeFollowed || !follower) {
     throw new Error('toBeFollowed or follower is undefined');
   }
   console.log(`username: ${toBeFollowed}, follower: ${follower}`);
 
-  // ADD SENDER FIELDDDD
   let senderObjectId;
   try {
     const User = getModel<UserResponse>('User');
@@ -43,9 +42,6 @@ export const createFollowNotification = async (req: Request, res: Response) => {
     return;
   }
 
-
-
-  // need to get the mongoose.Types.ObjectId of toBeFollowed for receiver param
   let toBeFollowedObjectId;
   try {
     const User = getModel<UserResponse>('User');
@@ -67,11 +63,9 @@ export const createFollowNotification = async (req: Request, res: Response) => {
   try {
     const Notification = getModel<INotification>('Notification');
     const newNotification = await Notification.create({
-      title: privacy ? 'Follow Request' : 'New Follower',
-      type: privacy ? 'follow_request' : 'follow',
-      message: privacy
-        ? `${follower} requested to follow you!`
-        : `${follower} followed you!`,
+      title: 'Follow Request',
+      type: 'follow_request',
+      message: `${follower} requested to follow you!`,
       receiver: [toBeFollowedObjectId],
       createdAt: new Date(),
       sender: senderObjectId,
@@ -85,6 +79,63 @@ export const createFollowNotification = async (req: Request, res: Response) => {
   }
 };
 
+export const createFollowNotification = async (req: Request, res: Response) => {
+  const toBeFollowed = req.params.username;
+  const { follower } = req.body;
+  
+  let senderObjectId;
+  try {
+    const User = getModel<UserResponse>('User');
+    // can use getUserByUsername in UserController.ts
+    const response = await User.findOne({ username: follower });
+    if (!response) {
+      res.status(404).send('User not found');
+      return;
+    }
+    senderObjectId = response._id;
+    console.log(`toBeFollowedObjectId: ${senderObjectId}`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error finding user');
+    return;
+  }
+
+  let toBeFollowedObjectId;
+  try {
+    const User = getModel<UserResponse>('User');
+    // can use getUserByUsername in UserController.ts
+    const response = await User.findOne({ username: toBeFollowed });
+    if (!response) {
+      res.status(404).send('User not found');
+      return;
+    }
+    toBeFollowedObjectId = response._id;
+    console.log(`toBeFollowedObjectId: ${toBeFollowedObjectId}`);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error finding user');
+    return;
+  }
+
+  console.log('in createNotification in notificationController.ts');
+  try {
+    const Notification = getModel<INotification>('Notification');
+    const newNotification = await Notification.create({
+      title: 'New Follower',
+      type: 'follow',
+      message: `${follower} followed you!`,
+      receiver: [toBeFollowedObjectId],
+      createdAt: new Date(),
+      sender: senderObjectId,
+    });
+    res.status(200).json(newNotification);
+    return;
+  } catch (err) {
+    console.log(err);
+    res.status(500).send('Error creating follow notification');
+    return;
+  }
+};
 /**
  * Find Follow Request Notification
  * @param req
