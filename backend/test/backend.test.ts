@@ -3,7 +3,6 @@ import express from 'express';
 import cors from 'cors';
 import routes from '../src/routes/index';
 import { getDbConnection } from '../src/utils/connection';
-import dotenv from 'dotenv';
 
 jest.mock('../src/utils/connection');
 

@@ -7,32 +7,34 @@ import {
   InputAdornment,
   Paper,
   Avatar,
+  Skeleton,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
+import { usePlaylists } from '../data/PlaylistContext';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 
-import { returnWidgets, Widget } from '../data/playlistUtils';
+interface User {
+  _id: string;
+  username: string;
+  location?: string;
+  images?: { url: string }[];
+}
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+  const { playlists, isLoading } = usePlaylists();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState('');
+  const [searchError, setSearchError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
-
-  useEffect(() => {
-    returnWidgets().then((widgets) => {
-      setWidgets(widgets);
-    });
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -50,7 +52,7 @@ export const Dashboard = () => {
     }
 
     setIsSearching(true);
-    setError('');
+    setSearchError('');
 
     try {
       const response = await fetch(
@@ -71,7 +73,7 @@ export const Dashboard = () => {
       setShowDropdown(true); // Show dropdown when we have results
     } catch (err) {
       console.error('Search error:', err);
-      setError('Error searching for user');
+      setSearchError('Error searching for user');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -85,10 +87,7 @@ export const Dashboard = () => {
 
       const profileResponse = await fetch(
         `http://localhost:8000/api/user/profile/${username}`,
-        {
-          method: 'GET',
-          credentials: 'omit',
-        }
+        { method: 'GET', credentials: 'omit' }
       );
 
       if (!profileResponse.ok) {
@@ -108,7 +107,9 @@ export const Dashboard = () => {
       setSearchQuery('');
     } catch (err) {
       console.error('Error navigating to profile:', err);
-      setError(err instanceof Error ? err.message : 'Error accessing profile');
+      setSearchError(
+        err instanceof Error ? err.message : 'Error accessing profile'
+      );
     }
   };
 
@@ -121,7 +122,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(widgets);
+  const layouts = getLayouts(playlists);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -161,57 +162,55 @@ export const Dashboard = () => {
               zIndex: 1000,
             }}
           >
-            {isSearching ? (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
-                <Typography color="textSecondary">Searching...</Typography>
-              </Box>
-            ) : (
-              searchResults.map((user) => (
-                <Box
-                  key={user._id}
-                  onClick={() => handleUserClick(user.username)}
+            {searchResults.map((user) => (
+              <Box
+                key={user._id}
+                onClick={() => handleUserClick(user.username)}
+                sx={{
+                  p: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    cursor: 'pointer',
+                  },
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                <Avatar
+                  src={user.images?.[0]?.url || '/broken-image.jpg'}
                   sx={{
-                    p: 2,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      cursor: 'pointer',
-                    },
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
+                    width: 40,
+                    height: 40,
+                    bgcolor: '#7C6BBB', // Same purple as your profile avatar
                   }}
-                >
-                  <Avatar
-                    src={user.images?.[0]?.url || '/broken-image.jpg'}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: '#7C6BBB', // Same purple as your profile avatar
-                    }}
-                  />
-                  <Box>
-                    <Typography variant="body1">{user.username}</Typography>
-                    {user.location && (
-                      <Typography variant="body2" color="text.secondary">
-                        {user.location}
-                      </Typography>
-                    )}
-                  </Box>
+                />
+                <Box>
+                  <Typography variant="body1">{user.username}</Typography>
+                  {user.location && (
+                    <Typography variant="body2" color="text.secondary">
+                      {user.location}
+                    </Typography>
+                  )}
                 </Box>
-              ))
-            )}
+              </Box>
+            ))}
           </Paper>
         )}
 
-        {error && (
-          <Typography color="error" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )}
+        <Typography color="error" sx={{ mt: 1 }}>
+          {searchError}
+        </Typography>
       </Box>
 
-      <Typography>Dashboard</Typography>
+      {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
+        {widgets.map((widget) => (
+          <Grid2 key={widget.id} xs={12} sm={6} md={4} lg={3}>
+            {widget.component}
+          </Grid2>
+        ))}
+      </Grid2> */}
 
       <ResponsiveGridLayout
         className="layout"
@@ -224,21 +223,43 @@ export const Dashboard = () => {
         draggableCancel=".no-drag"
         isResizable={false}
       >
-        {widgets.map((widget) => (
-          <div
-            key={widget.id}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {React.cloneElement(widget.component, {
-              dragHandleClass: 'drag-handle',
-              noDragClass: 'no-drag',
+        {isLoading
+          ? Array.from({ length: 16 }, (_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Skeleton
+                  variant="rounded"
+                  width={250}
+                  height={420}
+                  sx={{ borderRadius: '20px' }}
+                />
+              </div>
+            ))
+          : playlists.map((widget) => {
+              const { component, ...rest } = widget;
+              return (
+                <div
+                  key={widget.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {React.cloneElement(component, {
+                    dragHandleClass: 'drag-handle',
+                    noDragClass: 'no-drag',
+                    ...rest,
+                  })}
+                </div>
+              );
             })}
-          </div>
-        ))}
       </ResponsiveGridLayout>
     </Box>
   );

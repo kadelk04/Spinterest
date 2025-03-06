@@ -12,6 +12,7 @@ import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
 import { VibesProvider } from './components/pages/VibesPanel/VibesContext';
 import { Vibes } from './components/pages/VibesPanel/Vibes';
+import { PlaylistProvider } from './components/data/PlaylistContext';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -43,12 +44,14 @@ export default function App() {
               transition: 'all 0.3s ease',
             }}
           >
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/" element={<Login />} />
-            </Routes>
+            <PlaylistProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/" element={<Login />} />
+              </Routes>
+            </PlaylistProvider>
           </Box>
         </Box>
       </Router>

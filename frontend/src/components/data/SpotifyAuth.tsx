@@ -64,7 +64,7 @@ export const fetchAuthToken = async (code: string) => {
       headers: profileOptions.headers,
     });
     const id = await profileData.json().then((data) => data.id);
-    const updateResponse = axios.put(
+    axios.put(
       `http://localhost:8000/api/user/${localStorage.getItem('username')}`,
       {
         spotifyId: id,
