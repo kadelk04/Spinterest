@@ -28,13 +28,11 @@ export const NotificationSchema = new mongoose.Schema({
     ],
     required: true,
   },
-  receiver: [
-    // this is a list of receivers
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-  ],
+  receiver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
