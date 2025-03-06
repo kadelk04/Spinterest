@@ -61,8 +61,6 @@ export const Dashboard = () => {
     setWidgets(skeletonArray);
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
-      console.log('widgets in set widgets')
-      console.log(widgets);
     });
 
     
