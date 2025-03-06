@@ -326,27 +326,7 @@ export const returnWidgets = async (): Promise<Widget[]> => {
   // if not, this means the user has either cleared their local storage or has not visited the dashboard yet
   // if the data does not exist, fetch the playlist data from the spotify api and build the widgets
   let playlists_with_genres: Widget[] = [];
-  // if (
-  //   !localStorage.getItem('widget_data') ||
-  //   localStorage.getItem('widget_data') === '[]'
-  // ) {
-  //   //first time loading into dashboard
-  //   const playlists_data = await fetchPlaylists(accessToken);
-  //   // save the data to local storage
-  //   localStorage.setItem('widget_data', JSON.stringify(playlists_data));
-
-  //   playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  // } else {
-  //   // use the local storage data to build the widgets
-  //   // buildWidgets expects an array of WidgetData[]
-  //   console.log('utilizing local storage to build widgets');
-  //   const localWidgetsData: WidgetData[] = JSON.parse(
-  //     localStorage.getItem('widget_data') || '[]'
-  //   );
-  //   playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
-  // }
   const playlists_data = await fetchPlaylists(accessToken);
   playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  // returns Widget[] type
   return playlists_with_genres;
 };
