@@ -14,7 +14,6 @@ import {
   PushPinOutlined,
   PushPin,
 } from '@mui/icons-material';
-
 import { usePinnedPlaylists } from '../../data/pinnedPlaylistUtils';
 
 export const PlaylistWidget = ({

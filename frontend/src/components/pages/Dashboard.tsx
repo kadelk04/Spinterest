@@ -6,17 +6,22 @@ import {
   Input,
   InputAdornment,
   Paper,
-  Avatar,
+  Button,
   Skeleton,
+  Avatar,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
 import { getLayouts } from '../data/layoutGenerator';
+import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
 import { usePlaylists } from '../data/PlaylistContext';
 
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
+
+import { returnWidgets, Widget } from '../data/playlistUtils';
+import { returnNotifications, Notification } from '../data/notificationUtils';
 
 interface User {
   _id: string;
@@ -27,8 +32,9 @@ interface User {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const { playlists, isLoading } = usePlaylists();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
+  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+  const { playlists, isLoading } = usePlaylists();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -36,6 +42,34 @@ export const Dashboard = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  useEffect(() => {
+    // 16 skeleton widgets
+    const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
+      id: `skeleton-${i}`,
+      cover: '',
+      owner: '',
+      title: '',
+      description: '',
+      genres: [],
+      component: (
+        <Skeleton
+          key={i}
+          variant="rounded"
+          width={250}
+          height={420}
+          sx={{ borderRadius: '20px' }}
+        />
+      ),
+    }));
+    setWidgets(skeletonArray);
+    returnWidgets().then((widgets) => {
+      setWidgets(widgets);
+    });
+    returnNotifications().then((notifications) => {
+      setNotifications(notifications);
+    });
+  }, []);
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth - 120);
@@ -127,6 +161,7 @@ export const Dashboard = () => {
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
+        {<NotificationsDrawer />}
         <Input
           placeholder="/genre, /tag, /person"
           value={searchQuery}
