@@ -10,6 +10,8 @@ import { Theme } from './components/common/Theme';
 
 import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
+import { VibesProvider } from './components/pages/VibesPanel/VibesContext';
+import { Vibes } from './components/pages/VibesPanel/Vibes';
 import { PlaylistProvider } from './components/data/PlaylistContext';
 
 export default function App() {
@@ -28,7 +30,11 @@ export default function App() {
           }}
         >
           <CssBaseline />
+          <VibesProvider>
+          <Vibes expanded={expanded}/>
           <Navbar expanded={expanded} setExpanded={setExpanded} />
+          </VibesProvider>
+
           <Box
             component="main"
             sx={{
