@@ -178,6 +178,7 @@ export const Login = () => {
               variant="contained"
               color="primary"
               onClick={handleLoginClick}
+              aria-label="Sign In"
               sx={{
                 py: 1.5,
                 borderColor: 'transparent',

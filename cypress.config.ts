@@ -6,4 +6,8 @@ export default defineConfig({
       // implement node event listeners here
     },
   },
+  env: {
+    SPOTIFY_EMAIL: 'morrow165@outlook.com',
+    SPOTIFY_PASSWORD: 'PowderJunkie7&',
+  },
 });

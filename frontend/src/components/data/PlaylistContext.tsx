@@ -6,7 +6,6 @@ import React, {
   ReactNode,
 } from 'react';
 import { returnWidgets, Widget } from '../data/playlistUtils';
-import axios from 'axios';
 
 interface PlaylistContextType {
   playlists: Widget[];
@@ -35,14 +34,14 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
     const fetchPlaylists = async () => {
       try {
         const widgets = await returnWidgets();
-        widgets.map((widget) => {
-          axios.put(`${process.env.REACT_APP_API_URL}/api/playlist`, {
-            spotifyId: widget.id,
-            cover: widget.cover,
-            creator: widget.owner,
-            title: widget.title,
-          });
-        });
+        // widgets.map((widget) => {
+        //   axios.put(`${process.env.REACT_APP_API_URL}/api/playlist`, {
+        //     spotifyId: widget.id,
+        //     cover: widget.cover,
+        //     creator: widget.owner,
+        //     title: widget.title,
+        //   });
+        // });
         setPlaylists(widgets);
       } catch (error) {
         console.error('Error fetching playlists:', error);
