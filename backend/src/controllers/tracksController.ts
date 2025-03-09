@@ -14,6 +14,10 @@ import axios from 'axios';
   4. Feel-Good -> medium tempo, sunny day type
 */
 
+interface SavedTracksResponse {
+  items: Array<{ track: { id: string } }>;
+}
+
 //presetting vibes with TrackFeatures 
 interface TrackFeatures {
   energy: number;
@@ -44,16 +48,15 @@ const vibes = [
       (track.loudness > -12 && track.loudness < -6) &&
       (track.danceability > 0.4 && track.danceability < 0.7)
   },
-  { 
+  {
     vibeName: "Woe is Me",
     conditions: (track: TrackFeatures) =>  
-      track.valence < 0.3 && 
-      track.acousticness > 0.5 &&
-      track.tempo < 100 &&
-      track.valence < 0.3 &&
-      track.energy < 0.4 &&
-      track.loudness < -10
-  },
+      track.valence < 0.2 &&  
+      track.acousticness > 0.7 && 
+      track.tempo < 80 && 
+      track.energy < 0.3 && 
+      track.loudness < -15 
+  },  
   { 
     vibeName: "Noise Enjoyer",
     conditions: (track: TrackFeatures) =>  
@@ -78,37 +81,25 @@ const vibes = [
 ];
 
 
-export const getUserSavedTracks = async (req: Request, res: Response) => {
+export const getUserSavedTracks = async (spotifyToken: string) => {
     try {
-      const payload = {
-        spotifyToken: req.query.spotifyToken,
-      };
       const response = await axios.get(
         'https://api.spotify.com/v1/me/tracks',
         {
           headers: {
-            Authorization: `Bearer ${payload.spotifyToken}`,
+            Authorization: `Bearer ${spotifyToken}`,
           },
         }
       );
-      res.status(200).send(response.data);
+      return response.data;
     } catch (err) {
       console.error('Error fetching user saved tracks:', err);
-      res.status(500).send('Error fetching user saved tracks');
-    }
+      throw new Error('Error fetching user saved tracks');}
   };
 
   //write getting audio features of saved tracks
-  export const getTrackFeatures = async (
-    req: Request,
-    res: Response
-  ): Promise<void> => {
+  export const fetchTrackFeatures = async (spotifyToken: string, trackId: string) => {
     try {
-      // Extract spotifyToken from the Authorization header
-      const spotifyToken = req.headers.authorization;
-      const trackId = req.params.trackId;
-  
-      // Make request to Spotify API to get audio features of tracks
       const response = await axios.get(
         `https://api.spotify.com/v1/audio-features/${trackId}`,
         {
@@ -117,14 +108,37 @@ export const getUserSavedTracks = async (req: Request, res: Response) => {
           },
         }
       );
-
-      // Send the data from Spotify API as the response
-      res.status(200).send(response.data);
+      return response.data;
+    } catch (err) {
+      console.error(`Error fetching track features for track ${trackId}:`, err);
+      return null;
+    }
+  };
+  
+  // Modify getTrackFeatures to use fetchTrackFeatures
+  export const getTrackFeatures = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const spotifyToken = req.headers.authorization;
+      if (!spotifyToken) {
+        res.status(400).send('Spotify token is missing');
+        return;
+      }
+  
+      const trackId = req.params.trackId;
+      const trackFeatures = await fetchTrackFeatures(spotifyToken, trackId);
+  
+      if (!trackFeatures) {
+        res.status(500).send('Error fetching track features');
+        return;
+      }
+  
+      res.status(200).send(trackFeatures);
     } catch (err) {
       console.error('Error fetching track features:', err);
       res.status(500).send('Error fetching track features');
     }
   };
+  
 
   //Move to a different folder, trying to avoid rate limit this way
   //what if a track is not being able to be categorized?
@@ -135,76 +149,85 @@ export const getUserSavedTracks = async (req: Request, res: Response) => {
         return vibe.vibeName;
       }
     }
+    return "A song that defies categorization";
   }
 
   //TODO: Function to determine user vibes
   export const determineUserVibes = (tracks: TrackFeatures[]) => {
-    // Initialize a map to count the occurrences of each vibe
     const vibeCounts: Record<string, number> = {};
+    const totalTracks = tracks.length;
 
-    // Iterate over each track and categorize it
+    if (tracks.length === 0) {
+      return ["No Songs, No Vibes detected :("];
+    }
+  
+    if (tracks.length === 1) {
+      return ["Your vibe is just this song...interesting."];
+    }
+  
+    // Categorize each track and count occurrences
     tracks.forEach((track) => {
       const vibe = categorizeTrack(track);
       if (vibe) {
         vibeCounts[vibe] = (vibeCounts[vibe] || 0) + 1;
       }
     });
-
-    // Find the vibe with the highest count
-    let userVibe = null;
-    let maxCount = 0;
-
-    for (const [vibe, count] of Object.entries(vibeCounts)) {
-      if (count > maxCount) {
-        maxCount = count;
-        userVibe = vibe;
-      }
-    }
-
-    return userVibe;
-  }
+  
+    // Find the vibe(s) that meet the 30% threshold
+    const threshold = totalTracks * 0.3;
+    const qualifyingVibes = Object.entries(vibeCounts)
+      .filter(([_, count]) => count >= threshold) // Keep vibes that meet the threshold
+      .map(([vibe]) => vibe); // Extract vibe names
+  
+    return qualifyingVibes.length > 0 ? qualifyingVibes : ["Vibes are a melting pot of genres"];
+  };
+  
 
   //TODO: Function to analyze and store user vibes
-export const analyzeAndStoreUserVibes = async (req: Request, res: Response) => {
-  try {
-    const spotifyToken = req.headers.authorization;
-    const userId = req.params.userId;
-
-    // Fetch user's saved tracks
-    const tracksResponse = await axios.get(
-      'https://api.spotify.com/v1/me/tracks',
-      {
-        headers: {
-          Authorization: `Bearer ${spotifyToken}`,
-        },
+  export const analyzeAndStoreUserVibes = async (req: Request, res: Response) => {
+    try {
+      const spotifyToken = req.headers.authorization;
+      if (!spotifyToken) {
+        res.status(400).send('Spotify token is missing');
+        return;
       }
-    );
-
-    const tracks = tracksResponse.data.items.map((item: any) => item.track);
-
-    // Fetch audio features for each track
-    const trackFeaturesPromises = tracks.map((track: any) =>
-      axios.get(`https://api.spotify.com/v1/audio-features/${track.id}`, {
-        headers: {
-          Authorization: `Bearer ${spotifyToken}`,
-        },
-      })
-    );
-
-    const trackFeaturesResponses = await Promise.all(trackFeaturesPromises);
-    const trackFeatures = trackFeaturesResponses.map((response) => response.data);
-
-    // Determine user's vibe
-    const userVibe = determineUserVibes(trackFeatures);
-
-    // Store the user's vibe in the database (pseudo-code)
-    // await storeUserVibe(userId, userVibe);
-
-    res.status(200).send({ userVibe });
-  } catch (err) {
-    console.error('Error analyzing and storing user vibes:', err);
-    res.status(500).send('Error analyzing and storing user vibes');
-  }
-}
+  
+      const userId = req.params.userId;
+  
+      // Fetch user's saved tracks
+      const savedTracksResponse = await getUserSavedTracks(spotifyToken) as SavedTracksResponse; // Type assertion
+      if (!savedTracksResponse || !savedTracksResponse.items) {
+        res.status(500).send('Error fetching user saved tracks');
+        return;
+      }
+  
+      const tracks = savedTracksResponse.items.map((item: any) => item.track);
+  
+      // Fetch audio features using fetchTrackFeatures
+      const trackFeaturesPromises = tracks.map((track: any) =>
+        fetchTrackFeatures(spotifyToken, track.id)
+      );
+  
+      const trackFeatures = (await Promise.all(trackFeaturesPromises)).filter(Boolean) as TrackFeatures[];
+  
+      if (trackFeatures.length === 0) {
+        res.status(500).send('Error fetching audio features for tracks');
+        return;
+      }
+  
+      // Determine user's vibe
+      const userVibe = determineUserVibes(trackFeatures);
+  
+      // Store the user's vibe in the database (pseudo-code)
+      // await storeUserVibe(userId, userVibe);
+  
+      res.status(200).send({ userVibe });
+    } catch (err) {
+      console.error('Error analyzing and storing user vibes:', err);
+      res.status(500).send('Error analyzing and storing user vibes');
+    }
+  };
+  
+  
 
 
