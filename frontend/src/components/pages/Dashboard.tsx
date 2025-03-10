@@ -6,13 +6,11 @@ import {
   Input,
   InputAdornment,
   Paper,
-  Button,
   Skeleton,
   Avatar,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { getLayouts } from '../data/layoutGenerator';
 import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
 import { usePlaylists } from '../data/PlaylistContext';
 import Grid from '@mui/material/Grid2';
@@ -155,7 +153,6 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(playlists);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
