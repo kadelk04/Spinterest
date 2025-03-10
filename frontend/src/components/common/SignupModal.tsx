@@ -113,6 +113,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
           <TextField
             label="Username"
             fullWidth
+            name='su-username'
             margin="normal"
             required={true}
             slotProps={{
@@ -125,6 +126,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
           <TextField
             label="Password"
             type="password"
+            name='su-password'
             fullWidth
             margin="normal"
             required={true}
@@ -138,6 +140,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
           <TextField
             label="Confirm Password"
             type="password"
+            name='su-confirm-password'
             fullWidth
             margin="normal"
             required={true}

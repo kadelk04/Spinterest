@@ -1,50 +1,85 @@
-/**
- * Feature: Visit a profile
- *
- * Scenario: Visit a profile of a user with a public profile
- *  Given a user with the username "kayladelk04" exists
- *  And the user has a public profile
- *  When I visit the profile page of "kayladelk04"
- *  Then I should see the profile information of "kayladelk04"
- *  And there should be a follow button displayed
- *
- * Scenario: Visit a profile of a user with a private profile
- *  Given a user with the username "colt" exists
- *  And the user has a private profile
- *  When I visit the profile page of "colt"
- *  Then I should see a message that the profile is private
- *  And there should be a follow request button displayed
- */
+/// <reference types="cypress" />
+/* Feature: Sign In/Sign Up as a User
+Scenario: New user signs up
+  Given a user with no account
+  When the user enters the site
+  And the user clicks the "Sign Up" button
+  And the user enters their username and desired password
+  And the user submits the form
+  Then the user is redirected to the Spotify OAuth consent screen
+  And the user grants access
+  Then the user's account is linked to Spotify successfully
 
-describe('Visit a profile', () => {
-  it('should visit a profile of a user with a public profile', () => {
-    cy.visit('http://localhost:3000/login');
-    cy.get('input[name="username"]').type('testing');
-    cy.get('input[name="password"]').type('password');
-    cy.get('button[aria-label="Sign In"]').click();
+Scenario: Existing user returns with an expired OAuth grant from Spotify
+  Given a user with an existing username and password account
+  When the user enters their username and password
+  And clicks "Sign In"
+  Then the user is redirected to the Spotify OAuth consent screen
+  And the user grants access
+  Then the user's account is relinked to Spotify successfully
+
+Scenario: Returning user has an existing valid grant from Spotify
+  Given a user with an existing account linked to Spotify
+  When the user enters their username and password
+  And clicks "Sign In"
+  Then the user is redirected to their dashboard
+
+Scenario: Returning user has fully valid login credentials
+Given a user with an existing account is linked to Spotify
+And has a login token stored in the browser
+Then the user is directed immediately to their dashboard */
+
+describe('Sign In/Sign Up as a User', () => {
+  const siteUrl = Cypress.env('SITE_URL');
+  const apiUrl = Cypress.env('API_URL');
+  const username = `newuser${Math.random().toString(36).substring(7)}`;
+
+  it('New user signs up', () => {
+    cy.visit(`${siteUrl}`);
+    cy.get('p').contains('Sign up').click();
+    cy.get('input[name="su-username"]').type(username);
+    cy.get('input[name="su-password"]').type('password');
+    cy.get('input[name="su-confirm-password"]').type('password');
+    cy.get('button').contains('Sign Up').click();
+
+    // Simulate Spotify OAuth flow
     cy.origin('https://accounts.spotify.com', () => {
-      cy.get('input#login-username').type(Cypress.env('SPOTIFY_EMAIL'));
-      cy.get('input#login-password').type(Cypress.env('SPOTIFY_PASSWORD'));
-      cy.get('button#login-button').click();
+      const spotifyEmail = Cypress.env('SPOTIFY_EMAIL');
+      const spotifyPassword = Cypress.env('SPOTIFY_PASSWORD');
+      cy.get('input#login-username').type(spotifyEmail);
+      cy.get('input#login-password').type(spotifyPassword);
+      cy.get('button').contains('Log In').click();
     });
-    cy.visit('http://localhost:3000/profile/kayladelk04');
-    cy.intercept('http://localhost:8000/api/user/kayladelk04').as(
-      'getUserProfile'
-    );
-    cy.wait('@getUserProfile');
-    cy.contains('Kayla Delk').should('exist');
-    cy.contains('Follow').should('exist');
+
+    cy.url().should('include', `/dashboard`);
   });
 
-  // it('should visit a profile of a user with a private profile', () => {
-  //   cy.visit('http://localhost:3000/login');
-  //   cy.get('input[name="username"]').type('testing');
+  // it('Existing user returns with an expired OAuth grant from Spotify', () => {
+  //   cy.visit(`${siteUrl}`);
+  //   cy.get('input[name="username"]').type('existinguser');
   //   cy.get('input[name="password"]').type('password');
-  //   cy.visit('http://localhost:3000/profile/colt');
-  //   cy.intercept('GET', '/api/user/colt').as('getProfile');
-  //   cy.wait('@getProfile');
-  //   cy.contains('Colter Purcell').should('exist');
-  //   cy.contains('This profile is private').should('exist');
-  //   cy.contains('Request to follow').should('exist');
+  //   cy.get('button').contains('Sign In').click();
+
+  //   // Simulate Spotify OAuth flow
+  //   cy.origin('https://accounts.spotify.com', () => {
+  //     cy.get('input[name="username"]').type(spotifyEmail);
+  //     cy.get('input[name="password"]').type(spotifyPassword);
+  //     cy.get('button').contains('Agree').click();
+  //   });
+
+  //   cy.url().should('include', '/dashboard');
+  // });
+
+  // it('Returning user has an existing valid grant from Spotify', () => {
+  //   cy.visit(`${siteUrl}`);
+  //   cy.get('input[name="username"]').type('existinguser');
+  //   cy.get('input[name="password"]').type('password');
+  //   cy.get('button').contains('Sign In').click();
+  //   cy.url().should('include', '/dashboard');
+  // });
+
+  // it('Returning user has fully valid login credentials', () => {
+  //   cy.visit(`${siteUrl}`);
+  //   cy.url().should('include', '/dashboard');
   // });
 });
