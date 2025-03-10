@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import axios from 'axios';
+import { getModel } from '../utils/connection';
+import { IUser } from '../models/User';
 
 // TODO: implement a way to determine user vibes, 
 // implement caching to prevent 
@@ -73,11 +75,6 @@ const vibes = [
       track.valence > 0.6 && 
       track.danceability > 0.5
   },
-  //handling vibes with no matching conditions
-  {
-    vibeName: "Unknown Vibe",
-    conditions: (track: TrackFeatures) => false // This will never be true 
-  }
 ];
 
 
@@ -142,7 +139,7 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
 
   //Move to a different folder, trying to avoid rate limit this way
   //what if a track is not being able to be categorized?
-  //TODO: Function to categorize a track
+  //Function to categorize a track
   export const categorizeTrack = (track: TrackFeatures) => {
     for (const vibe of vibes) {
       if (vibe.conditions(track)) {
@@ -152,7 +149,7 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
     return "A song that defies categorization";
   }
 
-  //TODO: Function to determine user vibes
+  //Function to determine user vibes
   export const determineUserVibes = (tracks: TrackFeatures[]) => {
     const vibeCounts: Record<string, number> = {};
     const totalTracks = tracks.length;
@@ -183,16 +180,15 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
   };
   
 
-  //TODO: Function to analyze and store user vibes
+  //Function to analyze and store user vibes
   export const analyzeAndStoreUserVibes = async (req: Request, res: Response) => {
     try {
+      const username = req.query.username as string;
       const spotifyToken = req.headers.authorization;
       if (!spotifyToken) {
         res.status(400).send('Spotify token is missing');
         return;
       }
-  
-      const userId = req.params.userId;
   
       // Fetch user's saved tracks
       const savedTracksResponse = await getUserSavedTracks(spotifyToken) as SavedTracksResponse; // Type assertion
@@ -218,15 +214,43 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
       // Determine user's vibe
       const userVibe = determineUserVibes(trackFeatures);
   
-      // Store the user's vibe in the database (pseudo-code)
-      // await storeUserVibe(userId, userVibe);
-  
+      // Store the user's vibe in the database
+      const UserM = getModel<IUser>('User');
+      const user = await UserM.findOne({ username }).populate('favoritesId');
+    
+      if (!user) {
+        res.status(404).send('User not found');
+        return;
+      }
+
+      user.vibes = userVibe;
+      await user.save();
       res.status(200).send({ userVibe });
     } catch (err) {
       console.error('Error analyzing and storing user vibes:', err);
       res.status(500).send('Error analyzing and storing user vibes');
     }
   };
+
+  //Fetch User Vibes from User Model
+export const fetchUserVibes = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const username = req.query.username as string;
+    
+      const UserM = getModel<IUser>('User');
+      const user = await UserM.findOne({ username });
+  
+      if (!user) {
+        res.status(404).send('User not found');
+        return;
+      }
+
+    res.status(200).json({ vibes: user.vibes });
+  } catch (error) {
+    console.error('Error fetching user vibes:', error);
+    res.status(500).json({ message: 'Error fetching user vibes' });
+  }
+};
   
   
 
