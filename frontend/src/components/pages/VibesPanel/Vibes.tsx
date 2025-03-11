@@ -32,9 +32,6 @@ export const Vibes = ({ expanded }: VibesProps) => {
   const [calculating, setCalculating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
-  const [debugMode, setDebugMode] = useState<boolean>(false);
-  const [manualToken, setManualToken] = useState<string>('');
-  const [debugDialogOpen, setDebugDialogOpen] = useState<boolean>(false);
 
   // Function to get icon based on vibe type
   const getVibeIcon = (vibeName: string) => {
@@ -54,62 +51,21 @@ export const Vibes = ({ expanded }: VibesProps) => {
     }
   };
 
-  // Helper to get Spotify token with proper format
-  const getSpotifyToken = () => {
-    // Use manual token in debug mode
-    if (debugMode && manualToken) {
-      if (!manualToken.startsWith('Bearer ')) {
-        return `Bearer ${manualToken}`;
-      }
-      return manualToken;
-    }
-
-    // Normal token retrieval
-    const token = localStorage.getItem('spotifyToken') || '';
-    
-    // Make sure token has 'Bearer ' prefix if it doesn't already
-    if (token && !token.startsWith('Bearer ')) {
-      return `Bearer ${token}`;
-    }
-    return token;
-  };
-
-  // Store manual token to localStorage
-  const saveManualToken = () => {
-    if (manualToken) {
-      const formattedToken = manualToken.startsWith('Bearer ') 
-        ? manualToken 
-        : `Bearer ${manualToken}`;
-      localStorage.setItem('spotifyToken', formattedToken);
-      console.log('Token saved to localStorage');
-      setDebugDialogOpen(false);
-    }
-  };
-
-  // Function to fetch user vibes without Spotify API
   const fetchUserVibes = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Get username from localStorage or context
-      const username = localStorage.getItem('username') || 'defaultUser';
-      
-      console.log('Fetching vibes for username:', username);
-      
-      const apiUrl = `http://localhost:8000/api/user/vibes/${username}`;
-      console.log('Fetch API URL:', apiUrl);
-      
-      // Fetch doesn't need Spotify token, just getting from our DB
-      const response = await fetch(apiUrl);
-      
+  
+      const username = localStorage.getItem('username');
+            const response = await fetch(`http://localhost:8000/api/user/vibes/${username}`);
+  
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Server responded with status: ${response.status}. ${errorText}`);
       }
-      
+  
       const data = await response.json();
-      console.log('Fetch API Response:', data);
+
       setUserVibes(data.vibes || []);
       setLastFetched(new Date());
     } catch (err: any) {
@@ -119,74 +75,56 @@ export const Vibes = ({ expanded }: VibesProps) => {
       setLoading(false);
     }
   };
-
-  // Function to analyze and store user vibes - uses Spotify API
+  
+  // Function to analyze and store user vibes using backend
   const analyzeAndStoreUserVibes = async () => {
     try {
       setCalculating(true);
       setError(null);
-      
-      // Get username from localStorage or context
-      const username = localStorage.getItem('username') || 'defaultUser';
-      // Get properly formatted token
-      const token = getSpotifyToken();
 
-      if (!token) {
-        setError('Spotify token is missing. Please log in again or use debug mode to set a token manually.');
-        setDebugDialogOpen(true);
-        return;
+      const username = localStorage.getItem('username') || 'defaultUser';
+      const spotifyToken = localStorage.getItem('spotify_token'); 
+
+      if (!spotifyToken) {
+        throw new Error('Spotify token is missing from local storage.');
       }
-      
-      console.log('Calculating vibes for username:', username);
-      console.log('Using token (first few chars):', token.substring(0, 15) + '...');
-      
-      const apiUrl = `http://localhost:8000/api/user/vibes/determineUserVibe/${username}`;
-      console.log('Calculate API URL:', apiUrl);
-      
-      const response = await fetch(apiUrl, {
+
+      const response = await fetch(`http://localhost:8000/api/user/vibes/analyze/${username}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': token
+          'Authorization': `Bearer ${spotifyToken}` // Include the token
         }
       });
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Server responded with status: ${response.status}. ${errorText}`);
       }
-      
+
       const data = await response.json();
       console.log('Calculate API Response:', data);
-      
-      // Store the vibes in our state
+
       if (data.userVibe) {
         setUserVibes(data.userVibe);
         setLastFetched(new Date());
       } else {
-        // If we need to fetch the vibes separately
         await fetchUserVibes();
       }
     } catch (err: any) {
       console.error('Error calculating user vibes:', err);
       setError(`Error calculating vibes: ${err.message}`);
-      
-      // If token related error, offer to enter token manually
-      if (err.message.includes('token') || err.message.includes('Token')) {
-        setDebugDialogOpen(true);
-      }
     } finally {
       setCalculating(false);
     }
   };
-
+  
   // Fetch vibes when drawer opens, but only if we haven't fetched recently
   useEffect(() => {
     if (isOpen) {
-      // Check if we need to fetch vibes
-      const shouldFetch = !lastFetched || 
-                         (new Date().getTime() - lastFetched.getTime() > 60 * 60 * 1000); // 1 hour
-      
+      const shouldFetch =
+        !lastFetched || new Date().getTime() - lastFetched.getTime() > 60 * 60 * 1000; // 1 hour
+  
       if (shouldFetch) {
         fetchUserVibes();
       }
@@ -273,7 +211,6 @@ export const Vibes = ({ expanded }: VibesProps) => {
                         Go to Login
                       </Button>
                       <Button 
-                        onClick={() => setDebugDialogOpen(true)}
                         variant="outlined"
                         size="small"
                       >
@@ -366,27 +303,6 @@ export const Vibes = ({ expanded }: VibesProps) => {
             </Typography>
           )}
           
-          {/* Debug Mode Toggle */}
-          <Button 
-            size="small" 
-            onClick={() => {
-              setDebugMode(!debugMode);
-              if (!debugMode) {
-                setDebugDialogOpen(true);
-              }
-            }}
-            sx={{ 
-              mb: 1, 
-              fontSize: '0.7rem', 
-              color: debugMode ? 'green' : 'gray',
-              '&:hover': {
-                backgroundColor: 'transparent'
-              }
-            }}
-          >
-            {debugMode ? "Debug Mode: ON" : "Debug Mode"}
-          </Button>
-          
           {/* Spacer to push recalculate button to bottom */}
           <Box sx={{ flexGrow: 1 }} />
           
@@ -411,49 +327,11 @@ export const Vibes = ({ expanded }: VibesProps) => {
             {calculating ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'recalculate vibes'
+              'calculate vibes'
             )}
           </Button>
         </Box>
       </Drawer>
-
-      {/* Debug Dialog for Manual Token Entry */}
-      <Dialog 
-        open={debugDialogOpen} 
-        onClose={() => setDebugDialogOpen(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle>Enter Spotify Token Manually</DialogTitle>
-        <DialogContent>
-          <Typography variant="body2" sx={{ mb: 2 }}>
-            Enter your Spotify access token below. You can get this from the Spotify Developer Dashboard
-            or by inspecting network requests in your browser's developer tools.
-          </Typography>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Spotify Token"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={manualToken}
-            onChange={(e) => setManualToken(e.target.value)}
-            helperText="Token should start with 'Bearer ' or it will be added automatically"
-          />
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
-            Current token in localStorage: {localStorage.getItem('spotifyToken') ? 
-              localStorage.getItem('spotifyToken')!.substring(0, 20) + '...' : 
-              'None'}
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDebugDialogOpen(false)}>Cancel</Button>
-          <Button onClick={saveManualToken} variant="contained" color="primary">
-            Save Token
-          </Button>
-        </DialogActions>
-      </Dialog>
     </>
   );
 };
