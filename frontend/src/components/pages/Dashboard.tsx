@@ -6,17 +6,17 @@ import {
   Input,
   InputAdornment,
   Paper,
-  Avatar,
   Skeleton,
+  Avatar,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
-import { getLayouts } from '../data/layoutGenerator';
+import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
 import { usePlaylists } from '../data/PlaylistContext';
+import Grid from '@mui/material/Grid2';
 
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
+import { returnWidgets, Widget } from '../data/playlistUtils';
+import { returnNotifications, Notification } from '../data/notificationUtils';
 
 interface User {
   _id: string;
@@ -27,15 +27,46 @@ interface User {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const { playlists, isLoading } = usePlaylists();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
+  const [widgets, setWidgets] = React.useState<Widget[]>([]);
+  const { playlists, isLoading } = usePlaylists();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
 
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  useEffect(() => {
+    // 16 skeleton widgets
+    const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
+      id: `skeleton-${i}`,
+      cover: '',
+      owner: '',
+      title: '',
+      description: '',
+      genres: [],
+      component: (
+        <Skeleton
+          key={i}
+          variant="rounded"
+          width={250}
+          height={420}
+          sx={{ borderRadius: '20px' }}
+        />
+      ),
+    }));
+    setWidgets(skeletonArray);
+    returnWidgets().then((widgets) => {
+      setWidgets(widgets);
+    });
+
+    
+
+    returnNotifications().then((notifications) => {
+      setNotifications(notifications);
+    });
+  }, []);
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth - 120);
@@ -122,11 +153,11 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(playlists);
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
+        {<NotificationsDrawer />}
         <Input
           placeholder="/genre, /tag, /person"
           value={searchQuery}
@@ -203,64 +234,14 @@ export const Dashboard = () => {
           {searchError}
         </Typography>
       </Box>
-
-      {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
+      
+      <Grid container spacing={2} sx={{ padding: 2 }}>
         {widgets.map((widget) => (
-          <Grid2 key={widget.id} xs={12} sm={6} md={4} lg={3}>
-            {widget.component}
-          </Grid2>
+          <Grid key={widget.id} component="div">
+            {widget.component} {/* Render the widget's component */}
+          </Grid>
         ))}
-      </Grid2> */}
-
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={layouts}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 6, md: 4, sm: 3, xs: 2, xxs: 2 }}
-        rowHeight={420}
-        width={windowWidth}
-        draggableHandle=".drag-handle"
-        draggableCancel=".no-drag"
-        isResizable={false}
-      >
-        {isLoading
-          ? Array.from({ length: 16 }, (_, i) => (
-              <div
-                key={`skeleton-${i}`}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Skeleton
-                  variant="rounded"
-                  width={250}
-                  height={420}
-                  sx={{ borderRadius: '20px' }}
-                />
-              </div>
-            ))
-          : playlists.map((widget) => {
-              const { component, ...rest } = widget;
-              return (
-                <div
-                  key={widget.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {React.cloneElement(component, {
-                    dragHandleClass: 'drag-handle',
-                    noDragClass: 'no-drag',
-                    ...rest,
-                  })}
-                </div>
-              );
-            })}
-      </ResponsiveGridLayout>
+      </Grid>
     </Box>
   );
 };
