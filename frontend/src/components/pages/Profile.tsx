@@ -77,15 +77,20 @@ export const Profile: FunctionComponent = () => {
     // the route should include a ${username} param to fetch the user's data
     try {
       const username = window.location.pathname.split('/').pop();
-      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/user/${username}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       if (!response.ok) {
         throw new Error('Failed to get user data');
       }
 
       const fullprofileResponse = await fetch(
-        `http://localhost:8000/api/user/profile/${username}`
+        `${process.env.REACT_APP_API_URL}/api/user/profile/${username}`
       );
       if (!fullprofileResponse.ok) {
         throw new Error('Failed to get full profile data');
@@ -118,8 +123,12 @@ export const Profile: FunctionComponent = () => {
       const selfProfileSpotifyId = selfProfileData.id;
 
       const selfDataResponse = await fetch(
-        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
-        { headers: { 'Content-Type': 'application/json' } }
+        `${process.env.REACT_APP_API_URL}/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
       const myProfileData = await selfDataResponse.json();
@@ -185,7 +194,7 @@ export const Profile: FunctionComponent = () => {
       const updatedUserData = { isPrivate: !userData?.isPrivate };
 
       const response = await axios.put(
-        `http://localhost:8000/api/user/${username}`,
+        `${process.env.REACT_APP_API_URL}/api/user/${username}`,
         updatedUserData
       );
 
@@ -203,6 +212,17 @@ export const Profile: FunctionComponent = () => {
     const username = window.location.pathname.split('/').pop();
     if (!accessToken && !refreshToken) return;
 
+    if (following) {
+      try {
+        const response = await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/user/${username}/unfollow`,
+          {
+            headers: {
+              authorization: localStorage.getItem('jwttoken'),
+            },
+            unfollower: myData?.username,
+          }
+        );
     if (!username) {
       throw new Error('Username is undefined');
     }
@@ -214,6 +234,22 @@ export const Profile: FunctionComponent = () => {
         setFollowing(false);
       }
     } else {
+      try {
+        const response = await axios.put(
+          `${process.env.REACT_APP_API_URL}/api/user/${username}/follow`,
+          {
+            headers: {
+              authorization: localStorage.getItem('jwttoken'),
+            },
+            follower: myData?.username,
+          }
+        );
+
+        if (response.status === 200) {
+          setFollowing(true);
+        }
+      } catch (error) {
+        console.error('Error following user:', error);
       // CALL followUser in followUtils.tsx
       const followSuccess = await followUser(username, myData!.username);
       if (followSuccess === true) {
