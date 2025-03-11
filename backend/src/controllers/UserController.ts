@@ -299,6 +299,7 @@ export const getFollowers = async (req: Request, res: Response) => {
   res.status(200).send(user.followers);
 };
 export const getFollowing = async (req: Request, res: Response) => {
+  console.log("in get following", req.params.userMongoId);
   const UserModel = getModel<IUser>('User');
   const user = await UserModel.findOne({ username: req.params.userMongoId });
   if (!user) {
@@ -339,8 +340,7 @@ export const removeFollower = async (req: Request, res: Response) => {
     console.error(err);
     res.status(500).send('Error removing follower');
   }
-};
-
+}; 
 export const checkPrivacy = async (req: Request, res: Response) => {
   try {
     const UserModel = getModel<IUser>('User');

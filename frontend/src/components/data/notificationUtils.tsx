@@ -1,7 +1,4 @@
-import React from 'react';
 import axios from 'axios';
-
-import { followUserDirect } from './followUtils';
 
 export interface Notification {
   _id: string;

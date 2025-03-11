@@ -1,4 +1,3 @@
-import React from 'react';
 import axios from 'axios';
 
 // logic for following
@@ -127,5 +126,33 @@ export const followUserDirect = async (userMongoId: string, myMongoId: string) =
   } catch (error) {
     console.error('Error following user:', error);
     return false;
+  }
+}
+
+// for friendsComponent - finds all users that u follow / follow u (mutual)
+export const getFriends = async (userMongoId: string) => {
+
+  console.log('Getting friends for:', userMongoId);
+
+  try {
+    const followingResponse = await axios.get(
+      `http://localhost:8000/api/user/${userMongoId}/following`
+    );
+    const followersResponse = await axios.get(
+      `http://localhost:8000/api/user/${userMongoId}/followers`
+    );
+    const following = followingResponse.data;
+    const followers = followersResponse.data;
+
+    console.log('Following:', following);
+    console.log('Followers:', followers);
+
+    //(notificationResponse.data as { receiver: string[] }).
+    // const friends = following.filter((user: string) => followers.includes(user));
+    // return friends;
+
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+    return [];
   }
 }

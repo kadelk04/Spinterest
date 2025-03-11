@@ -11,6 +11,7 @@ import {
   followUser,
   unfollowUser,
   fetchFollowStatus,
+  getFriends,
 } from '../data/followUtils';
 import {
   Box,
@@ -63,9 +64,6 @@ export const Profile: FunctionComponent = () => {
   const [myData, setMyData] = useState<User | null>(null);
   const [notAllowedToViewProfile, setNotAllowedToViewProfile] = useState(false);
   const [pendingFollow, setPendingFollow] = useState(false);
-  const [currentUser] = useState<string>(
-    localStorage.getItem('username') || ''
-  );
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
   const fetchProfile = useCallback(async () => {
@@ -136,6 +134,15 @@ export const Profile: FunctionComponent = () => {
           display_name: selfProfileData.display_name,
           images: selfProfileData.images || [],
         });
+
+        // FETCH YOUR FRIENDS
+
+        const friendsResponse = await getFriends(myProfileData._id);
+
+        //setFriends(friendsResponse);
+
+
+
       } else {
         console.log("this is not my profile");
         // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
@@ -171,6 +178,11 @@ export const Profile: FunctionComponent = () => {
           display_name: otherProfileData.display_name,
           images: otherProfileData.images || [],
         });
+
+
+        // FETCH THE OTHER PERSONS FRIENDS
+
+
       }
     } catch (error) {
       console.error('Error fetching profile', error);
