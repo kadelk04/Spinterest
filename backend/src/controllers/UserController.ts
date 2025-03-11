@@ -27,6 +27,27 @@ export const getUserByUsername = async (req: Request, res: Response) => {
 };
 
 /**
+ * Retrieve a user by their MongoDB ID
+ * @param req
+ * @param res
+ * @returns
+ */
+export const getUserByMongoId = async (req: Request, res: Response) => {
+  try {
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findById(req.params.userMongoId);
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+    res.status(200).send(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error fetching user');
+  }
+};
+
+/**
  * Retrieve a user by their spotifyId
  * @param req
  * @param res
@@ -176,8 +197,6 @@ export const viewProfile = async (req: Request, res: Response) => {
 export const searchUsers = async (req: Request, res: Response) => {
   try {
     const searchTerm = req.params.username;
-    console.log('Searching for username:', searchTerm);
-
     if (!searchTerm || searchTerm.length === 0) {
       res.status(200).json([]);
       return;
@@ -190,7 +209,6 @@ export const searchUsers = async (req: Request, res: Response) => {
       .limit(10) // Limit results to avoid overwhelming the frontend
       .select('username'); // Only select needed fields
 
-    console.log('Found users:', users);
     res.status(200).json(users);
   } catch (err) {
     console.error('Error in searchUsers:', err);
@@ -257,10 +275,6 @@ export const getUserSpotifyId = async (
 };
 
 export const addFollower = async (req: Request, res: Response) => {
-  console.log('req.params.mongoId:', req.params.userMongoId);
-  console.log('req.body.follower:', req.body.follower);
-
-  
   try {
     const UserModel = getModel<IUser>('User');
     const userToFollow = await UserModel.findOne({
@@ -268,8 +282,6 @@ export const addFollower = async (req: Request, res: Response) => {
     });
     // follower is the id of the user (you) that is requesting to follow
     const follower = await UserModel.findOne({ _id: req.body.follower });
-    console.log('userToFollow:', userToFollow?._id);
-    console.log('follower:', follower?._id);
     if (!userToFollow) {
       res.status(404).send('User not found');
       return;
@@ -291,7 +303,7 @@ export const addFollower = async (req: Request, res: Response) => {
 
 export const getFollowers = async (req: Request, res: Response) => {
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.userMongoId });
+  const user = await UserModel.findOne({ _id: req.params.userMongoId });
   if (!user) {
     res.status(404).send('User not found');
     return;
@@ -299,9 +311,8 @@ export const getFollowers = async (req: Request, res: Response) => {
   res.status(200).send(user.followers);
 };
 export const getFollowing = async (req: Request, res: Response) => {
-  console.log("in get following", req.params.userMongoId);
   const UserModel = getModel<IUser>('User');
-  const user = await UserModel.findOne({ username: req.params.userMongoId });
+  const user = await UserModel.findOne({ _id: req.params.userMongoId });
   if (!user) {
     res.status(404).send('User not found');
     return;

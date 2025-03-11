@@ -23,6 +23,8 @@ export const followUser = async (username: string, myUsername: string) => {
   }
 
   try {
+
+
     // first find if user is private or public -- add a new UserController method
     const privacyResponse = await axios.get(
       `http://localhost:8000/api/user/${username}/privacy`
@@ -135,21 +137,33 @@ export const getFriends = async (userMongoId: string) => {
   console.log('Getting friends for:', userMongoId);
 
   try {
-    const followingResponse = await axios.get(
-      `http://localhost:8000/api/user/${userMongoId}/following`
-    );
     const followersResponse = await axios.get(
       `http://localhost:8000/api/user/${userMongoId}/followers`
     );
-    const following = followingResponse.data;
-    const followers = followersResponse.data;
 
-    console.log('Following:', following);
+    const followingResponse = await axios.get(
+      `http://localhost:8000/api/user/${userMongoId}/following`
+    );
+    const following: string[] = followingResponse.data as string[];
+    const followers: string[] = followersResponse.data as string[];
+
     console.log('Followers:', followers);
+    console.log('Following:', following);
 
-    //(notificationResponse.data as { receiver: string[] }).
-    // const friends = following.filter((user: string) => followers.includes(user));
-    // return friends;
+    const friends = await Promise.all(
+      following
+      .filter((user: string) => followers.includes(user))
+      .map(async (userMongoId: string) => {
+        console.log('Friend:', userMongoId);
+        const userResponse = await axios.get(`http://localhost:8000/api/user/${userMongoId}/id`);
+        const userData = userResponse.data as { username: string };
+        console.log('Friend:', userData.username);
+        return userData.username;
+      })
+    );
+    console.log('Friends usernames:', friends);
+
+    return friends;
 
   } catch (error) {
     console.error('Error fetching friends:', error);
