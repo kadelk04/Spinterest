@@ -15,7 +15,8 @@ export interface Widget {
 export interface WidgetData {
   id: string;
   cover: string;
-  owner: Owner;
+  owner: string;
+  creator_name: string;
   title: string;
   genres?: string[];
 }
@@ -90,7 +91,8 @@ export const fetchPlaylists = async (
       .map((playlist: PlaylistData) => ({
         id: playlist.id,
         cover: playlist.images[0]?.url || '',
-        owner: playlist.owner,
+        creator_name: playlist.owner.display_name,
+        owner: playlist.owner.display_name,
         title: playlist.name,
       }));
 
@@ -172,27 +174,30 @@ export const genreCompilation = async (
 export const buildWidgets = async (
   playlists: WidgetData[]
 ): Promise<Widget[]> => {
-  const widgets: Widget[] = playlists.map((playlist: WidgetData) => {
-    const topGenres = playlist.genres || [];
-    return {
-      id: playlist.id,
-      cover: playlist.cover,
-      owner: 'Jim',
-      title: playlist.title,
-      genres: topGenres,
-      component: (
-        <PlaylistWidget
-          playlistId={playlist.id}
-          cover={playlist.cover}
-          owner={'Jim'}
-          title={playlist.title}
-          genres={topGenres}
-        />
-      ),
-    };
-  });
-  // console.log('widgets', widgets);
-  return widgets;
+  const widgets: Promise<Widget>[] = playlists.map(
+    async (playlist: WidgetData) => {
+      const topGenres = getTopGenres(playlist.genres || []);
+      return {
+        id: playlist.id,
+        cover: playlist.cover,
+        owner: playlist.creator_name,
+        creator_name: playlist.creator_name,
+        title: playlist.title,
+        genres: topGenres,
+        component: (
+          <PlaylistWidget
+            playlistId={playlist.id}
+            cover={playlist.cover}
+            owner={playlist.creator_name}
+            title={playlist.title}
+            genres={topGenres}
+          />
+        ),
+      };
+    }
+  );
+  const resolvedWidgets = await Promise.all(widgets);
+  return resolvedWidgets;
 };
 
 // later it may be beneficial to create a better algorithm for getting the top genres

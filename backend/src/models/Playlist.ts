@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 export interface IPlaylist {
   spotifyId: string;
   genres?: string[];
-  tags: string[];
-  likes: number;
+  tags?: string[];
 }
 
 export const PlaylistSchema = new mongoose.Schema({
@@ -17,5 +16,6 @@ export const PlaylistSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
+  creator_name: { type: String, required: true },
   likes: { type: Number, default: 0 },
 });

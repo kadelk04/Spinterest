@@ -91,6 +91,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
               spotifyId: playlist.id,
               cover: playlist.images[0].url,
               creator: myMongoId,
+              creator_name: myProfileData.username,
               title: playlist.name,
               genres: genres,
             });
