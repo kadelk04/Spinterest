@@ -44,7 +44,7 @@ export const createFollowRequestNotification = async (req: Request, res: Respons
       title: 'Follow Request',
       type: 'follow_request',
       message: `${follower} requested to follow you!`,
-      receiver: [userMongoId],
+      receiver: userMongoId,
       createdAt: new Date(),
       sender: myMongoId,
       status: 'pending',
@@ -85,7 +85,7 @@ export const createFollowNotification = async (req: Request, res: Response) => {
       title: 'New Follower',
       type: 'follow',
       message: `${follower} followed you!`,
-      receiver: [userMongoId],
+      receiver: userMongoId,
       createdAt: new Date(),
       sender: myMongoId,
     });

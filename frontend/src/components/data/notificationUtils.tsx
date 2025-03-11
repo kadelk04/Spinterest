@@ -45,11 +45,11 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
 
 export const acceptFollowRequest = async (notificationId: string): Promise<Boolean> => {
   // colter follow req
- // {"_id":{"$oid":"67c3d08377794649451db4b5"},"title":"Follow Request","message":"colt requested to follow you!","type":"follow_request","receiver":[{"$oid":"679bea43f63834e135f2773c"}],"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67b4d7faa565ae31eba7e443"}}
+ // {"_id":{"$oid":"67c3d08377794649451db4b5"},"title":"Follow Request","message":"colt requested to follow you!","type":"follow_request","receiver":{"$oid":"679bea43f63834e135f2773c"},"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67b4d7faa565ae31eba7e443"}}
 
 
  // gale follow req
- // {"_id":{"$oid":"67c7529fde72bdd6e970cc13"},"title":"Follow Request","message":"gale1 requested to follow you!","type":"follow_request","receiver":[{"$oid":"679bea43f63834e135f2773c"}],"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67849104e9e332e40e82e5da"}}
+ // {"_id":{"$oid":"67c7529fde72bdd6e970cc13"},"title":"Follow Request","message":"gale1 requested to follow you!","type":"follow_request","receiver":{"$oid":"679bea43f63834e135f2773c"},"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67849104e9e332e40e82e5da"}}
   try {
     console.log("accepting follow req", notificationId);
     // add them to their following array, add requested user to their followers array
@@ -71,7 +71,7 @@ export const acceptFollowRequest = async (notificationId: string): Promise<Boole
       
       console.log("notification response", notificationResponse.data);
 
-      userMongoId = (notificationResponse.data as { receiver: string[] }).receiver[0];
+      userMongoId = (notificationResponse.data as { receiver: string }).receiver;
       myMongoId = (notificationResponse.data as { sender: string }).sender;
 
       console.log("userMongoId", userMongoId);

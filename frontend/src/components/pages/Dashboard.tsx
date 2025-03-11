@@ -58,6 +58,9 @@ export const Dashboard = () => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
+
+    
+
     returnNotifications().then((notifications) => {
       setNotifications(notifications);
     });
@@ -148,6 +151,7 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
+
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
@@ -228,6 +232,7 @@ export const Dashboard = () => {
           {searchError}
         </Typography>
       </Box>
+
       <Grid container spacing={2} sx={{ padding: 2 }}>
         {widgets.map((widget) => (
           <Grid key={widget.id} component="div">

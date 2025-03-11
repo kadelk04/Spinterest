@@ -61,7 +61,6 @@ export const PlaylistWidget = ({
               height: '250px',
               objectFit: 'cover',
               opacity: 1,
-              // marginBottom: '10px',
             }}
           />
         ) : null}
@@ -79,7 +78,6 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
-              //border: '1px solid red',
             }}
           >
             {title}
@@ -96,7 +94,6 @@ export const PlaylistWidget = ({
             paddingTop: 1,
             paddingLeft: 1,
             paddingRight: 1,
-            //border: '1px solid #ccc',
           }}
         >
           {/* only horizontal space if not on new line */}
