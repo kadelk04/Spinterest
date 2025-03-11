@@ -6,11 +6,6 @@ import {
   IconButton, 
   Button,
   CircularProgress,
-  TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
 import MusicNoteIcon from '@mui/icons-material/MusicNote';
@@ -32,6 +27,7 @@ export const Vibes = ({ expanded }: VibesProps) => {
   const [calculating, setCalculating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
+  
 
   // Function to get icon based on vibe type
   const getVibeIcon = (vibeName: string) => {
@@ -50,6 +46,15 @@ export const Vibes = ({ expanded }: VibesProps) => {
         return <MoodIcon sx={{ color: 'white', fontSize: 18 }} />;
     }
   };
+
+  const vibeImages: Record<string, string> = {
+    "Straight Chilling": '../../../assets/straight_chilling.png',
+    "Energetic Energy": '../../../assets/energetic_energy.png',
+    "Woe is Me": '../../../assets/woe_cloud.png',
+    "Feel-Good": '../../../assets/feel_good.png',
+    "Noise Enjoyer": '../../../assets/noise_enjoyer.png',
+  };
+  
 
   const fetchUserVibes = async () => {
     try {
@@ -130,6 +135,10 @@ export const Vibes = ({ expanded }: VibesProps) => {
       }
     }
   }, [isOpen, lastFetched]);
+
+  const userVibe = userVibes.length > 0 ? userVibes[0] : "Vibes are a melting pot of genres";
+  const vibeImage = vibeImages[userVibe] || vibeImages["Vibes are a melting pot of genres"];
+
   
   return (
     <>
@@ -257,21 +266,27 @@ export const Vibes = ({ expanded }: VibesProps) => {
             </Typography>
           )}
           
-          {/* Vibe Character Box */}
           <Box sx={{ 
-            width: '100%',
-            height: 180,
-            bgcolor: '#d9d9d9',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            mb: 3
-          }}>
-            <Typography variant="body2" sx={{ color: '#333' }}>
-              VIBE CHARACTER
-            </Typography>
-          </Box>
-          
+          width: '100%',
+          height: 180,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mb: 3
+        }}>
+          {loading ? (
+            <Typography variant="body2" sx={{ color: '#333' }}>Loading vibes...</Typography>
+          ) : error ? (
+            <Typography variant="body2" sx={{ color: 'red' }}>{error}</Typography>
+          ) : (
+            <>
+              <img src={vibeImage} alt={userVibe} style={{ width: 300, height: 300 }} />
+            </>
+          )}
+        </Box>
+
+                    
           {/* Find People Button - Disabled if no vibes */}
           <Button 
             variant="contained" 
