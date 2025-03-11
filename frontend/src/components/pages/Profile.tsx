@@ -8,6 +8,11 @@ import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
 import { useNavigate } from 'react-router-dom';
 import {
+  followUser,
+  unfollowUser,
+  fetchFollowStatus,
+} from '../data/followUtils';
+import {
   Box,
   Button,
   TextField,
@@ -33,11 +38,7 @@ interface User {
   bio: string;
   location: string;
   links: string;
-  favorites: {
-    genre: string[];
-    artist: string[];
-    album: string[];
-  };
+  favorites: { genre: string[]; artist: string[]; album: string[] };
   following: string[];
   followers: string[];
 }
@@ -60,6 +61,11 @@ export const Profile: FunctionComponent = () => {
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [myData, setMyData] = useState<User | null>(null);
+  const [notAllowedToViewProfile, setNotAllowedToViewProfile] = useState(false);
+  const [pendingFollow, setPendingFollow] = useState(false);
+  const [currentUser] = useState<string>(
+    localStorage.getItem('username') || ''
+  );
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
   const fetchProfile = useCallback(async () => {
@@ -100,11 +106,7 @@ export const Profile: FunctionComponent = () => {
       // fetch YOUR spotify ID directly from the Spotify API
       let selfSpotifyDataResponse = await fetch(
         `https://api.spotify.com/v1/me`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+        { headers: { Authorization: `Bearer ${accessToken}` } }
       );
       console.log('YOUR profile response', selfSpotifyDataResponse);
 
@@ -135,6 +137,7 @@ export const Profile: FunctionComponent = () => {
       console.log('My Profile Data:', myProfileData);
 
       if (selfProfileSpotifyId === userSpotifyId) {
+        console.log("this is my profile");
         // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
         setIsOwnProfile(true);
         console.log('Profile Data Fetched:', selfProfileData);
@@ -143,16 +146,31 @@ export const Profile: FunctionComponent = () => {
           images: selfProfileData.images || [],
         });
       } else {
+        console.log("this is not my profile");
         // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
         setIsOwnProfile(false);
+
+        // if the user you are viewing is private, hide their information if you do not follow them
+
+        // use this as a react component condition to hide the profile information
+        setNotAllowedToViewProfile(
+          userData.isPrivate && !userData.followers.includes(myMongoId)
+        );
+
+        // fetch if you currently have a pending follow request
+        console.log('my username:', myProfileData!.username);
+        const followRequestResponse = await fetchFollowStatus(userData._id, myProfileData!.username);
+        console.log('Follow Request Response:', followRequestResponse);
+
+        if (followRequestResponse){
+          console.log("PENDING FOLLOW REQ");
+          setPendingFollow(true);
+        }
+
         const otherspotifyDataResponse = await fetch(
           // returns spotify user data from SPOTIFY API, this contains the display name and profile picture
           `https://api.spotify.com/v1/users/${userSpotifyId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${accessToken}` } }
         );
         const otherProfileData = await otherspotifyDataResponse.json();
         console.log(userData.followers);
@@ -173,9 +191,7 @@ export const Profile: FunctionComponent = () => {
     if (!accessToken && !refreshToken) return;
     try {
       const username = window.location.pathname.split('/').pop();
-      const updatedUserData = {
-        isPrivate: !userData?.isPrivate,
-      };
+      const updatedUserData = { isPrivate: !userData?.isPrivate };
 
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/user/${username}`,
@@ -193,8 +209,8 @@ export const Profile: FunctionComponent = () => {
   };
 
   const handleFollowToggle = async () => {
-    if (!accessToken && !refreshToken) return;
     const username = window.location.pathname.split('/').pop();
+    if (!accessToken && !refreshToken) return;
 
     if (following) {
       try {
@@ -207,12 +223,15 @@ export const Profile: FunctionComponent = () => {
             unfollower: myData?.username,
           }
         );
+    if (!username) {
+      throw new Error('Username is undefined');
+    }
 
-        if (response.status === 200) {
-          setFollowing(false);
-        }
-      } catch (error) {
-        console.error('Error unfollowing user:', error);
+    if (following) {
+      // CALL unfollowUser in followUtils.tsx
+      const unfollowSuccess = await unfollowUser(username, myData!.username);
+      if (unfollowSuccess === true) {
+        setFollowing(false);
       }
     } else {
       try {
@@ -231,6 +250,13 @@ export const Profile: FunctionComponent = () => {
         }
       } catch (error) {
         console.error('Error following user:', error);
+      // CALL followUser in followUtils.tsx
+      const followSuccess = await followUser(username, myData!.username);
+      if (followSuccess === true) {
+        setFollowing(true);
+      } else if (followSuccess === 'pending') {
+        console.log("PENDING CUZ THEY ARE PRIV");
+        setPendingFollow(true);
       }
     }
   };
@@ -242,12 +268,7 @@ export const Profile: FunctionComponent = () => {
   }, [fetchProfile, accessToken, refreshToken]);
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: { xs: 'column', md: 'row' },
-      }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
       <Box sx={{ flex: { xs: '100%', md: 1 } }}>
         <Paper
           sx={{
@@ -276,7 +297,7 @@ export const Profile: FunctionComponent = () => {
                     userData?.isPrivate ? <VisibilityOff /> : <Visibility />
                   }
                 >
-                  {userData?.isPrivate ? 'Private' : 'Public'}
+                  {myData?.isPrivate ? 'Private' : 'Public'}
                 </Button>
               ) : null}
               {isOwnProfile ? (
@@ -297,9 +318,18 @@ export const Profile: FunctionComponent = () => {
                   variant="contained"
                   onClick={handleFollowToggle}
                 >
-                  {following ? 'Unfollow' : 'Follow'}
+                  {pendingFollow
+                    ? 'Requested'
+                    : following
+                      ? 'Unfollow'
+                      : 'Follow'}
                 </Button>
               ) : null}
+              {notAllowedToViewProfile && (
+                <Typography>
+                  This user is private. Follow to see their account.
+                </Typography>
+              )}
             </>
           ) : (
             <>
@@ -315,31 +345,35 @@ export const Profile: FunctionComponent = () => {
             </>
           )}
         </Paper>
-        <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
+        {!notAllowedToViewProfile && (
+          <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
+        )}
       </Box>
 
-      <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
-        <Paper
-          sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            p: 3,
-            gap: 2,
-            mb: 4,
-            bgcolor: '#ECE6F0',
-          }}
-        >
-          <AboutComponent
-            isOwnProfile={isOwnProfile}
+      {!notAllowedToViewProfile && (
+        <Box sx={{ flex: { xs: '100%', md: 2 }, mt: { xs: 4, md: 0 } }}>
+          <Paper
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              p: 3,
+              gap: 2,
+              mb: 4,
+              bgcolor: '#ECE6F0',
+            }}
+          >
+            <AboutComponent
+              isOwnProfile={isOwnProfile}
+              username={profileUsername}
+            />
+          </Paper>
+
+          <PinnedMusicComponent
             username={profileUsername}
+            isOwnProfile={isOwnProfile}
           />
-        </Paper>
-
-        <PinnedMusicComponent
-          username={profileUsername}
-          isOwnProfile={isOwnProfile}
-        />
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 };

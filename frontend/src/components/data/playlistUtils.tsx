@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../pages/DashboardComponents/PlaylistWidget';
 
@@ -8,7 +8,7 @@ export interface Widget {
   owner: string;
   title: string;
   genres: string[];
-  component: React.ReactElement;
+  component: ReactElement;
 }
 
 export interface WidgetData {
@@ -93,6 +93,86 @@ export const fetchPlaylists = async (
     return widgetsData;
   } catch (error) {
     console.error('Error fetching playlists:', error);
+    return [];
+  }
+};
+
+export const likePlaylist = async (playlistId: string) => {
+  console.log('in likePlaylist');
+  try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
+    const response = await axios.put(
+      `http://localhost:8000/api/playlist/${playlistId}/like`,
+      {
+        params: {
+          playlistId: playlistId,
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error liking playlist:', error);
+    throw error;
+  }
+};
+
+// Pinning playlist
+export const togglePinPlaylist = async (
+  username: string,
+  playlistId: string
+) => {
+  try {
+    const token = localStorage.getItem('jwttoken');
+    if (!token) {
+      throw new Error('JWT token is missing');
+    }
+
+    const response = await axios.put(
+      `http://localhost:8000/api/profile/pinPlaylist/${username}/${playlistId}`,
+      {},
+      {
+        headers: { authorization: token },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling pinned playlist:', error);
+    throw error;
+  }
+};
+
+export const fetchPinPlaylist = async (
+  username: string
+): Promise<WidgetData[]> => {
+  try {
+    // Fetch pinned playlists from your backend
+    const response = await axios.get<PlaylistResponse>(
+      `http://localhost:8000/profile/getPinnedPlaylists`,
+      { params: { user: username } }
+    );
+
+    const data = response.data;
+    console.log('Pinned Playlists:', data);
+
+    // Fetch cover image for each playlist from Spotify API
+    const pinnedPlaylists: WidgetData[] = data.items
+      .filter((playlist: PlaylistData) => playlist)
+      .map((playlist: PlaylistData) => ({
+        id: playlist.id,
+        cover: playlist.images[0]?.url || '',
+        owner: playlist.owner,
+        title: playlist.name,
+      }));
+
+    return pinnedPlaylists;
+  } catch (error) {
+    console.error('Error fetching pinned playlists from user:', error);
     return [];
   }
 };
@@ -213,8 +293,6 @@ export const buildWidgets = async (
             owner={playlist.owner.display_name}
             title={playlist.title}
             genres={topGenres}
-            dragHandleClass="drag-handle"
-            noDragClass="no-drag"
           />
         ),
       };
@@ -251,27 +329,7 @@ export const returnWidgets = async (): Promise<Widget[]> => {
   // if not, this means the user has either cleared their local storage or has not visited the dashboard yet
   // if the data does not exist, fetch the playlist data from the spotify api and build the widgets
   let playlists_with_genres: Widget[] = [];
-  // if (
-  //   !localStorage.getItem('widget_data') ||
-  //   localStorage.getItem('widget_data') === '[]'
-  // ) {
-  //   //first time loading into dashboard
-  //   const playlists_data = await fetchPlaylists(accessToken);
-  //   // save the data to local storage
-  //   localStorage.setItem('widget_data', JSON.stringify(playlists_data));
-
-  //   playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  // } else {
-  //   // use the local storage data to build the widgets
-  //   // buildWidgets expects an array of WidgetData[]
-  //   console.log('utilizing local storage to build widgets');
-  //   const localWidgetsData: WidgetData[] = JSON.parse(
-  //     localStorage.getItem('widget_data') || '[]'
-  //   );
-  //   playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
-  // }
   const playlists_data = await fetchPlaylists(accessToken);
   playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  // returns Widget[] type
   return playlists_with_genres;
 };
