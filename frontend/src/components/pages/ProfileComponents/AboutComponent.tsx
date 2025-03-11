@@ -162,24 +162,6 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              id="Theme"
-              label="Theme"
-              value={links}
-              maxRows={1}
-              onChange={(e) => setLinks(e.target.value)}
-              InputProps={{
-                readOnly: !isEditable,
-                startAdornment: (
-                  <Icon>
-                    <LocationOnIcon />
-                  </Icon>
-                ),
-              }}
-            />
-          </Grid>
-
           <Grid item xs={12}>
             <TextField
               id="biography"
