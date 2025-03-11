@@ -10,6 +10,9 @@ class User {
     +String link
     +Favorites favorites
     +List<Playlist> annotatedPlaylists
+    +String[] pinnedPlaylists
+    +ObjectId[] following
+    +ObjectId[] followers
 }
 
 'Favorites structure'
@@ -23,6 +26,7 @@ class Favorites {
 class Playlist {
     +String spotifyId
     +List<String> tags
+    +Integer likes
 }
 
 'Song structure'
@@ -37,9 +41,20 @@ class Artist {
     +List<Genre> genres
 }
 
+'Notification structure'
+class Notification {
+    +String title
+    +String type
+    +ObjectId receiver
+    +ObjectId sender
+    +String status
+    +Date createdAt
+    +Date expiresAt
+}
 Playlist "1" *-- "*" Song
 
 User "1" *-- "*" Playlist
 
 User "1" *-- "1" Favorites
+
 @enduml
