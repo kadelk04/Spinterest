@@ -4,6 +4,6 @@ import { analyzeAndStoreUserVibes, fetchUserVibes } from '../../controllers/trac
 const router = Router();
 
 router.post('/user/vibes', analyzeAndStoreUserVibes);
-router.get('/user/vibes', fetchUserVibes);
+router.get('/user/vibes/:username', fetchUserVibes);
 
 export default router;

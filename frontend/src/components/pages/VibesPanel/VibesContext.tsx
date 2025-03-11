@@ -32,4 +32,4 @@ export const VibesProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         {children}
       </VibesContext.Provider>
     );
-}
+};
