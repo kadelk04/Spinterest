@@ -1,4 +1,7 @@
 /// <reference types="cypress" />
+
+import { redirect } from 'react-router-dom';
+
 /* Feature: Sign In/Sign Up as a User
 Scenario: New user signs up
   Given a user with no account
@@ -17,12 +20,6 @@ Scenario: Existing user returns with an expired OAuth grant from Spotify
   Then the user is redirected to the Spotify OAuth consent screen
   And the user grants access
   Then the user's account is relinked to Spotify successfully
-
-Scenario: Returning user has an existing valid grant from Spotify
-  Given a user with an existing account linked to Spotify
-  When the user enters their username and password
-  And clicks "Sign In"
-  Then the user is redirected to their dashboard
 
 Scenario: Returning user has fully valid login credentials
 Given a user with an existing account is linked to Spotify
@@ -51,35 +48,38 @@ describe('Sign In/Sign Up as a User', () => {
       cy.get('button').contains('Log In').click();
     });
 
+    cy.wait(2000);
+
     cy.url().should('include', `/dashboard`);
   });
 
-  // it('Existing user returns with an expired OAuth grant from Spotify', () => {
-  //   cy.visit(`${siteUrl}`);
-  //   cy.get('input[name="username"]').type('existinguser');
-  //   cy.get('input[name="password"]').type('password');
-  //   cy.get('button').contains('Sign In').click();
+  it('Existing user returns with an expired OAuth grant from Spotify', () => {
+    cy.visit(`${siteUrl}`);
+    cy.get('input[name="username"]').type(username);
+    cy.get('input[name="password"]').type('password');
+    cy.get('button').contains('Sign In').click();
 
-  //   // Simulate Spotify OAuth flow
-  //   cy.origin('https://accounts.spotify.com', () => {
-  //     cy.get('input[name="username"]').type(spotifyEmail);
-  //     cy.get('input[name="password"]').type(spotifyPassword);
-  //     cy.get('button').contains('Agree').click();
-  //   });
+    // Simulate Spotify OAuth flow
+    cy.origin('https://accounts.spotify.com', () => {
+      const spotifyEmail = Cypress.env('SPOTIFY_EMAIL');
+      const spotifyPassword = Cypress.env('SPOTIFY_PASSWORD');
+      cy.get('input#login-username').type(spotifyEmail);
+      cy.get('input#login-password').type(spotifyPassword);
+      cy.get('button').contains('Log In').click();
+    });
 
-  //   cy.url().should('include', '/dashboard');
-  // });
+    cy.wait(2000);
 
-  // it('Returning user has an existing valid grant from Spotify', () => {
-  //   cy.visit(`${siteUrl}`);
-  //   cy.get('input[name="username"]').type('existinguser');
-  //   cy.get('input[name="password"]').type('password');
-  //   cy.get('button').contains('Sign In').click();
-  //   cy.url().should('include', '/dashboard');
-  // });
+    cy.url().should('include', `/dashboard`);
+  });
 
-  // it('Returning user has fully valid login credentials', () => {
-  //   cy.visit(`${siteUrl}`);
-  //   cy.url().should('include', '/dashboard');
-  // });
+  it('Returning user has fully valid login credentials', () => {
+    // set spotify token, jwt token, and username in local storage
+    cy.window().then((win) => {
+      win.localStorage.setItem('username', username);
+      win.localStorage.setItem('jwttoken', 'valid-jwt-token');
+    });
+    cy.visit(`${siteUrl}/login?code=valid-code`);
+    cy.url().should('include', '/dashboard');
+  });
 });

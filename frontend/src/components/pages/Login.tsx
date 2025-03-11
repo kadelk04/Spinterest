@@ -22,7 +22,6 @@ export const Login = () => {
       if (firstLogin) {
         console.log('First login');
         localStorage.removeItem('firstlogin');
-        // await loadPlaylists();
       }
       navigate('/dashboard');
     };
