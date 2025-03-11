@@ -21,16 +21,10 @@ export const Settings = () => {
                         Edit Profile
                     </Button>
                     <Button variant="text" sx={{ justifyContent: 'flex-start', color: 'inherit' }}>
-                        Account Privacy
-                    </Button>
-                    <Button variant="text" sx={{ justifyContent: 'flex-start', color: 'inherit' }}>
                         Blocked
                     </Button>
                     <Button variant="text" sx={{ justifyContent: 'flex-start', color: 'inherit' }}>
                         Delete Account
-                    </Button>
-                    <Button variant="text" sx={{ justifyContent: 'flex-start', color: 'inherit' }}>
-                        Edit Profile
                     </Button>
                 </Box>
             </Paper>
@@ -60,8 +54,8 @@ export const Settings = () => {
                         </Box>
                         <Box>
                             <Typography variant="subtitle1">John Doe</Typography>
-                            <Button variant="outlined" size="small" sx={{ mt: 1, textTransform: 'none' }}>
-                                CHANGE PHOTO
+                            <Button variant="outlined" size="small" sx={{ mt: 1, textTransform: 'none', color: '#1E1E1F' }}>
+                                EDIT ACCOUNT
                             </Button>
                         </Box>
                     </Box>
