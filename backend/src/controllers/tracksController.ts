@@ -75,6 +75,11 @@ const vibes = [
       track.valence > 0.6 && 
       track.danceability > 0.5
   },
+  //handling vibes with no matching conditions
+  {
+    vibeName: "Unknown Vibe",
+    conditions: (track: TrackFeatures) => false // This will never be true 
+  }
 ];
 
 
@@ -190,6 +195,7 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
         return;
       }
   
+      
       // Fetch user's saved tracks
       const savedTracksResponse = await getUserSavedTracks(spotifyToken) as SavedTracksResponse; // Type assertion
       if (!savedTracksResponse || !savedTracksResponse.items) {
@@ -225,6 +231,7 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
 
       user.vibes = userVibe;
       await user.save();
+  
       res.status(200).send({ userVibe });
     } catch (err) {
       console.error('Error analyzing and storing user vibes:', err);
@@ -232,8 +239,8 @@ export const getUserSavedTracks = async (spotifyToken: string) => {
     }
   };
 
-  //Fetch User Vibes from User Model
-export const fetchUserVibes = async (req: Request, res: Response): Promise<void> => {
+   //Fetch User Vibes from User Model
+ export const fetchUserVibes = async (req: Request, res: Response): Promise<void> => {
   try {
     const username = req.query.username as string;
     

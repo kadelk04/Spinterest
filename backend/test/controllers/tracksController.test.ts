@@ -1,10 +1,8 @@
 import axios from 'axios';
-import request from 'supertest';
 import { getUserSavedTracks, 
     fetchTrackFeatures, 
     categorizeTrack, 
     determineUserVibes } from '../../src/controllers/tracksController';
-import { getModel } from '../../src/utils/connection';
 
 jest.mock('axios');
 
