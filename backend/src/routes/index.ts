@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import trackRoutes from './api/trackRoutes';
 import userRoutes from './api/userRoutes';
 import playlistRoutes from './api/playlistRoutes';
 import spotifyRoutes from './api/spotifyRoutes';
@@ -17,6 +18,7 @@ router.use('/spotify', spotifyRoutes);
 router.use('/login', loginRoutes);
 router.use('/profile', profileRoutes);
 router.use('/notification', notificationRoutes);
+router.use('/user/vibes', trackRoutes);
 
 router.get('/', (req, res) => {
   res.status(200).send('API is working');
