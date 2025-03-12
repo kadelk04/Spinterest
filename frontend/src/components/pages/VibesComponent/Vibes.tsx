@@ -30,6 +30,12 @@ export const Vibes = ({ expanded }: VibesProps) => {
   } = useVibesAPI();
 
   const lastCalculatedDate = localStorage.getItem("lastCalculatedVibe");
+
+  //visual purposes
+  const formattedDate = lastCalculatedDate 
+  ? new Date(lastCalculatedDate).toLocaleString() 
+  : "N/A"; 
+
   const isDisabled = lastCalculatedDate
     ? new Date().getTime() - new Date(lastCalculatedDate).getTime() <
       7 * 24 * 60 * 60 * 1000
@@ -200,7 +206,7 @@ export const Vibes = ({ expanded }: VibesProps) => {
         {/* Last Fetched Info - Moved above the Calculate button */}
         {lastFetched && (
           <Typography variant="caption" sx={{ color: "gray", mb: 2, textAlign: "center" }}>
-            Last updated: {lastFetched.toLocaleTimeString()}
+            Last updated: {formattedDate},
           </Typography>
         )}
 
