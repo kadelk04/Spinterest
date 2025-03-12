@@ -16,7 +16,7 @@ import {
   Headphones,
 } from '@mui/icons-material';
 import { List } from '@mui/material';
-import { useVibes } from '../pages/VibesPanel/VibesContext';
+import { useVibes } from '../pages/VibesComponent/VibesContext';
 
 interface NavbarProps {
   expanded: boolean;
