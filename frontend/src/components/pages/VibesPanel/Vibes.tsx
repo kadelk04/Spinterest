@@ -8,13 +8,15 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Close } from "@mui/icons-material";
-import MusicNoteIcon from '@mui/icons-material/MusicNote';
-import HeadphonesIcon from '@mui/icons-material/Headphones';
-import MoodIcon from '@mui/icons-material/Mood';
-import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import WbSunnyIcon from '@mui/icons-material/WbSunny';
+import MoodIcon from '@mui/icons-material/Mood'; // Keep this icon for fallback
 import { useVibes } from "./VibesContext";
+
+// Import images directly
+import straightChillingImg from '../../../assets/straight_chilling.png';
+import energeticEnergyImg from '../../../assets/energetic_energy.png';
+import woeIsMeImg from '../../../assets/woe_cloud.png';
+import feelGoodImg from '../../../assets/feel_good.png';
+import noiseEnjoyerImg from '../../../assets/noise_enjoyer.png';
 
 interface VibesProps {
   expanded: boolean;
@@ -23,38 +25,68 @@ interface VibesProps {
 export const Vibes = ({ expanded }: VibesProps) => {
   const { isOpen, closeVibes } = useVibes();
   const [userVibes, setUserVibes] = useState<string[]>([]);
+  const [displayVibe, setDisplayVibe] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [calculating, setCalculating] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastFetched, setLastFetched] = useState<Date | null>(null);
   
+  // Map vibe names to their image sources
+  const vibeImages: Record<string, string> = {
+    "Straight Chilling": straightChillingImg,
+    "Energetic Energy": energeticEnergyImg,
+    "Woe is Me": woeIsMeImg,
+    "Feel-Good": feelGoodImg,
+    "Noise Enjoyer": noiseEnjoyerImg
+  };
 
-  // Function to get icon based on vibe type
-  const getVibeIcon = (vibeName: string) => {
-    switch(vibeName) {
-      case "Energetic Energy":
-        return <MusicNoteIcon sx={{ color: 'white', fontSize: 18 }} />;
-      case "Straight Chilling":
-        return <HeadphonesIcon sx={{ color: 'white', fontSize: 18 }} />;
-      case "Woe is Me":
-        return <SentimentVeryDissatisfiedIcon sx={{ color: 'white', fontSize: 18 }} />;
-      case "Noise Enjoyer":
-        return <VolumeUpIcon sx={{ color: 'white', fontSize: 18 }} />;
-      case "Feel-Good":
-        return <WbSunnyIcon sx={{ color: 'white', fontSize: 18 }} />;
-      default:
-        return <MoodIcon sx={{ color: 'white', fontSize: 18 }} />;
+  // Function to get small image thumbnail for the vibe
+  const getVibeImage = (vibeName: string) => {
+    // Check if we have an image for this vibe
+    if (vibeImages[vibeName]) {
+      return (
+        <Box
+          component="img"
+          src={vibeImages[vibeName]}
+          alt={vibeName}
+          sx={{
+            width: 32,
+            height: 32,
+            borderRadius: '50%',
+            objectFit: 'cover',
+            mr: 2
+          }}
+        />
+      );
+    } else {
+      // Fallback to icon if no image exists
+      return (
+        <Box sx={{ 
+          bgcolor: '#7764C4', 
+          borderRadius: '50%', 
+          width: 32, 
+          height: 32,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          mr: 2
+        }}>
+          <MoodIcon sx={{ color: 'white', fontSize: 18 }} />
+        </Box>
+      );
     }
   };
 
-  const vibeImages: Record<string, string> = {
-    "Straight Chilling": '../../../assets/straight_chilling.png',
-    "Energetic Energy": '../../../assets/energetic_energy.png',
-    "Woe is Me": '../../../assets/woe_cloud.png',
-    "Feel-Good": '../../../assets/feel_good.png',
-    "Noise Enjoyer": '../../../assets/noise_enjoyer.png',
+  // Function to randomly select a vibe from the userVibes array
+  const pickRandomVibe = () => {
+    if (userVibes.length === 0) {
+      setDisplayVibe("Vibes are a melting pot of genres");
+      return;
+    }
+    
+    const randomIndex = Math.floor(Math.random() * userVibes.length);
+    setDisplayVibe(userVibes[randomIndex]);
   };
-  
 
   const fetchUserVibes = async () => {
     try {
@@ -62,7 +94,7 @@ export const Vibes = ({ expanded }: VibesProps) => {
       setError(null);
   
       const username = localStorage.getItem('username');
-            const response = await fetch(`http://localhost:8000/api/user/vibes/${username}`);
+      const response = await fetch(`http://localhost:8000/api/user/vibes/${username}`);
   
       if (!response.ok) {
         const errorText = await response.text();
@@ -70,9 +102,16 @@ export const Vibes = ({ expanded }: VibesProps) => {
       }
   
       const data = await response.json();
-
       setUserVibes(data.vibes || []);
       setLastFetched(new Date());
+      
+      // After fetching, randomly pick a vibe to display
+      if (data.vibes && data.vibes.length > 0) {
+        const randomIndex = Math.floor(Math.random() * data.vibes.length);
+        setDisplayVibe(data.vibes[randomIndex]);
+      } else {
+        setDisplayVibe("Vibes are a melting pot of genres");
+      }
     } catch (err: any) {
       console.error('Error fetching user vibes:', err);
       setError(`Error fetching vibes: ${err.message}`);
@@ -81,7 +120,7 @@ export const Vibes = ({ expanded }: VibesProps) => {
     }
   };
   
-  // Function to analyze and store user vibes using backend
+  // Function to analyze and store user vibes using backend - updated to match new API endpoint
   const analyzeAndStoreUserVibes = async () => {
     try {
       setCalculating(true);
@@ -94,11 +133,12 @@ export const Vibes = ({ expanded }: VibesProps) => {
         throw new Error('Spotify token is missing from local storage.');
       }
 
+      // Updated endpoint to match your new router configuration
       const response = await fetch(`http://localhost:8000/api/user/vibes/analyze/${username}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${spotifyToken}` // Include the token
+          'Authorization': `Bearer ${spotifyToken}`
         }
       });
 
@@ -112,6 +152,11 @@ export const Vibes = ({ expanded }: VibesProps) => {
 
       if (data.userVibe) {
         setUserVibes(data.userVibe);
+        
+        // Randomly select one of the vibes to display
+        const randomIndex = Math.floor(Math.random() * data.userVibe.length);
+        setDisplayVibe(data.userVibe[randomIndex]);
+        
         setLastFetched(new Date());
       } else {
         await fetchUserVibes();
@@ -132,13 +177,15 @@ export const Vibes = ({ expanded }: VibesProps) => {
   
       if (shouldFetch) {
         fetchUserVibes();
+      } else if (userVibes.length > 0 && !displayVibe) {
+        // If we already have vibes but haven't set a display vibe, pick one randomly
+        pickRandomVibe();
       }
     }
-  }, [isOpen, lastFetched]);
-
-  const userVibe = userVibes.length > 0 ? userVibes[0] : "Vibes are a melting pot of genres";
-  const vibeImage = vibeImages[userVibe] || vibeImages["Vibes are a melting pot of genres"];
-
+  }, [isOpen, lastFetched, userVibes]);
+  
+  // Get the image for the current vibe or null if not found
+  const vibeImage = displayVibe ? vibeImages[displayVibe] || null : null;
   
   return (
     <>
@@ -232,94 +279,65 @@ export const Vibes = ({ expanded }: VibesProps) => {
                 )}
               </Typography>
             </Box>
-          ) : userVibes.length > 0 ? (
-            /* Vibe Display - Only show if we have actual vibes */
+          ) : displayVibe ? (
+            /* Vibe Display - Only show if we have an actual vibe */
             <Box sx={{ 
               display: 'flex',
               alignItems: 'center',
               mb: 3,
               width: '100%'
             }}>
-              <Box sx={{ 
-                bgcolor: '#7764C4', 
-                borderRadius: '50%', 
-                width: 32, 
-                height: 32,
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                mr: 2
-              }}>
-                {getVibeIcon(userVibes[0])}
-              </Box>
+              {getVibeImage(displayVibe)}
               <Typography sx={{ 
                 fontSize: '14px',
                 fontWeight: 500,
                 textTransform: 'uppercase'
               }}>
-                {userVibes[0]}
+                {displayVibe}
               </Typography>
             </Box>
           ) : (
             <Typography variant="body1" sx={{ mb: 3 }}>
-              No vibes detected yet. Click "recalculate vibes" to analyze your music.
+              No vibes detected yet. Click "Calculate Vibes" to analyze your music.
             </Typography>
           )}
           
           <Box sx={{ 
-          width: '100%',
-          height: 180,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          mb: 3
-        }}>
-          {loading ? (
-            <Typography variant="body2" sx={{ color: '#333' }}>Loading vibes...</Typography>
-          ) : error ? (
-            <Typography variant="body2" sx={{ color: 'red' }}>{error}</Typography>
-          ) : (
-            <>
-              <img src={vibeImage} alt={userVibe} style={{ width: 300, height: 300 }} />
-            </>
-          )}
-        </Box>
-
-                    
-          {/* Find People Button - Disabled if no vibes */}
-          <Button 
-            variant="contained" 
-            disabled={userVibes.length === 0}
-            sx={{ 
-              width: '100%',
-              bgcolor: '#7764C4',
-              color: 'white',
-              borderRadius: 50,
-              textTransform: 'none',
-              py: 1.5,
-              mb: 2,
-              '&:hover': {
-                bgcolor: '#6555b5'
-              },
-              '&.Mui-disabled': {
-                bgcolor: '#b3aad9',
-                color: 'rgba(255, 255, 255, 0.8)'
-              }
-            }}
-          >
-            Find People with This Vibe
-          </Button>
+            width: '100%',
+            height: 180,
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            mb: 3,
+            position: 'relative'
+          }}>
+            {loading ? (
+              <Typography variant="body2" sx={{ color: '#333' }}>Loading vibes...</Typography>
+            ) : error ? (
+              <Typography variant="body2" sx={{ color: 'red' }}>{error}</Typography>
+            ) : vibeImage ? (
+              <img 
+                src={vibeImage} 
+                alt={displayVibe} 
+                style={{ width: 300, height: 300, objectFit: 'contain' }} 
+              />
+            ) : (
+              <Typography variant="body1" sx={{ textAlign: 'center', color: '#555' }}>
+                {displayVibe || "No vibes yet"}
+              </Typography>
+            )}
+          </Box>
+  
+          {/* Spacer to push recalculate button to bottom */}
+          <Box sx={{ flexGrow: 1 }} />
           
-          {/* Last Fetched Info */}
+          {/* Last Fetched Info - Moved above the Calculate button */}
           {lastFetched && (
-            <Typography variant="caption" sx={{ color: 'gray', mb: 1 }}>
+            <Typography variant="caption" sx={{ color: 'gray', mb: 2, textAlign: 'center' }}>
               Last updated: {lastFetched.toLocaleTimeString()}
             </Typography>
           )}
-          
-          {/* Spacer to push recalculate button to bottom */}
-          <Box sx={{ flexGrow: 1 }} />
           
           {/* Recalculate Button */}
           <Button
@@ -342,7 +360,7 @@ export const Vibes = ({ expanded }: VibesProps) => {
             {calculating ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'calculate vibes'
+              'Calculate Vibes'
             )}
           </Button>
         </Box>
