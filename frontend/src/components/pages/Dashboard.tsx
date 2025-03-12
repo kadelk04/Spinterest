@@ -6,9 +6,8 @@ import {
   Input,
   InputAdornment,
   Paper,
-  Button,
-  Skeleton,
   Avatar,
+  Skeleton,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
 import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
@@ -39,10 +38,10 @@ export const Dashboard = () => {
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [notFound, setNotFound] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-
   const [notifications, setNotifications] = useState<Notification[]>([]);
+
   useEffect(() => {
     // 16 skeleton widgets
     const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
@@ -70,6 +69,7 @@ export const Dashboard = () => {
       setNotifications(notifications);
     });
   }, []);
+
   useEffect(() => {
     const handleResize = () => {
       setWindowWidth(window.innerWidth - 120);
@@ -82,11 +82,13 @@ export const Dashboard = () => {
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
       setSearchResults([]);
+      setNotFound(false);
       return;
     }
 
     setIsSearching(true);
     setSearchError('');
+    setNotFound(false);
 
     try {
       const response = await fetch(
@@ -94,7 +96,9 @@ export const Dashboard = () => {
       );
 
       if (response.status === 404) {
+        console.log(`User '${username}' not found`);
         setSearchResults([]);
+        setNotFound(true);
         return;
       }
 
@@ -102,9 +106,20 @@ export const Dashboard = () => {
         throw new Error(`Error: ${response.status}`);
       }
 
-      const user = await response.json();
-      setSearchResults(user);
-      setShowDropdown(true); // Show dropdown when we have results
+      const users = await response.json();
+      
+      // If no users found or empty array
+      if (!users || (Array.isArray(users) && users.length === 0)) {
+        console.log(`No users found matching '${username}'`);
+        setSearchResults([]);
+        setNotFound(true);
+        return;
+      }
+      
+      // Check if we got an array or single user
+      const userResults = Array.isArray(users) ? users : [users];
+      setSearchResults(userResults);
+      setShowDropdown(true);
     } catch (err) {
       console.error('Search error:', err);
       setSearchError('Error searching for user');
@@ -139,6 +154,7 @@ export const Dashboard = () => {
       // Clear search after successful navigation
       setSearchResults([]);
       setSearchQuery('');
+      setNotFound(false);
     } catch (err) {
       console.error('Error navigating to profile:', err);
       setSearchError(
@@ -153,10 +169,19 @@ export const Dashboard = () => {
       handleSearch(searchQuery);
     } else {
       setSearchResults([]);
+      setNotFound(false);
     }
   }, [searchQuery]);
 
   const layouts = getLayouts(playlists);
+
+  // Helper function to get the user profile image
+  const getUserProfileImage = (user: User): string => {
+    if (user.images && user.images.length > 0 && user.images[0].url) {
+      return user.images[0].url;
+    }
+    return '/broken-image.jpg'; // Default placeholder
+  };
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
@@ -183,7 +208,7 @@ export const Dashboard = () => {
         />
 
         {/* Search Results Dropdown */}
-        {(searchResults.length > 0 || isSearching) && (
+        {searchQuery.trim() !== '' && (
           <Paper
             elevation={3}
             sx={{
@@ -197,55 +222,62 @@ export const Dashboard = () => {
               zIndex: 1000,
             }}
           >
-            {searchResults.map((user) => (
-              <Box
-                key={user._id}
-                onClick={() => handleUserClick(user.username)}
-                sx={{
-                  p: 2,
-                  '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                    cursor: 'pointer',
-                  },
-                  borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                }}
-              >
-                <Avatar
-                  src={user.images?.[0]?.url || '/broken-image.jpg'}
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    bgcolor: '#7C6BBB', // Same purple as your profile avatar
-                  }}
-                />
-                <Box>
-                  <Typography variant="body1">{user.username}</Typography>
-                  {user.location && (
-                    <Typography variant="body2" color="text.secondary">
-                      {user.location}
-                    </Typography>
-                  )}
-                </Box>
+            {isSearching ? (
+              <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Skeleton variant="circular" width={40} height={40} />
+                <Skeleton variant="text" width={150} />
               </Box>
-            ))}
+            ) : notFound ? (
+              <Box sx={{ p: 2 }}>
+                <Typography variant="body1" color="error">
+                  User "{searchQuery}" not found. Please check the username and try again.
+                </Typography>
+              </Box>
+            ) : (
+              searchResults.map((user) => (
+                <Box
+                  key={user._id}
+                  onClick={() => handleUserClick(user.username)}
+                  sx={{
+                    p: 2,
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                      cursor: 'pointer',
+                    },
+                    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 2,
+                  }}
+                >
+                  <Avatar
+                    src={user.images?.[0]?.url || '/broken-image.jpg'}
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      bgcolor: '#7C6BBB', // Same purple as your profile avatar
+                    }}
+                  />
+                  <Box>
+                    <Typography variant="body1">{user.username}</Typography>
+                    {user.location && (
+                      <Typography variant="body2" color="text.secondary">
+                        {user.location}
+                      </Typography>
+                    )}
+                  </Box>
+                </Box>
+              ))
+            )}
           </Paper>
         )}
 
-        <Typography color="error" sx={{ mt: 1 }}>
-          {searchError}
-        </Typography>
+        {searchError && (
+          <Typography color="error" sx={{ mt: 1 }}>
+            {searchError}
+          </Typography>
+        )}
       </Box>
-
-      {/* <Grid2 container spacing={3} sx={{ padding: '20px' }}>
-        {widgets.map((widget) => (
-          <Grid2 key={widget.id} xs={12} sm={6} md={4} lg={3}>
-            {widget.component}
-          </Grid2>
-        ))}
-      </Grid2> */}
 
       <ResponsiveGridLayout
         className="layout"
