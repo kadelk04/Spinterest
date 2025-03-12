@@ -14,10 +14,11 @@ import {
   Box,
   TextField,
   Typography,
-  Grid,
   IconButton,
   Icon,
 } from '@mui/material';
+
+import Grid from '@mui/material/Grid2';
 
 interface AbtFavResponse {
   location: string;
@@ -126,25 +127,24 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
         </Box>
 
         <Grid container spacing={2} mt={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              id="location"
-              label="Location"
-              value={location}
-              maxRows={1}
-              onChange={(e) => setLocation(e.target.value)}
-              InputProps={{
-                readOnly: !isEditable,
-                startAdornment: (
-                  <Icon>
-                    <LocationOnIcon />
-                  </Icon>
-                ),
-              }}
-            />
+          <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+              <TextField
+                id="location"
+                label="Location"
+                value={location}
+                maxRows={1}
+                onChange={(e) => setLocation(e.target.value)}
+                InputProps={{
+                  readOnly: !isEditable,
+                  startAdornment: (
+                    <Icon>
+                      <LocationOnIcon />
+                    </Icon>
+                  ),
+                }}
+              />
           </Grid>
-
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid size={{ xs: 12, sm: 6, md: 4}}>
             <TextField
               id="spotify"
               label="Spotify"
@@ -162,25 +162,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
             />
           </Grid>
 
-          <Grid item xs={12} sm={6} md={4}>
-            <TextField
-              id="Theme"
-              label="Theme"
-              value={links}
-              maxRows={1}
-              onChange={(e) => setLinks(e.target.value)}
-              InputProps={{
-                readOnly: !isEditable,
-                startAdornment: (
-                  <Icon>
-                    <LocationOnIcon />
-                  </Icon>
-                ),
-              }}
-            />
-          </Grid>
-
-          <Grid item xs={12}>
+          <Grid size={{ xs: 12}}>
             <TextField
               id="biography"
               label="User Bio"
@@ -207,8 +189,8 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
         <Typography variant="h5" sx={{ mb: 2 }}>
           FAVORITES
         </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
+        <Grid container spacing={2}> 
+          <Grid size={{ xs: 6 }}>
             <TextField
               id="favgen1"
               fullWidth
@@ -245,7 +227,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
               }}
             />
           </Grid>
-          <Grid item xs={6}>
+          <Grid size={{ xs: 6 }}>
             <TextField
               id="favgen2"
               fullWidth

@@ -6,11 +6,12 @@ import React, {
 } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   followUser,
   unfollowUser,
   fetchFollowStatus,
+  getFriends,
 } from '../data/followUtils';
 import {
   Box,
@@ -43,31 +44,22 @@ interface User {
   followers: string[];
 }
 
-export interface Friend {
-  id: string;
-  name: string;
-  images?: { url: string }[];
-}
-
 export const Profile: FunctionComponent = () => {
   const localStorageUsername = window.localStorage.getItem('username');
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [friends, setFriends] = useState<Friend[]>([]);
-  const [loadingFriends, setLoadingFriends] = useState(true);
+  const [friends, setFriends] = useState<string[]>([]);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [following, setFollowing] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [myData, setMyData] = useState<User | null>(null);
   const [notAllowedToViewProfile, setNotAllowedToViewProfile] = useState(false);
   const [pendingFollow, setPendingFollow] = useState(false);
-  const [currentUser] = useState<string>(
-    localStorage.getItem('username') || ''
-  );
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
+  const { username } = useParams();
   const fetchProfile = useCallback(async () => {
     if (!accessToken && !refreshToken) return;
 
@@ -136,6 +128,15 @@ export const Profile: FunctionComponent = () => {
           display_name: selfProfileData.display_name,
           images: selfProfileData.images || [],
         });
+
+        // FETCH YOUR FRIENDS
+
+        const friendsResponse = await getFriends(myProfileData._id);
+
+        setFriends(friendsResponse);
+        console.log("my friends", friendsResponse);
+
+
       } else {
         console.log("this is not my profile");
         // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
@@ -171,12 +172,17 @@ export const Profile: FunctionComponent = () => {
           display_name: otherProfileData.display_name,
           images: otherProfileData.images || [],
         });
+
+
+        // FETCH THE OTHER PERSONS FRIENDS
+        const friendsResponse = await getFriends(userData._id);
+        setFriends(friendsResponse);
+
       }
     } catch (error) {
       console.error('Error fetching profile', error);
-      setLoadingFriends(false);
     }
-  }, [accessToken, refreshToken, localStorageUsername]);
+  }, [accessToken, refreshToken, localStorageUsername, username]);
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
@@ -310,7 +316,7 @@ export const Profile: FunctionComponent = () => {
           )}
         </Paper>
         {!notAllowedToViewProfile && (
-          <FriendsComponent friends={friends} loadingFriends={loadingFriends} />
+          <FriendsComponent friends={friends} />
         )}
       </Box>
 
