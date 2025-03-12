@@ -8,7 +8,7 @@ export interface Notification {
   createdAt: string;
 }
 
-interface UserData {
+export interface UserData {
   _id: string;
   username: string;
   isPrivate: boolean;
@@ -27,37 +27,43 @@ export const returnNotifications = async (): Promise<Notification[]> => {
     createdAt: notification.createdAt,
     component: null, // Remove this field or set it to null
   }));
-}
+};
 
 export const fetchNotifications = async (): Promise<Notification[]> => {
   const localStorageUsername = window.localStorage.getItem('username');
   try {
-    const userResponse = await axios.get<UserData>(`http://localhost:8000/api/user/${localStorageUsername}`);
+    const userResponse = await axios.get<UserData>(
+      `http://localhost:8000/api/user/${localStorageUsername}`
+    );
     const userMongoId = userResponse.data?._id;
 
-    const response = await axios.get<Notification[]>(`http://localhost:8000/api/notification/all/${userMongoId}`);
+    const response = await axios.get<Notification[]>(
+      `http://localhost:8000/api/notification/all/${userMongoId}`
+    );
     return response.data;
   } catch (error) {
     console.error(error);
     return [];
   }
-}
+};
 
-export const acceptFollowRequest = async (notificationId: string): Promise<Boolean> => {
+export const acceptFollowRequest = async (
+  notificationId: string
+): Promise<boolean> => {
   // colter follow req
- // {"_id":{"$oid":"67c3d08377794649451db4b5"},"title":"Follow Request","message":"colt requested to follow you!","type":"follow_request","receiver":{"$oid":"679bea43f63834e135f2773c"},"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67b4d7faa565ae31eba7e443"}}
+  // {"_id":{"$oid":"67c3d08377794649451db4b5"},"title":"Follow Request","message":"colt requested to follow you!","type":"follow_request","receiver":{"$oid":"679bea43f63834e135f2773c"},"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67b4d7faa565ae31eba7e443"}}
 
-
- // gale follow req
- // {"_id":{"$oid":"67c7529fde72bdd6e970cc13"},"title":"Follow Request","message":"gale1 requested to follow you!","type":"follow_request","receiver":{"$oid":"679bea43f63834e135f2773c"},"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67849104e9e332e40e82e5da"}}
+  // gale follow req
+  // {"_id":{"$oid":"67c7529fde72bdd6e970cc13"},"title":"Follow Request","message":"gale1 requested to follow you!","type":"follow_request","receiver":{"$oid":"679bea43f63834e135f2773c"},"createdAt":{"$date":{"$numberLong":"1740884129817"}},"status":"pending","__v":{"$numberInt":"0"},"sender":{"$oid":"67849104e9e332e40e82e5da"}}
   try {
-    console.log("accepting follow req", notificationId);
+    console.log('accepting follow req', notificationId);
     // add them to their following array, add requested user to their followers array
 
     try {
-      // update the notification 
-      await axios.put(`http://localhost:8000/api/notification/update/${notificationId}`);
-
+      // update the notification
+      await axios.put(
+        `http://localhost:8000/api/notification/update/${notificationId}`
+      );
     } catch (updateError) {
       console.error('Error updating notification:', updateError);
       throw new Error('Failed to update notification');
@@ -67,21 +73,22 @@ export const acceptFollowRequest = async (notificationId: string): Promise<Boole
     let userMongoId;
     let myMongoId;
     try {
-      const notificationResponse = await axios.get(`http://localhost:8000/api/notification/${notificationId}`);
-      
-      console.log("notification response", notificationResponse.data);
+      const notificationResponse = await axios.get(
+        `http://localhost:8000/api/notification/${notificationId}`
+      );
 
-      userMongoId = (notificationResponse.data as { receiver: string }).receiver;
+      console.log('notification response', notificationResponse.data);
+
+      userMongoId = (notificationResponse.data as { receiver: string })
+        .receiver;
       myMongoId = (notificationResponse.data as { sender: string }).sender;
 
-      console.log("userMongoId", userMongoId);
-      console.log("myMongoId", myMongoId);
-      
+      console.log('userMongoId', userMongoId);
+      console.log('myMongoId', myMongoId);
     } catch (notificationError) {
       console.error('Error fetching notification data:', notificationError);
       throw new Error('Failed to fetch notification data');
     }
-
 
     const followResponse = await axios.put(
       `http://localhost:8000/api/user/${userMongoId}/follow`,
@@ -93,20 +100,21 @@ export const acceptFollowRequest = async (notificationId: string): Promise<Boole
     console.log('Followed user:', followResponse.data);
 
     return true;
-
   } catch (error) {
     console.error(error);
     return false;
   }
-}
+};
 
-export const deleteFollowRequest = async (notificationId: string): Promise<void> => {
+export const deleteFollowRequest = async (
+  notificationId: string
+): Promise<void> => {
   try {
-    console.log("deleting follow req", notificationId);
-    await axios.delete(`http://localhost:8000/api/notification/delete/${notificationId}`);
+    console.log('deleting follow req', notificationId);
+    await axios.delete(
+      `http://localhost:8000/api/notification/delete/${notificationId}`
+    );
   } catch (error) {
     console.error(error);
   }
-}
-
-
+};

@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -12,11 +11,9 @@ import {
 import { Search } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
-import { usePlaylists } from '../data/PlaylistContext';
 import Grid from '@mui/material/Grid2';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
-import { returnNotifications, Notification } from '../data/notificationUtils';
 
 interface User {
   _id: string;
@@ -27,14 +24,13 @@ interface User {
 
 export const Dashboard = () => {
   const navigate = useNavigate();
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   useEffect(() => {
     // 16 skeleton widgets
     const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
@@ -46,7 +42,7 @@ export const Dashboard = () => {
       genres: [],
       component: (
         <Skeleton
-          key={i}
+          key={`skeleton-${i}`}
           variant="rounded"
           width={250}
           height={420}
@@ -58,20 +54,6 @@ export const Dashboard = () => {
     returnWidgets().then((widgets) => {
       setWidgets(widgets);
     });
-
-    
-
-    returnNotifications().then((notifications) => {
-      setNotifications(notifications);
-    });
-  }, []);
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth - 120);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleSearch = async (username: string) => {
@@ -150,7 +132,6 @@ export const Dashboard = () => {
       setSearchResults([]);
     }
   }, [searchQuery]);
-
 
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>

@@ -14,14 +14,11 @@ export interface Owner {
 
 export const getMyPlaylists = async (req: Request, res: Response) => {
   try {
-    const payload = {
-      spotifyToken: req.query.spotifyToken,
-    };
     const response = await axios.get(
       'https://api.spotify.com/v1/me/playlists',
       {
         headers: {
-          Authorization: `Bearer ${payload.spotifyToken}`,
+          Authorization: `${req.headers.authorization}`,
         },
       }
     );

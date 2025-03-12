@@ -1,70 +1,90 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Box,
   Paper,
-  TextField,
-  IconButton,
-  Typography,
   List,
   ListItem,
   ListItemAvatar,
   Avatar,
   ListItemText,
   ListItemButton,
+  Input,
+  InputAdornment,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import SettingsIcon from '@mui/icons-material/Settings';
 
 interface FriendsComponentProps {
   friends: string[];
+}
+
+interface User {
+  _id: string;
+  username: string;
+  location?: string;
+  images?: { url: string }[];
 }
 
 const FriendsComponent: React.FC<FriendsComponentProps> = ({
   friends,
 }) => {
   const navigate = useNavigate();
-  const [loadingFriends, setLoadingFriends] = React.useState(friends.length === 0);
-
-  React.useEffect(() => {
-    if (friends.length === 0) {
-      setLoadingFriends(true);
-    } else {
-      setLoadingFriends(false);
-    }
-  }, [friends]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
 
   const handleOnClick = async (friend: string) => {
     let username = friend;
     console.log('Friend clicked:', username);
     navigate(`/profile/${friend}`);
-    // try {
-    //   // First navigate to clear the current profile
-    //   navigate(`/profile/${username}`);
-
-    //   const profileResponse = await fetch(
-    //     `http://localhost:8000/api/user/profile/${username}`,
-    //     { method: 'GET', credentials: 'omit' }
-    //   );
-
-    //   if (!profileResponse.ok) {
-    //     throw new Error(`Error fetching profile: ${profileResponse.status}`);
-    //   }
-
-    //   const profileData = await profileResponse.json();
-
-    //   // Then replace the current navigation with the new data
-    //   navigate(`/profile/${username}`, {
-    //     state: { profileData },
-    //     replace: true, // This is important - it replaces the current history entry
-    //   });
-
-    //   // Clear search after successful navigation
-    // } catch (err) {
-    //   console.error('Error navigating to profile:', err);
-    // }
-
   };
+
+
+  const handleSearch = async (username: string) => {
+    if (!username.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/user/search/${username}`
+      );
+
+      if (response.status === 404) {
+        setSearchResults([]);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const user = await response.json();
+      setSearchResults(user);
+    } catch (err) {
+      console.error('Search error:', err);
+      setSearchResults([]);
+    }
+  };
+
+  // Update search on every keystroke
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      handleSearch(searchQuery);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
+
+  const orderedFriends = useMemo(() => {
+    if (searchQuery.trim() && searchResults.length > 0) {
+      const topFriendUsername = searchResults[0].username;
+      if (friends.includes(topFriendUsername)) {
+        return [topFriendUsername, ...friends.filter(friend => friend !== topFriendUsername)];
+      }
+    }
+    return friends;
+  }, [friends, searchQuery, searchResults]);
   
   return (
     <Paper
@@ -88,47 +108,37 @@ const FriendsComponent: React.FC<FriendsComponentProps> = ({
         mb: 2,
       }}
       >
-      <TextField
-        id="search-friends"
-        label="Friends"
+      <Input
+        placeholder='Friends'
         fullWidth
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        endAdornment={
+          <InputAdornment position="end">
+            <SearchIcon />
+          </InputAdornment>
+        }
         sx={{ flex: 1, mr: 1 }}
-        InputProps={{
-        endAdornment: (
-          <IconButton>
-          <SearchIcon />
-          </IconButton>
-        ),
-        }}
       />
-      <IconButton>
-        <SettingsIcon />
-      </IconButton>
       </Box>
-
-      {loadingFriends ? (
-        <Typography>Loading friends...</Typography>
-      ) : (
-        <List
+      <List
           sx={{
             width: '100%',
             maxHeight: 200,
             overflowY: 'auto',
           }}
-        >
-          {friends.map((friend) => (
-            <ListItem key={friend} disablePadding>
-              <ListItemButton onClick={() => handleOnClick(friend)}>
-                <ListItemAvatar>
-                  <Avatar />
-                </ListItemAvatar>
-                <ListItemText primary={friend} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-
-        </List>
-      )}
+      >
+        {orderedFriends.map((friend) => (
+          <ListItem key={friend} disablePadding>
+            <ListItemButton onClick={() => handleOnClick(friend)}>
+              <ListItemAvatar>
+                <Avatar />
+              </ListItemAvatar>
+              <ListItemText primary={friend} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
     </Paper>
   );
 };
