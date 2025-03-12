@@ -2,9 +2,8 @@ import { Request, Response } from 'express';
 import { getModel } from '../utils/connection';
 import { INotification } from '../models/Notification';
 import mongoose from 'mongoose';
-import axios from 'axios';
 
-interface UserResponse {
+export interface UserResponse {
   _id: mongoose.Types.ObjectId;
   username: string;
 }
@@ -15,16 +14,18 @@ interface UserResponse {
  * @param res
  * @returns
  */
-export const createFollowRequestNotification = async (req: Request, res: Response) => {
+export const createFollowRequestNotification = async (
+  req: Request,
+  res: Response
+) => {
   const userMongoId = req.params.userMongoId;
-  const myMongoId  = req.body.follower;
+  const myMongoId = req.body.follower;
 
   // get the username correlated to myMongoId
   let follower;
   try {
     const User = getModel<UserResponse>('User');
-    const response
-      = await User.findOne({ _id: myMongoId });
+    const response = await User.findOne({ _id: myMongoId });
     if (!response) {
       res.status(404).send('User not found');
       return;
@@ -60,13 +61,12 @@ export const createFollowRequestNotification = async (req: Request, res: Respons
 
 export const createFollowNotification = async (req: Request, res: Response) => {
   const userMongoId = req.params.userMongoId;
-  const myMongoId  = req.body.follower;
-  
+  const myMongoId = req.body.follower;
+
   let follower;
   try {
     const User = getModel<UserResponse>('User');
-    const response
-      = await User.findOne({ _id: myMongoId });
+    const response = await User.findOne({ _id: myMongoId });
     if (!response) {
       res.status(404).send('User not found');
       return;
@@ -103,7 +103,10 @@ export const createFollowNotification = async (req: Request, res: Response) => {
  * @param res
  * @returns
  */
-export const findFollowRequestNotification = async (req: Request, res: Response ): Promise<void> => {
+export const findFollowRequestNotification = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { userMongoId } = req.params;
   const { follower } = req.query;
 
@@ -138,7 +141,10 @@ export const findFollowRequestNotification = async (req: Request, res: Response 
  * @param res
  * @returns
  */
-export const getAllNotifications = async ( req: Request, res: Response ): Promise<void> => {
+export const getAllNotifications = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const userMongoId = req.params.userMongoId;
   if (!userMongoId) {
     res.status(400).send('User ID is required');
@@ -165,7 +171,10 @@ export const getAllNotifications = async ( req: Request, res: Response ): Promis
  * @param res
  * @returns
  */
-export const updateNotification = async (req: Request, res: Response): Promise<void> => {
+export const updateNotification = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { notificationId } = req.params;
   if (!notificationId) {
     res.status(400).send('Notification ID is required');
@@ -240,7 +249,6 @@ export const deleteNotification = async (
   }
 };
 
-
 /**
  * Get notification request by id
  * @param req
@@ -250,7 +258,7 @@ export const deleteNotification = async (
 export const getNotification = async (
   req: Request,
   res: Response
-): Promise<void> => { 
+): Promise<void> => {
   try {
     const Notification = getModel<INotification>('Notification');
     const notification = await Notification.findById(req.params.notificationId);
@@ -264,4 +272,3 @@ export const getNotification = async (
     res.status(500).send('Error retrieving notification');
   }
 };
-

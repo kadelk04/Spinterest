@@ -9,11 +9,10 @@ import {
   getMyPlaylists,
   getMultipleArtistInfo,
 } from '../../controllers/spotifyController';
-import { authenticateUser } from '../../middleware/auth';
 
 const router = Router();
 
-router.get('/playlists', authenticateUser, getMyPlaylists);
+router.get('/playlists', getMyPlaylists);
 router.get('/friends', getFriends);
 router.get('/playlists/:playlistId', getPlaylistTracks);
 router.get('/user/:userId/playlists/', getUserPlaylists);
