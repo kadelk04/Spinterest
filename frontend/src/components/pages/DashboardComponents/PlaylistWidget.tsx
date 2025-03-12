@@ -7,6 +7,7 @@ import {
   Stack,
   Chip,
   IconButton,
+  // Link,
 } from '@mui/material';
 import {
   AddOutlined,
@@ -15,6 +16,7 @@ import {
   PushPin,
 } from '@mui/icons-material';
 import { usePinnedPlaylists } from '../../data/pinnedPlaylistUtils';
+import { Link } from 'react-router-dom';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -86,7 +88,9 @@ export const PlaylistWidget = ({
             gutterBottom
             sx={{ color: 'text.secondary', fontSize: 14 }}
           >
-            {owner}
+            <Link to={`/profile/${owner}`} style={{ textDecoration: 'none' }}>
+              {owner}
+            </Link>
           </Typography>
         </Box>
         <Box

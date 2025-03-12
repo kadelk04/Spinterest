@@ -12,7 +12,7 @@ import {
 const router = Router();
 
 router.get('/', getAllPlaylists);
-router.post('/', addPlaylist);
+router.put('/', addPlaylist);
 router.get('/:playlistId', getPlaylistById);
 router.put('/:playlistId', updatePlaylistById);
 router.delete('/:playlistId', deletePlaylistById);
