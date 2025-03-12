@@ -23,6 +23,11 @@ class Favorites {
 class Playlist {
     +String spotifyId
     +List<String> tags
+    +User creator
+    +String creator_username
+    +List<String> genres
+    +String title
+    +String cover
 }
 
 'Song structure'
