@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { IUser } from '../models/User';
 import { getModel } from '../utils/connection';
 import { IFavorites } from '../models/Favorites';
+import axios from 'axios';
 
 /**
  * Updates profile page attributes (status, about section, favorites)
@@ -243,5 +244,150 @@ export const getPinnedPlaylists = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Error fetching pinned playlists:', err);
     res.status(500).send('Error fetching pinned playlist');
+  }
+};
+
+
+
+
+/**
+ * Cleans up pinned playlists that are no longer available on Spotify
+ * @param req
+ * @param res
+ */
+export const cleanupPinnedPlaylists = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { username } = req.params;
+    const accessToken = req.headers.authorization?.replace('Bearer ', '');
+    
+    if (!username || !accessToken) {
+      res.status(400).json({ 
+        success: false,
+        message: 'Missing username or access token',
+        removed: [] 
+      });
+      return;
+    }
+    
+    // Get user from database with pinned playlists
+    const UserModel = getModel<IUser>('User');
+    const user = await UserModel.findOne({ username });
+    
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: 'User not found',
+        removed: []
+      });
+      return;
+    }
+    
+    // If no playlists are pinned, no cleanup needed
+    if (!user.pinnedPlaylists || user.pinnedPlaylists.length === 0) {
+      res.status(200).json({
+        success: true,
+        message: 'No pinned playlists to clean up',
+        removed: []
+      });
+      return;
+    }
+    
+    try {
+      // First get Spotify user ID
+      interface SpotifyUserResponse {
+        id: string;
+      }
+      
+      const spotifyUserResponse = await axios.get<SpotifyUserResponse>('https://api.spotify.com/v1/me', {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      
+      const spotifyUserId = spotifyUserResponse.data.id;
+      
+      // Define types for Spotify API responses
+      interface SpotifyPlaylist {
+        id: string;
+        name: string;
+      }
+      
+      interface SpotifyPlaylistsResponse {
+        items: SpotifyPlaylist[];
+        next: string | null;
+      }
+      
+      // Fetch all playlists available to the user from Spotify
+      // This requires pagination since Spotify may return a limited number per request
+      let allSpotifyPlaylists: string[] = [];
+      let nextUrl: string | null = `https://api.spotify.com/v1/users/${spotifyUserId}/playlists?limit=50`;
+      
+      while (nextUrl) {
+        // Use axios without type parameter, then apply type assertion
+        const axiosResponse = await axios.get(nextUrl, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        
+        // Apply type assertion after the request is complete
+        const responseData = axiosResponse.data as SpotifyPlaylistsResponse;
+        
+        // Extract playlist IDs
+        const batch = responseData.items.map((playlist: SpotifyPlaylist) => playlist.id);
+        allSpotifyPlaylists = [...allSpotifyPlaylists, ...batch];
+        
+        // Check if there are more playlists to fetch
+        nextUrl = responseData.next;
+      }
+      
+      console.log(`Found ${allSpotifyPlaylists.length} playlists on user's Spotify account`);
+      
+      // Get playlists that are pinned but not available anymore
+      const pinnedIds = user.pinnedPlaylists;
+      const unavailablePlaylists = pinnedIds.filter(
+        (id: string) => !allSpotifyPlaylists.includes(id)
+      );
+      
+      if (unavailablePlaylists.length > 0) {
+        console.log(`Found ${unavailablePlaylists.length} pinned playlists that are no longer available`);
+        
+        // Remove unavailable playlists from pinned list
+        user.pinnedPlaylists = pinnedIds.filter(
+          (id: string) => !unavailablePlaylists.includes(id)
+        );
+        
+        // Save the updated user
+        await user.save();
+        
+        res.status(200).json({
+          success: true,
+          message: `Removed ${unavailablePlaylists.length} unavailable playlists`,
+          removed: unavailablePlaylists
+        });
+        return;
+      } else {
+        res.status(200).json({
+          success: true,
+          message: 'All pinned playlists are still valid',
+          removed: []
+        });
+        return;
+      }
+    } catch (error) {
+      const spotifyError = error as Error;
+      console.error('Error fetching Spotify playlists:', spotifyError);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to verify playlists with Spotify API',
+        error: spotifyError.message
+      });
+      return;
+    }
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error in cleanup process:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during playlist cleanup',
+      error: error.message
+    });
+    return;
   }
 };
