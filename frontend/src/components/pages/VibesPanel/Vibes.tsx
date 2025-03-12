@@ -47,15 +47,21 @@ export const Vibes = ({ expanded }: VibesProps) => {
     }
   };
 
-  const vibeImages: Record<string, string> = {
-    "Straight Chilling": '../../../assets/straight_chilling.png',
-    "Energetic Energy": '../../../assets/energetic_energy.png',
-    "Woe is Me": '../../../assets/woe_cloud.png',
-    "Feel-Good": '../../../assets/feel_good.png',
-    "Noise Enjoyer": '../../../assets/noise_enjoyer.png',
+  const getVibeImg = (vibeName: string) => {
+    switch(vibeName) {
+      case "Straight Chilling":
+        return <img src='../../../assets/straight_chilling.png' style={{ width: 300, height: 300 }} />;
+      case "Energetic Energy": 
+        return <img src='../../../assets/energetic_energy.png' style={{ width: 300, height: 300 }} />;
+      case "Woe is Me":
+        return <img src='../../../assets/woe_cloud.png' style={{ width: 300, height: 300 }} />;
+      case "Feel-Good": 
+        return <img src='../../../assets/feel_good.png' style={{ width: 300, height: 300 }} />;
+      case "Noise Enjoyer": 
+        return <img src='../../../assets/noise_enjoyer.png' style={{ width: 300, height: 300 }} />;
+    }
   };
   
-
   const fetchUserVibes = async () => {
     try {
       setLoading(true);
@@ -137,9 +143,6 @@ export const Vibes = ({ expanded }: VibesProps) => {
   }, [isOpen, lastFetched]);
 
   const userVibe = userVibes.length > 0 ? userVibes[0] : "Vibes are a melting pot of genres";
-  const vibeImage = vibeImages[userVibe] || vibeImages["Vibes are a melting pot of genres"];
-
-  
   return (
     <>
       <Drawer
@@ -281,7 +284,7 @@ export const Vibes = ({ expanded }: VibesProps) => {
             <Typography variant="body2" sx={{ color: 'red' }}>{error}</Typography>
           ) : (
             <>
-              <img src={vibeImage} alt={userVibe} style={{ width: 300, height: 300 }} />
+              {getVibeImg(userVibes[0])}
             </>
           )}
         </Box>
