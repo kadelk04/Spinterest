@@ -24,15 +24,22 @@ app.get('/users/:username/playlists', getPlaylistsByUsername);
 
 describe('Playlist Controller', () => {
   let PlaylistModel: {
+    findOne: jest.Mock;
     find: jest.Mock;
     create: jest.Mock;
     findById: jest.Mock;
   };
 
   beforeEach(() => {
-    PlaylistModel = { find: jest.fn(), create: jest.fn(), findById: jest.fn() };
+    PlaylistModel = {
+      findOne: jest.fn(),
+      find: jest.fn(),
+      create: jest.fn(),
+      findById: jest.fn(),
+    };
     (getModel as jest.Mock).mockReturnValue({
       find: PlaylistModel.find,
+      findOne: PlaylistModel.find,
       create: PlaylistModel.create,
       findById: PlaylistModel.findById,
     });
@@ -65,7 +72,8 @@ describe('Playlist Controller', () => {
 
   describe('addPlaylist', () => {
     it('should add a new playlist', async () => {
-      const newPlaylist: IPlaylist = { spotifyId: '1234', tags: [], likes: 0 };
+      const newPlaylist: IPlaylist = { spotifyId: '1234', tags: [] };
+      PlaylistModel.findOne.mockResolvedValue(null);
       PlaylistModel.create.mockResolvedValue(newPlaylist);
 
       const res = await request(app).post('/playlists').send(newPlaylist);
@@ -74,6 +82,7 @@ describe('Playlist Controller', () => {
     });
 
     it('should handle errors', async () => {
+      PlaylistModel.findOne.mockResolvedValue(null);
       PlaylistModel.create.mockRejectedValue(
         new Error('Error adding playlist')
       );
@@ -82,7 +91,7 @@ describe('Playlist Controller', () => {
         .post('/playlists')
         .send({ name: 'New Playlist' });
       expect(res.status).toBe(500);
-      expect(res.text).toBe('Error adding playlist');
+      expect(res.text).toBe('Error adding or updating playlist');
     });
   });
 

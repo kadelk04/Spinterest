@@ -13,6 +13,7 @@ import {
   viewProfile,
   checkPrivacy,
   searchUsers,
+  getUserByMongoId,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -32,6 +33,7 @@ router.post('/', registerUser);
 router.get('/:username', getUserByUsername);
 router.get('/spotify/:spotifyId', getUserBySpotifyId);
 router.put('/:username', updateUserByUsername);
+router.get('/:userMongoId/id', getUserByMongoId);
 
 // Nested routes for user resources
 router.get('/:username/playlist', getPlaylistsByUsername);

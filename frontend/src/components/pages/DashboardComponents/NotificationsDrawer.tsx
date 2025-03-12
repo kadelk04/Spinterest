@@ -11,7 +11,10 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import CloseIcon from '@mui/icons-material/Close';
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-import { Notification, returnNotifications } from '../../data/notificationUtils';
+import {
+  Notification,
+  returnNotifications,
+} from '../../data/notificationUtils';
 import { NotificationBlurb } from './NotificationBlurb';
 
 export default function NotificationDrawer() {
@@ -31,10 +34,10 @@ export default function NotificationDrawer() {
         return;
       }
       setOpen(open);
-  };
+    };
 
   const fetchNotifications = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
       const fetchedNotifications = await returnNotifications();
       const sortedNotifications = fetchedNotifications.sort((a, b) => {
@@ -44,13 +47,15 @@ export default function NotificationDrawer() {
         if (a.type !== 'follow_request' && b.type === 'follow_request') {
           return 1;
         }
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       });
       setNotifications(sortedNotifications.slice(0, 6));
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -84,7 +89,13 @@ export default function NotificationDrawer() {
           role="presentation"
           onKeyDown={toggleDrawer(false)}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <h3>Notifications</h3>
             <IconButton onClick={toggleDrawer(false)}>
               <CloseIcon />
@@ -95,8 +106,8 @@ export default function NotificationDrawer() {
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
-              onClick={fetchNotifications} 
-              disabled={loading} 
+              onClick={fetchNotifications}
+              disabled={loading}
             >
               {loading ? <CircularProgress size={20} /> : 'Update'}
             </Button>
