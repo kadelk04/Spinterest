@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -43,7 +42,7 @@ export const Dashboard = () => {
       genres: [],
       component: (
         <Skeleton
-          key={i}
+          key={`skeleton-${i}`}
           variant="rounded"
           width={250}
           height={420}
