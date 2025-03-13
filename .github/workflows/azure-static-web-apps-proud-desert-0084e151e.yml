@@ -36,6 +36,11 @@ jobs:
           api_location: "" # Api source code path - optional
           output_location: "build" # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+          # LOG ENVIRONMENT VARIABLES
+      - name: Log Environment Variables
+        run: |
+          echo "REACT_APP_API_URL: $REACT_APP_API_URL"
+          echo "REACT_APP_SITE_URL: $REACT_APP_SITE_URL"
           
 
 
