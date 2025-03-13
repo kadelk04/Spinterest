@@ -7,6 +7,7 @@ import {
   Stack,
   Chip,
   IconButton,
+  // Link,
 } from '@mui/material';
 import {
   AddOutlined,
@@ -15,6 +16,7 @@ import {
   PushPin,
 } from '@mui/icons-material';
 import { usePinnedPlaylists } from '../../data/pinnedPlaylistUtils';
+import { Link } from 'react-router-dom';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -61,7 +63,6 @@ export const PlaylistWidget = ({
               height: '250px',
               objectFit: 'cover',
               opacity: 1,
-              // marginBottom: '10px',
             }}
           />
         ) : null}
@@ -79,7 +80,6 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
-              //border: '1px solid red',
             }}
           >
             {title}
@@ -88,7 +88,9 @@ export const PlaylistWidget = ({
             gutterBottom
             sx={{ color: 'text.secondary', fontSize: 14 }}
           >
-            {owner}
+            <Link to={`/profile/${owner}`} style={{ textDecoration: 'none' }}>
+              {owner}
+            </Link>
           </Typography>
         </Box>
         <Box
@@ -96,7 +98,6 @@ export const PlaylistWidget = ({
             paddingTop: 1,
             paddingLeft: 1,
             paddingRight: 1,
-            //border: '1px solid #ccc',
           }}
         >
           {/* only horizontal space if not on new line */}

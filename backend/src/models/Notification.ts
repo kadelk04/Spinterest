@@ -6,9 +6,8 @@ import { send } from 'process';
 export interface INotification {
   title: string;
   type: 'new_playlist' | 'saved_playlist' | 'follow_request' | 'like' | 'follow'; 
-  receiver: mongoose.Types.ObjectId[];
+  receiver: mongoose.Types.ObjectId;
   sender: mongoose.Types.ObjectId;
-  metadata?: Record<string, any>;
   status?: 'pending' | 'accepted';
   createdAt: Date;
   expiresAt?: Date;
@@ -28,21 +27,15 @@ export const NotificationSchema = new mongoose.Schema({
     ],
     required: true,
   },
-  receiver: [
-    // this is a list of receivers
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    },
-  ],
-  sender: {
+  receiver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
   },
-  metadata: {
-    type: Object,
-    default: {},
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
   status: {
     type: String,

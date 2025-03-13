@@ -22,7 +22,6 @@ export const Login = () => {
       if (firstLogin) {
         console.log('First login');
         localStorage.removeItem('firstlogin');
-        // await loadPlaylists();
       }
       navigate('/dashboard');
     };
@@ -178,6 +177,7 @@ export const Login = () => {
               variant="contained"
               color="primary"
               onClick={handleLoginClick}
+              aria-label="Sign In"
               sx={{
                 py: 1.5,
                 borderColor: 'transparent',

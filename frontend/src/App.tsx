@@ -13,48 +13,47 @@ import { grey } from '@mui/material/colors';
 import { VibesProvider } from './components/pages/VibesPanel/VibesContext';
 import { Vibes } from './components/pages/VibesPanel/Vibes';
 import { PlaylistProvider } from './components/data/PlaylistContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <Theme>
-      <Router>
-        <Box
-          sx={{
-            display: 'flex',
-            background: (theme) =>
-              theme.palette.mode === 'light'
-                ? theme.palette.background.default
-                : grey[900],
-          }}
-        >
-          <CssBaseline />
-          <VibesProvider>
-          <Vibes expanded={expanded}/>
-          <Navbar expanded={expanded} setExpanded={setExpanded} />
-          </VibesProvider>
-
+    <ErrorBoundary>
+      <Theme>
+        <Router>
           <Box
-            component="main"
             sx={{
-              flexGrow: 1,
-              height: '100vh',
-              p: 3,
-              transition: 'all 0.3s ease',
+              display: 'flex',
+              background: (theme) =>
+                theme.palette.mode === 'light'
+                  ? theme.palette.background.default
+                  : grey[900],
             }}
           >
-            <PlaylistProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile/:username" element={<Profile />} />
-                <Route path="/" element={<Login />} />
-              </Routes>
-            </PlaylistProvider>
+            <CssBaseline />
+            <Navbar expanded={expanded} setExpanded={setExpanded} />
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                height: '100vh',
+                p: 3,
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <PlaylistProvider>
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile/:username" element={<Profile />} />
+                  <Route path="/" element={<Login />} />
+                </Routes>
+              </PlaylistProvider>
+            </Box>
           </Box>
-        </Box>
-      </Router>
-    </Theme>
+        </Router>
+      </Theme>
+    </ErrorBoundary>
   );
 }
