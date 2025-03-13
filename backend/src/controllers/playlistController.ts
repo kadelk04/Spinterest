@@ -131,3 +131,30 @@ export const getPlaylistsByUsername = async (req: Request, res: Response) => {
     res.status(500).send('Error fetching playlists');
   }
 };
+
+/**
+ * Like Playlist
+ * @param req
+ * @param res
+ * @returns
+ */
+export const likePlaylist = async (req: Request, res: Response) => {
+  // console.log('in likePlaylist in controller');
+  // console.log(req.params.playlistId);
+  try {
+    const PlaylistModel = getModel<IPlaylist>('Playlist');
+    const playlist = await PlaylistModel.findById(req.params.playlistId);
+    if (!playlist) {
+      res.status(404).send('Playlist not found');
+      return;
+    }
+    await PlaylistModel.updateOne(
+      { _id: req.params.playlistId },
+      { $inc: { likes: 1 } }
+    );
+    res.status(200).send('Playlist like count updated');
+  } catch (err) {
+    console.error('Error liking playlist:', err);
+    res.status(500).send('Error liking playlist');
+  }
+};

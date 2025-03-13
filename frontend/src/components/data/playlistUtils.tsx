@@ -1,6 +1,7 @@
 import React, { ReactElement } from 'react';
 import axios from 'axios';
 import { PlaylistWidget } from '../pages/DashboardComponents/PlaylistWidget';
+import { SpotifyPlaylistResponse } from './PlaylistContext';
 
 export interface Widget {
   id: string;
@@ -14,8 +15,10 @@ export interface Widget {
 export interface WidgetData {
   id: string;
   cover: string;
-  owner: Owner;
+  owner: string;
+  creator_name: string;
   title: string;
+  genres?: string[];
 }
 
 export interface Owner {
@@ -71,7 +74,7 @@ export const fetchPlaylists = async (
       }
     );
     const response = await axios.get<PlaylistResponse>(
-      'http://localhost:8000/api/spotify/user/' +
+      `${process.env.REACT_APP_API_URL}/api/spotify/user/` +
         spotifyUser.data.id +
         '/playlists',
       {
@@ -88,7 +91,8 @@ export const fetchPlaylists = async (
       .map((playlist: PlaylistData) => ({
         id: playlist.id,
         cover: playlist.images[0]?.url || '',
-        owner: playlist.owner,
+        creator_name: playlist.owner.display_name,
+        owner: playlist.owner.display_name,
         title: playlist.name,
       }));
 
@@ -99,128 +103,105 @@ export const fetchPlaylists = async (
   }
 };
 
+export const genreCompilation = async (
+  playlist: SpotifyPlaylistResponse
+): Promise<string[]> => {
+  const genres: string[] = [];
+  const response = await axios.get<Playlist>(
+    `${process.env.REACT_APP_API_URL}/api/spotify/playlists/${playlist.id}`,
+    {
+      headers: {
+        authorization: `${localStorage.getItem('spotify_token')}`,
+      },
+    }
+  );
+
+  const tracks = response.data.items;
+  const artists: string[] = tracks.flatMap(
+    (track: Track) =>
+      track.track?.artists?.map((artist: Artist) => artist.id) || []
+  );
+
+  // for each artist, find if they're in our db
+  const artistsQueryResponse = await axios.post<{
+    unsaved: string[];
+    saved: string[];
+  }>(`${process.env.REACT_APP_API_URL}/api/artist/status`, { ids: artists });
+  const { saved, unsaved } = artistsQueryResponse.data;
+  const localArtistResponse = await axios.post<Artist[]>(
+    `${process.env.REACT_APP_API_URL}/api/artist/bulkGet`,
+    {
+      ids: saved,
+    }
+  );
+
+  // empty array of artists
+  const localArtists: Artist[] = localArtistResponse.data;
+
+  let spotifyArtistInfo: ArtistResponse[] = [];
+  // Split artist IDs into batches of 50 and make requests
+  if (unsaved.length !== 0) {
+    const spotifyArtistResponses = await Promise.all(
+      Array.from({ length: Math.ceil(unsaved.length / 50) }, (_, i) => {
+        const batch = unsaved.slice(i * 50, (i + 1) * 50).join(',');
+        return axios.get<ArtistResponse>(
+          `${process.env.REACT_APP_API_URL}/api/spotify/artists?ids=${batch}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('spotify_token')}`,
+            },
+          }
+        );
+      })
+    );
+    spotifyArtistInfo = spotifyArtistResponses.flatMap(
+      (response) => response.data
+    );
+  }
+
+  const artistGenres = spotifyArtistInfo.flatMap((artistInfo: ArtistResponse) =>
+    artistInfo.artists.flatMap((artist: Artist) => artist.genres)
+  );
+  const localArtistsGenres = localArtists?.flatMap((artist: Artist) => {
+    return artist.genres;
+  });
+
+  const allGenres = artistGenres.concat(localArtistsGenres);
+  genres.push(...allGenres);
+  return genres.flat();
+};
+
 export const buildWidgets = async (
-  playlists: WidgetData[],
-  accessToken: string
+  playlists: WidgetData[]
 ): Promise<Widget[]> => {
-  // get playlist data from fetchPlaylists
-
-  playlists = playlists.slice(0, 10);
-  // for each playlist, use the id to get the tracks
-
-  // use the id to get the tracks
-  // for each track, get the artist
-  // for each artist, get the genre
-
-  // count the genres, get top genres
-  // return top 3 genres
-
-  const widgets: Widget[] = await Promise.all(
-    playlists.map(async (playlist: WidgetData) => {
-      const response = await axios.get<Playlist>(
-        `http://localhost:8000/api/spotify/playlists/${playlist.id}`,
-        {
-          headers: {
-            authorization: `${localStorage.getItem('spotify_token')}`,
-          },
-        }
-      );
-
-      //console.log('Playlist in playlistUtils:', response.data);
-      const tracks = response.data.items;
-      // console.log('Tracks:', tracks);
-
-      const artists: string[] = tracks.flatMap(
-        (track: Track) =>
-          track.track?.artists?.map((artist: Artist) => artist.id) || []
-      );
-
-      // for each artist, find if they're in our db
-      const artistsQueryResponse = await axios.post<{
-        unsaved: string[];
-        saved: string[];
-      }>('http://localhost:8000/api/artist/status', { ids: artists });
-      const { saved, unsaved } = artistsQueryResponse.data;
-      const localArtistResponse = await axios.post<Artist[]>(
-        'http://localhost:8000/api/artist/bulkGet',
-        {
-          ids: saved,
-        }
-      );
-
-      // empty array of artists
-      const localArtists: Artist[] = localArtistResponse.data;
-
-      let spotifyArtistInfo: ArtistResponse[] = [];
-      // Split artist IDs into batches of 50 and make requests
-      if (unsaved.length !== 0) {
-        const spotifyArtistResponses = await Promise.all(
-          Array.from({ length: Math.ceil(unsaved.length / 50) }, (_, i) => {
-            const batch = unsaved.slice(i * 50, (i + 1) * 50).join(',');
-            return axios.get<ArtistResponse>(
-              `http://localhost:8000/api/spotify/artists?ids=${batch}`,
-              {
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                },
-              }
-            );
-          })
-        );
-        spotifyArtistInfo = spotifyArtistResponses.flatMap(
-          (response) => response.data
-        );
-      }
-
-      const genres = spotifyArtistInfo.flatMap((artistInfo: ArtistResponse) =>
-        artistInfo.artists.flatMap((artist: Artist) => artist.genres)
-      );
-      const localArtistsGenres = localArtists?.flatMap((artist: Artist) => {
-        return artist.genres;
-      });
-
-      const allGenres = genres.concat(localArtistsGenres);
-
-      try {
-        await axios.post('http://localhost:8000/api/artist/bulkWrite', {
-          artists: spotifyArtistInfo.flatMap((response: ArtistResponse) =>
-            response.artists.map((artist: Artist) => ({
-              id: artist.id,
-              name: artist.name,
-              genres: artist.genres,
-            }))
-          ),
-        });
-      } catch (error) {
-        console.error('Error saving artists:', error);
-      }
-
-      const topGenres = await getTopGenres(allGenres);
-
+  const widgets: Promise<Widget>[] = playlists.map(
+    async (playlist: WidgetData) => {
+      const topGenres = getTopGenres(playlist.genres || []);
       return {
         id: playlist.id,
         cover: playlist.cover,
-        owner: playlist.owner.display_name,
+        owner: playlist.creator_name,
+        creator_name: playlist.creator_name,
         title: playlist.title,
         genres: topGenres,
         component: (
           <PlaylistWidget
             playlistId={playlist.id}
             cover={playlist.cover}
-            owner={playlist.owner.display_name}
+            owner={playlist.creator_name}
             title={playlist.title}
             genres={topGenres}
           />
         ),
       };
-    })
+    }
   );
-  // console.log('widgets', widgets);
-  return widgets;
+  const resolvedWidgets = await Promise.all(widgets);
+  return resolvedWidgets;
 };
 
 // later it may be beneficial to create a better algorithm for getting the top genres
-export const getTopGenres = async (genres: string[]): Promise<string[]> => {
+export const getTopGenres = (genres: string[]): string[] => {
   //console.log('in getTopGenres');
   const genreCount: { [key: string]: number } = {};
 
@@ -242,31 +223,14 @@ export const returnWidgets = async (): Promise<Widget[]> => {
     console.error('No access token found');
     return [];
   }
-  // check if the widget (playlist) data exists in local storage
-  // if not, this means the user has either cleared their local storage or has not visited the dashboard yet
-  // if the data does not exist, fetch the playlist data from the spotify api and build the widgets
   let playlists_with_genres: Widget[] = [];
-  // if (
-  //   !localStorage.getItem('widget_data') ||
-  //   localStorage.getItem('widget_data') === '[]'
-  // ) {
-  //   //first time loading into dashboard
-  //   const playlists_data = await fetchPlaylists(accessToken);
-  //   // save the data to local storage
-  //   localStorage.setItem('widget_data', JSON.stringify(playlists_data));
+  const allPlaylistResponses = await fetch(
+    `${process.env.REACT_APP_API_URL}/api/playlist`,
+    {}
+  );
+  const allPlaylists = await allPlaylistResponses.json();
+  console.log('allPlaylists', allPlaylists);
+  playlists_with_genres = await buildWidgets(allPlaylists);
 
-  //   playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  // } else {
-  //   // use the local storage data to build the widgets
-  //   // buildWidgets expects an array of WidgetData[]
-  //   console.log('utilizing local storage to build widgets');
-  //   const localWidgetsData: WidgetData[] = JSON.parse(
-  //     localStorage.getItem('widget_data') || '[]'
-  //   );
-  //   playlists_with_genres = await buildWidgets(localWidgetsData, accessToken);
-  // }
-  const playlists_data = await fetchPlaylists(accessToken);
-  playlists_with_genres = await buildWidgets(playlists_data, accessToken);
-  // returns Widget[] type
   return playlists_with_genres;
 };
