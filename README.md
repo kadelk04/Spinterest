@@ -14,6 +14,15 @@ REACT_APP_CLIENT_SECRET=<the_client_secret>
 
 - Note: it is important that the file is called `.env.local` and not `.env` because the client secret and client ID should not be shared on GitHub 👍
 
+## Instructions for running Cypress Tests
+
+1. Copy the `.cypress.config.ts` file from the root directory and paste it into the root directory
+2. Rename the file to `cypress.config.ts`
+3. Add your spotify login information to the `cypress.config.ts` in the provided fields
+4. Run `npm run cy:open` to open the cypress test runner
+5. Click on the test you want to run
+   > Note: The login tests ARE flaky due to Spotify's recaptcha. If the test fails, it will be because the Spotify login page is trying to change the behavior to prevent bots from logging in.
+
 ## Linting and Code Style
 
 1. Install [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
