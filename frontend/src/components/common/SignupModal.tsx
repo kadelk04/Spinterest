@@ -29,7 +29,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
         setError('Passwords do not match');
         return;
       }
-      const response = await fetch('http://localhost:8000/api/user', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const SignupModal = ({ open, setOpen }: SignupModalProps) => {
         setOpen(false);
         console.log('yay going to profile');
         localStorage.setItem('firstlogin', 'true');
-        window.location.href = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=http://localhost:3000/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
+        window.location.href = `https://accounts.spotify.com/authorize?client_id=${process.env.REACT_APP_CLIENT_ID}&response_type=code&redirect_uri=${process.env.REACT_APP_SITE_URL}/login&scope=user-read-email%20user-read-private%20user-library-read%20user-library-modify`;
 
         // does spotify return any type of access code after redirect? could use that instead
 
