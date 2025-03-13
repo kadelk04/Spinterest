@@ -60,7 +60,7 @@ export const PlaylistProvider = ({ children }: { children: ReactNode }) => {
         const selfSpotifyData = await selfSpotifyDataResponse.json();
         const profileSpotifyId = selfSpotifyData.id;
         const selfDataResponse = await fetch(
-          `http://localhost:8000/api/user/spotify/${profileSpotifyId}?username=${localStorage.getItem(
+          `${process.env.REACT_APP_API_URL}/api/user/spotify/${profileSpotifyId}?username=${localStorage.getItem(
             'username'
           )}`,
           {

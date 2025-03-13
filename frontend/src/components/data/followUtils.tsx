@@ -7,7 +7,7 @@ import axios from 'axios';
 const getUserMongoId = async (username: string) => {
   try {
     const userResponse = await axios.get(
-      `http://localhost:8000/api/user/${username}`
+      `${process.env.REACT_APP_API_URL}/${username}`
     );
     return (userResponse.data as { _id: string })._id;
   } catch (error) {
@@ -27,7 +27,7 @@ export const followUser = async (username: string, myUsername: string) => {
 
     // first find if user is private or public -- add a new UserController method
     const privacyResponse = await axios.get(
-      `http://localhost:8000/api/user/${username}/privacy`
+      `${process.env.REACT_APP_API_URL}/${username}/privacy`
     );
 
     console.log('Privacy response:', privacyResponse.data);
@@ -39,7 +39,7 @@ export const followUser = async (username: string, myUsername: string) => {
       try {
         console.log("myMongoId", myMongoId);  
         const notificationResponse = await axios.post(
-          `http://localhost:8000/api/notification/followRequest/${userMongoId}`,
+          `${process.env.REACT_APP_API_URL}/api/notification/followRequest/${userMongoId}`,
           { follower: myMongoId }
         );
         console.log('Notification created:', notificationResponse.data);
@@ -52,7 +52,7 @@ export const followUser = async (username: string, myUsername: string) => {
       console.log("privacy is false");
       try {
         const notificationResponse = await axios.post(
-          `http://localhost:8000/api/notification/follow/${userMongoId}`,
+          `${process.env.REACT_APP_API_URL}/api/notification/follow/${userMongoId}`,
           { follower: myMongoId }
         );
         console.log('Notification created:', notificationResponse.data);
@@ -78,7 +78,7 @@ export const unfollowUser = async (username: string, myUsername: string) => {
   
   try {
     const unfollowResponse = await axios.put(
-      `http://localhost:8000/api/user/${userMongoId}/unfollow`,
+      `${process.env.REACT_APP_API_URL}/api/user/${userMongoId}/unfollow`,
       {
         headers: { authorization: localStorage.getItem('jwttoken') },
         unfollower: myMongoId,
@@ -99,7 +99,7 @@ export const fetchFollowStatus = async (
   try {
     console.log('Fetching follow status', userMongoId, myUsername);
     const followStatusResponse = await axios.get(
-      `http://localhost:8000/api/notification/getFollowRequest/${userMongoId}`,
+      `${process.env.REACT_APP_API_URL}/api/notification/getFollowRequest/${userMongoId}`,
       { params: { follower: myUsername } }
     );
     console.log('Follow status:', followStatusResponse.data);
@@ -117,7 +117,7 @@ export const followUserDirect = async (userMongoId: string, myMongoId: string) =
   try {
     // calling addFollower in userController
     const followResponse = await axios.put(
-      `http://localhost:8000/api/user/${userMongoId}/follow`,
+      `${process.env.REACT_APP_API_URL}/api/user/${userMongoId}/follow`,
       {
         headers: { authorization: localStorage.getItem('jwttoken') },
         follower: myMongoId,
@@ -138,11 +138,11 @@ export const getFriends = async (userMongoId: string) => {
 
   try {
     const followersResponse = await axios.get(
-      `http://localhost:8000/api/user/${userMongoId}/followers`
+      `${process.env.REACT_APP_API_URL}/api/user/${userMongoId}/followers`
     );
 
     const followingResponse = await axios.get(
-      `http://localhost:8000/api/user/${userMongoId}/following`
+      `${process.env.REACT_APP_API_URL}/api/user/${userMongoId}/following`
     );
     const following: string[] = followingResponse.data as string[];
     const followers: string[] = followersResponse.data as string[];
@@ -155,7 +155,7 @@ export const getFriends = async (userMongoId: string) => {
       .filter((user: string) => followers.includes(user))
       .map(async (userMongoId: string) => {
         console.log('Friend:', userMongoId);
-        const userResponse = await axios.get(`http://localhost:8000/api/user/${userMongoId}/id`);
+        const userResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/${userMongoId}/id`);
         const userData = userResponse.data as { username: string };
         console.log('Friend:', userData.username);
         return userData.username;

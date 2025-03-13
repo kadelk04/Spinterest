@@ -69,7 +69,7 @@ export const useVibesAPI = () => {
       setError(null);
   
       const username = localStorage.getItem('username');
-      const response = await fetch(`http://localhost:8000/api/user/vibes/${username}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/vibes/${username}`);
   
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
@@ -117,7 +117,7 @@ export const useVibesAPI = () => {
         throw new Error('Spotify token is missing from local storage.');
       }
   
-      const response = await fetch(`http://localhost:8000/api/user/vibes/analyze/${username}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/vibes/analyze/${username}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

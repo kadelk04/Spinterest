@@ -69,7 +69,7 @@ export const Profile: FunctionComponent = () => {
     // the route should include a ${username} param to fetch the user's data
     try {
       const username = window.location.pathname.split('/').pop();
-      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
+      let response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${username}`, {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
@@ -77,7 +77,7 @@ export const Profile: FunctionComponent = () => {
       }
 
       const fullprofileResponse = await fetch(
-        `http://localhost:8000/api/user/profile/${username}`
+        `${process.env.REACT_APP_API_URL}/api/user/profile/${username}`
       );
       if (!fullprofileResponse.ok) {
         throw new Error('Failed to get full profile data');
@@ -110,7 +110,7 @@ export const Profile: FunctionComponent = () => {
       const selfProfileSpotifyId = selfProfileData.id;
 
       const selfDataResponse = await fetch(
-        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
+        `${process.env.REACT_APP_API_URL}/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
         { headers: { 'Content-Type': 'application/json' } }
       );
 
@@ -191,7 +191,7 @@ export const Profile: FunctionComponent = () => {
       const updatedUserData = { isPrivate: !userData?.isPrivate };
 
       const response = await axios.put(
-        `http://localhost:8000/api/user/${username}`,
+        `${process.env.REACT_APP_API_URL}/api/user/${username}`,
         updatedUserData
       );
 

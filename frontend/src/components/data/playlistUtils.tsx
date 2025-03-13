@@ -257,7 +257,7 @@ export const cleanupPinnedPlaylists = async (username: string): Promise<boolean>
     }
     
     const response = await axios.post<CleanupResponse>(
-      `http://localhost:8000/api/profile/cleanup-playlists/${username}`,
+      `${process.env.REACT_APP_API_URL}/api/profile/cleanup-playlists/${username}`,
       {},
       {
         headers: {
