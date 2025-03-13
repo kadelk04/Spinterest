@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Box } from "@mui/material";
 import MoodIcon from "@mui/icons-material/Mood";
 import straightChillingImg from "../../assets/straight_chilling.png";
