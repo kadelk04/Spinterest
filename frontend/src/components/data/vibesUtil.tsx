@@ -6,6 +6,7 @@ import energeticEnergyImg from "../../assets/energetic_energy.png";
 import woeIsMeImg from "../../assets/woe_cloud.png";
 import feelGoodImg from "../../assets/feel_good.png";
 import noiseEnjoyerImg from "../../assets/noise_enjoyer.png";
+import meltingpotImg from "../../assets/melting_pot.png"
 
 export const vibeImages: Record<string, string> = {
     "Straight Chilling": straightChillingImg,
@@ -13,6 +14,7 @@ export const vibeImages: Record<string, string> = {
     "Woe is Me": woeIsMeImg,
     "Feel-Good": feelGoodImg,
     "Noise Enjoyer": noiseEnjoyerImg,
+    "Vibes are a melting pot of genres": meltingpotImg
   };
   
   export const getVibeImage = (vibeName: string) => {
