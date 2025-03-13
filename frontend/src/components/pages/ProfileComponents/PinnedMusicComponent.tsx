@@ -108,9 +108,8 @@ const PinnedMusicComponent: React.FC<PinnedMusicComponentProps> = ({
             id: playlistId,
             title: playlistData.name,
             cover: playlistData.images[0]?.url || '/default-playlist-cover.jpg',
-            owner: {
-              display_name: playlistData.owner?.display_name || 'Unknown'
-            }
+            owner: playlistData.owner?.display_name || 'Unknown',
+            creator_name: playlistData.owner?.display_name || 'Unknown'
           };
         } catch (error) {
           console.error(`Error fetching playlist ${playlistId}:`, error);

@@ -21,38 +21,40 @@ export default function App() {
   return (
     <ErrorBoundary>
       <Theme>
-        <Router>
-          <Box
-            sx={{
-              display: 'flex',
-              background: (theme) =>
-                theme.palette.mode === 'light'
-                  ? theme.palette.background.default
-                  : grey[900],
-            }}
-          >
-            <CssBaseline />
-            <Navbar expanded={expanded} setExpanded={setExpanded} />
+        <VibesProvider> {/* ✅ Wrap everything in VibesProvider */}
+          <Router>
             <Box
-              component="main"
               sx={{
-                flexGrow: 1,
-                height: '100vh',
-                p: 3,
-                transition: 'all 0.3s ease',
+                display: 'flex',
+                background: (theme) =>
+                  theme.palette.mode === 'light'
+                    ? theme.palette.background.default
+                    : grey[900],
               }}
             >
-              <PlaylistProvider>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile/:username" element={<Profile />} />
-                  <Route path="/" element={<Login />} />
-                </Routes>
-              </PlaylistProvider>
+              <CssBaseline />
+              <Navbar expanded={expanded} setExpanded={setExpanded} />
+              <Box
+                component="main"
+                sx={{
+                  flexGrow: 1,
+                  height: '100vh',
+                  p: 3,
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                <PlaylistProvider>
+                  <Routes>
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile/:username" element={<Profile />} />
+                    <Route path="/" element={<Login />} />
+                  </Routes>
+                </PlaylistProvider>
+              </Box>
             </Box>
-          </Box>
-        </Router>
+          </Router>
+        </VibesProvider>
       </Theme>
     </ErrorBoundary>
   );
