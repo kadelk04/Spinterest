@@ -131,6 +131,9 @@ export const useVibesAPI = () => {
       if (data.userVibe) {
         setUserVibes(data.userVibe);
         setLastFetched(new Date());
+
+      const currentTime = new Date().toISOString();
+      localStorage.setItem("lastCalculatedVibe", currentTime);
       } else {
         fetchUserVibes();
       }
