@@ -13,7 +13,6 @@ import { grey } from '@mui/material/colors';
 import { VibesProvider } from './components/pages/VibesComponent/VibesContext';
 import { Vibes } from './components/pages/VibesComponent/Vibes';
 import { PlaylistProvider } from './components/data/PlaylistContext';
-import ErrorBoundary from './components/common/ErrorBoundary';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -32,8 +31,8 @@ export default function App() {
         >
           <CssBaseline />
           <VibesProvider>
-          <Vibes expanded={expanded}/>
-          <Navbar expanded={expanded} setExpanded={setExpanded} />
+            <Vibes expanded={expanded} />
+            <Navbar expanded={expanded} setExpanded={setExpanded} />
           </VibesProvider>
           <Box
             sx={{
@@ -45,7 +44,6 @@ export default function App() {
             }}
           >
             <CssBaseline />
-            <Navbar expanded={expanded} setExpanded={setExpanded} />
             <Box
               component="main"
               sx={{
@@ -65,8 +63,8 @@ export default function App() {
               </PlaylistProvider>
             </Box>
           </Box>
-        </Router>
-      </Theme>
-    </ErrorBoundary>
+        </Box>
+      </Router>
+    </Theme>
   );
 }
