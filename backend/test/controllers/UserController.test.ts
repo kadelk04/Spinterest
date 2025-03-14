@@ -14,6 +14,7 @@ import {
   getFollowers,
   getFollowing,
   removeFollower,
+  
 } from '../../src/controllers/UserController';
 import { getModel } from '../../src/utils/connection';
 
@@ -33,6 +34,7 @@ app.put('/user/:username/follow', addFollower);
 app.get('/user/:username/followers', getFollowers);
 app.get('/user/:username/following', getFollowing);
 app.put('/user/:username/unfollow', removeFollower);
+app.get('/users/search/:username', searchUsers);
 
 describe('UserController', () => {
   let UserModel: {
@@ -448,4 +450,92 @@ describe('UserController', () => {
       expect(res.text).toBe('Error removing follower');
     });
   });
+
+  
+  describe('searchUsers', () => {
+    it('should return an empty array if search term is empty', async () => {
+      // Create a properly typed mock for the find method
+      // We need to handle the chaining pattern used in Mongoose
+      const selectMock = jest.fn().mockResolvedValue([]);
+      const limitMock = jest.fn(() => ({ select: selectMock }));
+      const findMock = jest.fn(() => ({ limit: limitMock }));
+      
+      // Assign the mock to UserModel.find
+      UserModel.find = findMock;
+      
+      // Test with a space character
+      const res = await request(app).get('/users/search/%20');
+      
+      // Verify the response
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual([]);
+      
+      // For empty search term, findMock should not be called
+      expect(findMock).not.toHaveBeenCalled();
+    });
+  
+    it('should return matching users based on username prefix', async () => {
+      const mockUsers = [
+        { username: 'test1' },
+        { username: 'test2' },
+      ];
+      
+      // Create a mock chain that returns our mockUsers
+      const selectMock = jest.fn().mockResolvedValue(mockUsers);
+      const limitMock = jest.fn(() => ({ select: selectMock }));
+      const findMock = jest.fn(() => ({ limit: limitMock }));
+      
+      // Replace the standard mock with our chainable mock
+      UserModel.find = findMock;
+  
+      const res = await request(app).get('/users/search/test');
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(mockUsers);
+      expect(findMock).toHaveBeenCalledWith({
+        username: { $regex: '^test', $options: 'i' }
+      });
+    });
+  
+    it('should limit results to 10 users', async () => {
+      // Create a mock chain with proper tracking
+      const selectMock = jest.fn().mockResolvedValue([{ username: 'test1' }]);
+      const limitMock = jest.fn(() => ({ select: selectMock }));
+      const findMock = jest.fn(() => ({ limit: limitMock }));
+      
+      // Replace the standard mock with our chainable mock
+      UserModel.find = findMock;
+  
+      const res = await request(app).get('/users/search/test');
+      expect(res.status).toBe(200);
+      // Verify that the limit method was called with 10
+      expect(limitMock).toHaveBeenCalledWith(10);
+    });
+  
+    it('should only select username field', async () => {
+      // Create a mock chain with proper tracking
+      const selectMock = jest.fn().mockResolvedValue([{ username: 'test1' }]);
+      const limitMock = jest.fn(() => ({ select: selectMock }));
+      const findMock = jest.fn(() => ({ limit: limitMock }));
+      
+      // Replace the standard mock with our chainable mock
+      UserModel.find = findMock;
+  
+      const res = await request(app).get('/users/search/test');
+      expect(res.status).toBe(200);
+      // Verify that the select method was called with 'username'
+      expect(selectMock).toHaveBeenCalledWith('username');
+    });
+  
+    it('should return 500 if there is an error searching users', async () => {
+      // Create a mock that throws an error
+      UserModel.find = jest.fn(() => {
+        throw new Error('Error searching users');
+      });
+  
+      const res = await request(app).get('/users/search/test');
+      expect(res.status).toBe(500);
+      expect(res.body).toEqual({ message: 'Error searching users' });
+    });
+  });
 });
+
