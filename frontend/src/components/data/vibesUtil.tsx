@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Box } from "@mui/material";
 import MoodIcon from "@mui/icons-material/Mood";
 import straightChillingImg from "../../assets/straight_chilling.png";
@@ -6,6 +6,7 @@ import energeticEnergyImg from "../../assets/energetic_energy.png";
 import woeIsMeImg from "../../assets/woe_cloud.png";
 import feelGoodImg from "../../assets/feel_good.png";
 import noiseEnjoyerImg from "../../assets/noise_enjoyer.png";
+import meltingpotImg from "../../assets/melting_pot.png"
 
 export const vibeImages: Record<string, string> = {
     "Straight Chilling": straightChillingImg,
@@ -13,6 +14,7 @@ export const vibeImages: Record<string, string> = {
     "Woe is Me": woeIsMeImg,
     "Feel-Good": feelGoodImg,
     "Noise Enjoyer": noiseEnjoyerImg,
+    "Vibes are a melting pot of genres": meltingpotImg
   };
   
   export const getVibeImage = (vibeName: string) => {
@@ -67,7 +69,7 @@ export const useVibesAPI = () => {
       setError(null);
   
       const username = localStorage.getItem('username');
-      const response = await fetch(`http://localhost:8000/api/user/vibes/${username}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/vibes/${username}`);
   
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
@@ -115,7 +117,7 @@ export const useVibesAPI = () => {
         throw new Error('Spotify token is missing from local storage.');
       }
   
-      const response = await fetch(`http://localhost:8000/api/user/vibes/analyze/${username}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/vibes/analyze/${username}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -131,6 +133,9 @@ export const useVibesAPI = () => {
       if (data.userVibe) {
         setUserVibes(data.userVibe);
         setLastFetched(new Date());
+
+      const currentTime = new Date().toISOString();
+      localStorage.setItem("lastCalculatedVibe", currentTime);
       } else {
         fetchUserVibes();
       }

@@ -33,12 +33,12 @@ export const fetchNotifications = async (): Promise<Notification[]> => {
   const localStorageUsername = window.localStorage.getItem('username');
   try {
     const userResponse = await axios.get<UserData>(
-      `http://localhost:8000/api/user/${localStorageUsername}`
+      `${process.env.REACT_APP_API_URL}/api/user/${localStorageUsername}`
     );
     const userMongoId = userResponse.data?._id;
 
     const response = await axios.get<Notification[]>(
-      `http://localhost:8000/api/notification/all/${userMongoId}`
+      `${process.env.REACT_APP_API_URL}/api/notification/all/${userMongoId}`
     );
     return response.data;
   } catch (error) {
@@ -62,7 +62,7 @@ export const acceptFollowRequest = async (
     try {
       // update the notification
       await axios.put(
-        `http://localhost:8000/api/notification/update/${notificationId}`
+        `${process.env.REACT_APP_API_URL}/api/notification/update/${notificationId}`
       );
     } catch (updateError) {
       console.error('Error updating notification:', updateError);
@@ -74,7 +74,7 @@ export const acceptFollowRequest = async (
     let myMongoId;
     try {
       const notificationResponse = await axios.get(
-        `http://localhost:8000/api/notification/${notificationId}`
+        `${process.env.REACT_APP_API_URL}/api/notification/${notificationId}`
       );
 
       console.log('notification response', notificationResponse.data);
@@ -91,7 +91,7 @@ export const acceptFollowRequest = async (
     }
 
     const followResponse = await axios.put(
-      `http://localhost:8000/api/user/${userMongoId}/follow`,
+      `${process.env.REACT_APP_API_URL}/api/user/${userMongoId}/follow`,
       {
         headers: { authorization: localStorage.getItem('jwttoken') },
         follower: myMongoId,
@@ -112,7 +112,7 @@ export const deleteFollowRequest = async (
   try {
     console.log('deleting follow req', notificationId);
     await axios.delete(
-      `http://localhost:8000/api/notification/delete/${notificationId}`
+      `${process.env.REACT_APP_API_URL}/api/notification/delete/${notificationId}`
     );
   } catch (error) {
     console.error(error);
