@@ -234,3 +234,50 @@ export const returnWidgets = async (): Promise<Widget[]> => {
 
   return playlists_with_genres;
 };
+
+/**
+ * Clean up pinned playlists that are no longer available on Spotify
+ * @param username The username of the user
+ * @returns Promise<boolean> True if any playlists were removed
+ */
+export const cleanupPinnedPlaylists = async (username: string): Promise<boolean> => {
+  try {
+    const accessToken = localStorage.getItem('spotify_token');
+    const jwtToken = localStorage.getItem('jwttoken');
+    
+    if (!accessToken || !jwtToken) {
+      console.error('Authentication tokens missing');
+      return false;
+    }
+    
+    interface CleanupResponse {
+      success: boolean;
+      message: string;
+      removed: string[];
+    }
+    
+    const response = await axios.post<CleanupResponse>(
+      `${process.env.REACT_APP_API_URL}/api/profile/cleanup-playlists/${username}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'x-auth-token': jwtToken
+        }
+      }
+    );
+    
+    const { success, removed } = response.data;
+    
+    if (success && removed.length > 0) {
+      console.log(`Cleaned up ${removed.length} unavailable pinned playlists`);
+      return true;
+    }
+    
+    return false;
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error cleaning up pinned playlists:', error);
+    return false;
+  }
+};

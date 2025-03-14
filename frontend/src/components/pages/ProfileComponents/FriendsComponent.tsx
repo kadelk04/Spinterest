@@ -47,7 +47,7 @@ const FriendsComponent: React.FC<FriendsComponentProps> = ({
     }
     try {
       const response = await fetch(
-        `http://localhost:8000/api/user/search/${username}`
+        `${process.env.REACT_APP_API_URL}/api/user/search/${username}`
       );
 
       if (response.status === 404) {

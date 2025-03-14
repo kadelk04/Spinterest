@@ -10,6 +10,8 @@ import { Theme } from './components/common/Theme';
 
 import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
+import { VibesProvider } from './components/pages/VibesComponent/VibesContext';
+import { Vibes } from './components/pages/VibesComponent/Vibes';
 import { PlaylistProvider } from './components/data/PlaylistContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 
@@ -17,9 +19,22 @@ export default function App() {
   const [expanded, setExpanded] = React.useState(false);
 
   return (
-    <ErrorBoundary>
-      <Theme>
-        <Router>
+    <Theme>
+      <Router>
+        <Box
+          sx={{
+            display: 'flex',
+            background: (theme) =>
+              theme.palette.mode === 'light'
+                ? theme.palette.background.default
+                : grey[900],
+          }}
+        >
+          <CssBaseline />
+          <VibesProvider>
+          <Vibes expanded={expanded}/>
+          <Navbar expanded={expanded} setExpanded={setExpanded} />
+          </VibesProvider>
           <Box
             sx={{
               display: 'flex',

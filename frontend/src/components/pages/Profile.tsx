@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import axios from 'axios';
 import { getRefreshedToken, logout } from '../data/SpotifyAuth';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   followUser,
   unfollowUser,
@@ -49,7 +49,7 @@ export const Profile: FunctionComponent = () => {
   const accessToken = window.localStorage.getItem('spotify_token');
   const refreshToken = window.localStorage.getItem('spotify_refresh_token');
   const [profile, setProfile] = useState<SpotifyProfile | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   const [friends, setFriends] = useState<string[]>([]);
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [following, setFollowing] = useState<boolean>(false);
@@ -59,7 +59,6 @@ export const Profile: FunctionComponent = () => {
   const [pendingFollow, setPendingFollow] = useState(false);
   const [profileUsername, setProfileUsername] = useState<string>('');
   const navigate = useNavigate();
-  const { username } = useParams();
   const fetchProfile = useCallback(async () => {
     if (!accessToken && !refreshToken) return;
 
@@ -69,7 +68,7 @@ export const Profile: FunctionComponent = () => {
     // the route should include a ${username} param to fetch the user's data
     try {
       const username = window.location.pathname.split('/').pop();
-      let response = await fetch(`http://localhost:8000/api/user/${username}`, {
+      let response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/${username}`, {
         headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
@@ -77,7 +76,7 @@ export const Profile: FunctionComponent = () => {
       }
 
       const fullprofileResponse = await fetch(
-        `http://localhost:8000/api/user/profile/${username}`
+        `${process.env.REACT_APP_API_URL}/api/user/profile/${username}`
       );
       if (!fullprofileResponse.ok) {
         throw new Error('Failed to get full profile data');
@@ -110,7 +109,7 @@ export const Profile: FunctionComponent = () => {
       const selfProfileSpotifyId = selfProfileData.id;
 
       const selfDataResponse = await fetch(
-        `http://localhost:8000/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
+        `${process.env.REACT_APP_API_URL}/api/user/spotify/${selfProfileSpotifyId}?username=${localStorageUsername}`,
         { headers: { 'Content-Type': 'application/json' } }
       );
 
@@ -120,7 +119,7 @@ export const Profile: FunctionComponent = () => {
       console.log('My Profile Data:', myProfileData);
 
       if (selfProfileSpotifyId === userSpotifyId) {
-        console.log("this is my profile");
+        console.log('this is my profile');
         // IF THIS IS YOUR PROFILE YOU ARE VIEWING, LOAD YOUR PROFILE DATA
         setIsOwnProfile(true);
         console.log('Profile Data Fetched:', selfProfileData);
@@ -134,11 +133,9 @@ export const Profile: FunctionComponent = () => {
         const friendsResponse = await getFriends(myProfileData._id);
 
         setFriends(friendsResponse);
-        console.log("my friends", friendsResponse);
-
-
+        console.log('my friends', friendsResponse);
       } else {
-        console.log("this is not my profile");
+        console.log('this is not my profile');
         // IF IT IS NOT YOUR PROFILE, LOAD THE PROFILE DATA OF THE USER YOU ARE VIEWING
         setIsOwnProfile(false);
 
@@ -151,11 +148,14 @@ export const Profile: FunctionComponent = () => {
 
         // fetch if you currently have a pending follow request
         console.log('my username:', myProfileData!.username);
-        const followRequestResponse = await fetchFollowStatus(userData._id, myProfileData!.username);
+        const followRequestResponse = await fetchFollowStatus(
+          userData._id,
+          myProfileData!.username
+        );
         console.log('Follow Request Response:', followRequestResponse);
 
-        if (followRequestResponse){
-          console.log("PENDING FOLLOW REQ");
+        if (followRequestResponse) {
+          console.log('PENDING FOLLOW REQ');
           setPendingFollow(true);
         }
 
@@ -173,16 +173,14 @@ export const Profile: FunctionComponent = () => {
           images: otherProfileData.images || [],
         });
 
-
         // FETCH THE OTHER PERSONS FRIENDS
         const friendsResponse = await getFriends(userData._id);
         setFriends(friendsResponse);
-
       }
     } catch (error) {
       console.error('Error fetching profile', error);
     }
-  }, [accessToken, refreshToken, localStorageUsername, username]);
+  }, [accessToken, refreshToken, localStorageUsername]);
 
   const toggleProfileVisibility = async () => {
     if (!accessToken && !refreshToken) return;
@@ -191,7 +189,7 @@ export const Profile: FunctionComponent = () => {
       const updatedUserData = { isPrivate: !userData?.isPrivate };
 
       const response = await axios.put(
-        `http://localhost:8000/api/user/${username}`,
+        `${process.env.REACT_APP_API_URL}/api/user/${username}`,
         updatedUserData
       );
 
@@ -225,7 +223,7 @@ export const Profile: FunctionComponent = () => {
       if (followSuccess === true) {
         setFollowing(true);
       } else if (followSuccess === 'pending') {
-        console.log("PENDING CUZ THEY ARE PRIV");
+        console.log('PENDING CUZ THEY ARE PRIV');
         setPendingFollow(true);
       }
     }
@@ -315,9 +313,7 @@ export const Profile: FunctionComponent = () => {
             </>
           )}
         </Paper>
-        {!notAllowedToViewProfile && (
-          <FriendsComponent friends={friends} />
-        )}
+        {!notAllowedToViewProfile && <FriendsComponent friends={friends} />}
       </Box>
 
       {!notAllowedToViewProfile && (
