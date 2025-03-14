@@ -12,9 +12,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import {
   Dashboard as DashboardIcon,
   AccountCircle as ProfileIcon,
+  Headphones,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { List } from '@mui/material';
+import { useVibes } from '../pages/VibesComponent/VibesContext';
 
 interface NavbarProps {
   expanded: boolean;
@@ -25,8 +27,11 @@ interface ItemProps {
   href: string;
   label: string;
   icon: React.ReactNode;
+  onClick?: () => void;
 }
+
 export const Navbar: FunctionComponent<NavbarProps> = (props) => {
+  const { openVibes } = useVibes();
   const signedIn = localStorage.getItem('spotify_token');
   const username = localStorage.getItem('username');
 
@@ -59,6 +64,12 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
       href: '/dashboard',
       label: 'Dashboard',
       icon: <DashboardIcon />,
+    },
+    {
+      href: '#',
+      label: 'Vibes',
+      icon: <Headphones />,
+      onClick: openVibes,
     },
     {
       href: `/profile/${username}`,
@@ -125,7 +136,10 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
               to={item.href}
               sx={{ textDecoration: 'none' }}
             >
-              <ListItemButton sx={{ overflow: 'hidden', borderRadius: '24px' }}>
+              <ListItemButton
+                sx={{ overflow: 'hidden', borderRadius: '24px' }}
+                onClick={item.onClick}
+              >
                 <ListItemIcon
                   sx={{
                     minWidth: '42px',

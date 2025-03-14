@@ -11,7 +11,9 @@ import {
   removeFollower,
   getUserBySpotifyId,
   viewProfile,
+  checkPrivacy,
   searchUsers,
+  getUserByMongoId,
 } from '../../controllers/UserController';
 import {
   addFavorite,
@@ -31,6 +33,7 @@ router.post('/', registerUser);
 router.get('/:username', getUserByUsername);
 router.get('/spotify/:spotifyId', getUserBySpotifyId);
 router.put('/:username', updateUserByUsername);
+router.get('/:userMongoId/id', getUserByMongoId);
 
 // Nested routes for user resources
 router.get('/:username/playlist', getPlaylistsByUsername);
@@ -40,12 +43,13 @@ router.get('/:username/favorites', getUserFavorites);
 router.post('/:username/favorites', addFavorite);
 router.delete('/:username/favorites', removeFavorite);
 router.patch('/:username/favorites', updateFavorite);
+router.get('/:username/privacy', checkPrivacy);
 
 // follow + unfollow routes
-router.put('/:username/follow', addFollower);
-router.get('/:username/followers', getFollowers);
-router.get('/:username/following', getFollowing);
-router.put('/:username/unfollow', removeFollower);
+router.put('/:userMongoId/follow', addFollower);
+router.get('/:userMongoId/followers', getFollowers);
+router.get('/:userMongoId/following', getFollowing);
+router.put('/:userMongoId/unfollow', removeFollower);
 
 //view user profile
 router.get('/profile/:username', viewProfile); // updated route

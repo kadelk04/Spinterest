@@ -12,6 +12,14 @@ REACT_APP_CLIENT_ID=<your_client_id>
 REACT_APP_CLIENT_SECRET=<the_client_secret>
 ```
 
+- Create a file called `.env.local` in the backend directory and add the following lines:
+
+```
+PORT=8000
+MONGO_DB_PASSWORD=<your_mongo_db_password>
+TOKEN_SECRET=<your_jwt_token_secret>
+```
+
 - Note: it is important that the file is called `.env.local` and not `.env` because the client secret and client ID should not be shared on GitHub 👍
 
 ## Linting and Code Style
@@ -50,34 +58,39 @@ REACT_APP_CLIENT_SECRET=<the_client_secret>
 
 ## Coverage
 
--------------------------|---------|----------|---------|---------|---------------------------------------
+----------------------------|---------|----------|---------|---------|---------------------------------------------------------------
 File | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
--------------------------|---------|----------|---------|---------|---------------------------------------
-All files | 85.91 | 89.65 | 86.36 | 85.91 |
+----------------------------|---------|----------|---------|---------|---------------------------------------------------------------
+All files | 82.37 | 90.33 | 80.64 | 82.37 |
 src | 0 | 0 | 0 | 0 |
-backend.ts | 0 | 0 | 0 | 0 | 1-42
-src/controllers | 89.31 | 90.34 | 100 | 89.31 |
-UserController.ts | 94.77 | 92.18 | 100 | 94.77 | 38-42,144-145,180-183,274-275,278-279
+backend.ts | 0 | 0 | 0 | 0 | 1-35
+src/controllers | 80.81 | 90.47 | 88.46 | 80.81 |
+UserController.ts | 77.43 | 92.18 | 81.25 | 77.43 | 40-44,139-168,177-199,209-210,245-248,331-332,335-336,347-359
+artistController.ts | 91.66 | 90.9 | 100 | 91.66 | 94-98,100-103
 favoritesController.ts | 100 | 100 | 100 | 100 |
-playlistController.ts | 100 | 100 | 100 | 100 |
-profileController.ts | 48.68 | 61.53 | 100 | 48.68 | 35-108,110-111,116-117
-spotifyController.ts | 100 | 87.09 | 100 | 100 | 37,172,196-197
-src/middleware | 96.15 | 92.3 | 100 | 96.15 |
-auth.ts | 96.15 | 92.3 | 100 | 96.15 | 44-47,56
-src/models | 97.8 | 100 | 0 | 97.8 |
+notificationController.ts | 96.02 | 90.69 | 100 | 96.02 | 121-123,163-165,201-203,261-263
+playlistController.ts | 87.5 | 100 | 85.71 | 87.5 | 134-152
+profileController.ts | 35.22 | 61.53 | 50 | 35.22 | 33-106,108-109,114-115,159-213,221-247
+spotifyController.ts | 100 | 87.09 | 100 | 100 | 37,166,186-187
+src/middleware | 96.06 | 92.3 | 100 | 96.06 |
+auth.ts | 96.06 | 92.3 | 100 | 96.06 | 41-44,53
+src/models | 98.25 | 100 | 0 | 98.25 |
+Artist.ts | 100 | 100 | 100 | 100 |
 Favorites.ts | 100 | 100 | 100 | 100 |
+Notification.ts | 98.43 | 100 | 0 | 98.43 | 51
 Playlist.ts | 100 | 100 | 100 | 100 |
-User.ts | 96.55 | 100 | 0 | 96.55 | 42,53
+User.ts | 96.66 | 100 | 0 | 96.66 | 44,55
 src/routes | 100 | 100 | 100 | 100 |
 index.ts | 100 | 100 | 100 | 100 |
-src/routes/api | 99.03 | 100 | 100 | 99.03 |
+src/routes/api | 96.68 | 100 | 100 | 96.68 |
+artistRoutes.ts | 84.37 | 100 | 100 | 84.37 | 13,17,21,25,29
 loginRoutes.ts | 90 | 100 | 100 | 90 | 7
+notificationRoutes.ts | 100 | 100 | 100 | 100 |
 playlistRoutes.ts | 100 | 100 | 100 | 100 |
+profileRoute.ts | 100 | 100 | 100 | 100 |
 spotifyRoutes.ts | 100 | 100 | 100 | 100 |
 userRoutes.ts | 100 | 100 | 100 | 100 |
-src/routes/app | 0 | 0 | 0 | 0 |
-profileRoute.ts | 0 | 0 | 0 | 0 | 1-12
-src/utils | 33.33 | 100 | 0 | 33.33 |
-connection.ts | 33.33 | 100 | 0 | 33.33 | 14-38,41-45
--------------------------|---------|----------|---------|---------|---------------------------------------
-@ 16 Jan 2025 19:19 PST
+src/utils | 34.69 | 100 | 0 | 34.69 |
+connection.ts | 34.69 | 100 | 0 | 34.69 | 16-42,45-49
+----------------------------|---------|----------|---------|---------|---------------------------------------------------------------
+@ 4 Mar 2025 15:10 PST

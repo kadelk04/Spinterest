@@ -10,6 +10,9 @@ import { Theme } from './components/common/Theme';
 
 import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
+import { VibesProvider } from './components/pages/VibesComponent/VibesContext';
+import { Vibes } from './components/pages/VibesComponent/Vibes';
+import { PlaylistProvider } from './components/data/PlaylistContext';
 import { Settings } from './components/pages/Settings';
 
 export default function App() {
@@ -28,7 +31,11 @@ export default function App() {
           }}
         >
           <CssBaseline />
+          <VibesProvider>
+          <Vibes expanded={expanded}/>
           <Navbar expanded={expanded} setExpanded={setExpanded} />
+          </VibesProvider>
+
           <Box
             component="main"
             sx={{
@@ -38,13 +45,15 @@ export default function App() {
               transition: 'all 0.3s ease',
             }}
           >
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/profile/:username" element={<Profile />} />
-              <Route path="/" element={<Login />} />
-              <Route path="/settings" element={<Settings />} />
+            <PlaylistProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/" element={<Login />} />
+                <Route path="/settings" element={<Settings />} />
             </Routes>
+            </PlaylistProvider>
           </Box>
         </Box>
       </Router>

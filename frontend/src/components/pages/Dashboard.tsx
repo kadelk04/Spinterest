@@ -1,21 +1,17 @@
-import { useEffect, useState } from 'react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
   Input,
   InputAdornment,
   Paper,
-  Avatar,
   Skeleton,
+  Avatar,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import { Responsive as ResponsiveGridLayout } from 'react-grid-layout';
 import { useNavigate } from 'react-router-dom';
-import { getLayouts } from '../data/layoutGenerator';
-
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
+import NotificationsDrawer from './DashboardComponents/NotificationsDrawer';
+import Grid from '@mui/material/Grid2';
 
 import { returnWidgets, Widget } from '../data/playlistUtils';
 
@@ -29,14 +25,12 @@ interface User {
 export const Dashboard = () => {
   const navigate = useNavigate();
   const [widgets, setWidgets] = React.useState<Widget[]>([]);
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth - 120);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [error, setError] = useState('');
+  const [searchError, setSearchError] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDropdown, setShowDropdown] = useState(false);
-
   useEffect(() => {
     // 16 skeleton widgets
     const skeletonArray = Array.from({ length: 16 }, (_, i) => ({
@@ -48,7 +42,7 @@ export const Dashboard = () => {
       genres: [],
       component: (
         <Skeleton
-          key={i}
+          key={`skeleton-${i}`}
           variant="rounded"
           width={250}
           height={420}
@@ -62,15 +56,6 @@ export const Dashboard = () => {
     });
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth - 120);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   const handleSearch = async (username: string) => {
     if (!username.trim()) {
       setSearchResults([]);
@@ -78,11 +63,11 @@ export const Dashboard = () => {
     }
 
     setIsSearching(true);
-    setError('');
+    setSearchError('');
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/user/search/${username}`
+        `${process.env.REACT_APP_API_URL}/api/user/search/${username}`
       );
 
       if (response.status === 404) {
@@ -99,7 +84,7 @@ export const Dashboard = () => {
       setShowDropdown(true); // Show dropdown when we have results
     } catch (err) {
       console.error('Search error:', err);
-      setError('Error searching for user');
+      setSearchError('Error searching for user');
       setSearchResults([]);
     } finally {
       setIsSearching(false);
@@ -112,11 +97,8 @@ export const Dashboard = () => {
       navigate(`/profile/${username}`);
 
       const profileResponse = await fetch(
-        `http://localhost:8000/api/user/profile/${username}`,
-        {
-          method: 'GET',
-          credentials: 'omit',
-        }
+        `${process.env.REACT_APP_API_URL}/api/user/profile/${username}`,
+        { method: 'GET', credentials: 'omit' }
       );
 
       if (!profileResponse.ok) {
@@ -136,7 +118,9 @@ export const Dashboard = () => {
       setSearchQuery('');
     } catch (err) {
       console.error('Error navigating to profile:', err);
-      setError(err instanceof Error ? err.message : 'Error accessing profile');
+      setSearchError(
+        err instanceof Error ? err.message : 'Error accessing profile'
+      );
     }
   };
 
@@ -149,11 +133,10 @@ export const Dashboard = () => {
     }
   }, [searchQuery]);
 
-  const layouts = getLayouts(widgets);
-
   return (
     <Box sx={{ flexGrow: 1, position: 'relative' }}>
       <Box sx={{ position: 'relative', marginBottom: '20px' }}>
+        {<NotificationsDrawer />}
         <Input
           placeholder="/genre, /tag, /person"
           value={searchQuery}
@@ -189,87 +172,55 @@ export const Dashboard = () => {
               zIndex: 1000,
             }}
           >
-            {isSearching ? (
-              <Box sx={{ p: 2, textAlign: 'center' }}>
-                <Typography color="textSecondary">Searching...</Typography>
-              </Box>
-            ) : (
-              searchResults.map((user) => (
-                <Box
-                  key={user._id}
-                  onClick={() => handleUserClick(user.username)}
+            {searchResults.map((user) => (
+              <Box
+                key={user._id}
+                onClick={() => handleUserClick(user.username)}
+                sx={{
+                  p: 2,
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    cursor: 'pointer',
+                  },
+                  borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 2,
+                }}
+              >
+                <Avatar
+                  src={user.images?.[0]?.url || '/broken-image.jpg'}
                   sx={{
-                    p: 2,
-                    '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      cursor: 'pointer',
-                    },
-                    borderBottom: '1px solid rgba(0, 0, 0, 0.12)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 2,
+                    width: 40,
+                    height: 40,
+                    bgcolor: '#7C6BBB', // Same purple as your profile avatar
                   }}
-                >
-                  <Avatar
-                    src={user.images?.[0]?.url || '/broken-image.jpg'}
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      bgcolor: '#7C6BBB', // Same purple as your profile avatar
-                    }}
-                  />
-                  <Box>
-                    <Typography variant="body1">{user.username}</Typography>
-                    {user.location && (
-                      <Typography variant="body2" color="text.secondary">
-                        {user.location}
-                      </Typography>
-                    )}
-                  </Box>
+                />
+                <Box>
+                  <Typography variant="body1">{user.username}</Typography>
+                  {user.location && (
+                    <Typography variant="body2" color="text.secondary">
+                      {user.location}
+                    </Typography>
+                  )}
                 </Box>
-              ))
-            )}
+              </Box>
+            ))}
           </Paper>
         )}
 
-        {error && (
-          <Typography color="error" sx={{ mt: 1 }}>
-            {error}
-          </Typography>
-        )}
+        <Typography color="error" sx={{ mt: 1 }}>
+          {searchError}
+        </Typography>
       </Box>
 
-      <ResponsiveGridLayout
-        className="layout"
-        layouts={layouts}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 6, md: 4, sm: 3, xs: 2, xxs: 2 }}
-        rowHeight={420}
-        width={windowWidth}
-        draggableHandle=".drag-handle"
-        draggableCancel=".no-drag"
-        isResizable={false}
-      >
-        {widgets.map((widget) => {
-          const { component, ...rest } = widget;
-          return (
-            <div
-              key={widget.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {React.cloneElement(component, {
-                dragHandleClass: 'drag-handle',
-                noDragClass: 'no-drag',
-                ...rest,
-              })}
-            </div>
-          );
-        })}
-      </ResponsiveGridLayout>
+      <Grid container spacing={2} sx={{ padding: 2 }}>
+        {widgets.map((widget) => (
+          <Grid key={widget.id} component="div">
+            {widget.component} {/* Render the widget's component */}
+          </Grid>
+        ))}
+      </Grid>
     </Box>
   );
 };

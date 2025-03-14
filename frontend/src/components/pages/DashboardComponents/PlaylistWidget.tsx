@@ -7,18 +7,16 @@ import {
   Stack,
   Chip,
   IconButton,
+  // Link,
 } from '@mui/material';
 import {
   AddOutlined,
   FavoriteBorderOutlined,
-  DragIndicator,
   PushPinOutlined,
   PushPin,
 } from '@mui/icons-material';
-
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
 import { usePinnedPlaylists } from '../../data/pinnedPlaylistUtils';
+import { Link } from 'react-router-dom';
 
 export const PlaylistWidget = ({
   playlistId,
@@ -26,18 +24,15 @@ export const PlaylistWidget = ({
   title,
   owner,
   genres,
-  dragHandleClass,
-  noDragClass,
 }: {
   playlistId: string;
-  cover: string | File;
+  cover: string;
   title: string;
   owner: string;
   genres: string[];
-  dragHandleClass: string;
-  noDragClass: string;
 }) => {
   const { clicked, handlePinClick } = usePinnedPlaylists(playlistId);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -57,24 +52,7 @@ export const PlaylistWidget = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {isHovered && (
-        <IconButton
-          className={dragHandleClass}
-          sx={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            '&:hover': {
-              backgroundColor: 'rgba(255, 255, 255, 1)',
-            },
-          }}
-        >
-          <DragIndicator />
-        </IconButton>
-      )}
-      <CardContent className={noDragClass} sx={{ padding: 0 }}>
-        {/* <DragIndicator/> */}
+      <CardContent sx={{ padding: 0 }}>
         {typeof cover === 'string' ? (
           <Box
             component="img"
@@ -85,7 +63,6 @@ export const PlaylistWidget = ({
               height: '250px',
               objectFit: 'cover',
               opacity: 1,
-              // marginBottom: '10px',
             }}
           />
         ) : null}
@@ -103,7 +80,6 @@ export const PlaylistWidget = ({
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
-              //border: '1px solid red',
             }}
           >
             {title}
@@ -112,7 +88,9 @@ export const PlaylistWidget = ({
             gutterBottom
             sx={{ color: 'text.secondary', fontSize: 14 }}
           >
-            {owner}
+            <Link to={`/profile/${owner}`} style={{ textDecoration: 'none' }}>
+              {owner}
+            </Link>
           </Typography>
         </Box>
         <Box
@@ -120,7 +98,6 @@ export const PlaylistWidget = ({
             paddingTop: 1,
             paddingLeft: 1,
             paddingRight: 1,
-            //border: '1px solid #ccc',
           }}
         >
           {/* only horizontal space if not on new line */}
@@ -161,11 +138,7 @@ export const PlaylistWidget = ({
         <Stack
           direction="row"
           spacing={2}
-          sx={{
-            justifyContent: 'flex-end',
-            marginTop: '10%',
-            width: '100%',
-          }}
+          sx={{ justifyContent: 'flex-end', marginTop: '10%', width: '100%' }}
         >
           <IconButton
             onClick={handlePinClick}

@@ -8,6 +8,7 @@ import {
   addUser,
   getAllUsers,
   saveUserSpotifyId,
+  searchUsers,
   getUserSpotifyId,
   addFollower,
   getFollowers,

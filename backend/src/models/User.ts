@@ -18,6 +18,7 @@ export interface IUser {
   pinnedPlaylists?: string[];
   following: mongoose.Types.ObjectId[];
   followers: mongoose.Types.ObjectId[];
+  vibes: string[];
 }
 
 export const UserSchema = new mongoose.Schema({
@@ -30,6 +31,7 @@ export const UserSchema = new mongoose.Schema({
   location: String,
   links: String,
   refreshToken: String,
+  vibes: [{ type: String}],
   favoritesId: { type: mongoose.Schema.Types.ObjectId, ref: 'Favorites' },
   pinnedPlaylists: [{ type: String }],
   annotatedPlaylists: [

@@ -31,11 +31,19 @@ export const getAllPlaylists = async (req: Request, res: Response) => {
 export const addPlaylist = async (req: Request, res: Response) => {
   const PlaylistModel = getModel<IPlaylist>('Playlist');
   try {
-    await PlaylistModel.create(req.body);
-    res.status(201).send('Playlist created');
+    const existingPlaylist = await PlaylistModel.findOne({
+      spotifyId: req.body.spotifyId,
+    });
+    if (existingPlaylist) {
+      await existingPlaylist.updateOne(req.body);
+      res.status(200).send('Playlist updated');
+    } else {
+      await PlaylistModel.create(req.body);
+      res.status(201).send('Playlist created');
+    }
   } catch (err) {
-    console.error('Error adding playlist:', err);
-    res.status(500).send('Error adding playlist');
+    console.error('Error adding or updating playlist:', err);
+    res.status(500).send('Error adding or updating playlist');
   }
 };
 
@@ -121,5 +129,32 @@ export const getPlaylistsByUsername = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('Error fetching playlists:', err);
     res.status(500).send('Error fetching playlists');
+  }
+};
+
+/**
+ * Like Playlist
+ * @param req
+ * @param res
+ * @returns
+ */
+export const likePlaylist = async (req: Request, res: Response) => {
+  // console.log('in likePlaylist in controller');
+  // console.log(req.params.playlistId);
+  try {
+    const PlaylistModel = getModel<IPlaylist>('Playlist');
+    const playlist = await PlaylistModel.findById(req.params.playlistId);
+    if (!playlist) {
+      res.status(404).send('Playlist not found');
+      return;
+    }
+    await PlaylistModel.updateOne(
+      { _id: req.params.playlistId },
+      { $inc: { likes: 1 } }
+    );
+    res.status(200).send('Playlist like count updated');
+  } catch (err) {
+    console.error('Error liking playlist:', err);
+    res.status(500).send('Error liking playlist');
   }
 };
