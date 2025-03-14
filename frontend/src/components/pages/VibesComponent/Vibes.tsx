@@ -18,7 +18,6 @@ interface VibesProps {
 export const Vibes = ({ expanded }: VibesProps) => {
   const { isOpen, closeVibes } = useVibes();
   const {
-    userVibes,
     displayVibe,
     loading,
     calculating,
@@ -44,16 +43,17 @@ export const Vibes = ({ expanded }: VibesProps) => {
   // Fetch vibes when drawer opens, but only if we haven't fetched recently
   useEffect(() => {
     if (isOpen) {
+      // Check if we need to fetch fresh data
       if (
         !lastFetched ||
         new Date().getTime() - lastFetched.getTime() > 60 * 60 * 1000
       ) {
         fetchUserVibes();
       } else {
-        pickRandomVibe(); // Always get a new random vibe when opening
+        pickRandomVibe();
       }
     }
-  }, [isOpen, lastFetched, userVibes, fetchUserVibes, pickRandomVibe]);
+  }, [isOpen, lastFetched, fetchUserVibes, pickRandomVibe]);
 
   // Get the image for the current vibe or null if not found
   const vibeImage = displayVibe ? vibeImages[displayVibe] || null : null;
