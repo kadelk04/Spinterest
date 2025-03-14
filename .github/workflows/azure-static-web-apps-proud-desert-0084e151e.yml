@@ -23,20 +23,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '14'
-
-      - name: Install dependencies
-        run: npm install
-        working-directory: ./frontend
-
-      - name: Build the frontend
-        run: npm run build
-        working-directory: ./frontend
-        env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          REACT_APP_SITE_URL: ${{ secrets.REACT_APP_SITE_URL }}
-          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
-          REACT_APP_CLIENT_SECRET: ${{ secrets.REACT_APP_CLIENT_SECRET }}
-
       - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -45,6 +31,11 @@ jobs:
           action: 'upload'
           app_location: './frontend'
           output_location: 'build'
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_SITE_URL: ${{ secrets.REACT_APP_SITE_URL }}
+          REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+          REACT_APP_CLIENT_SECRET: ${{ secrets.REACT_APP_CLIENT_SECRET }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
