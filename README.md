@@ -12,6 +12,14 @@ REACT_APP_CLIENT_ID=<your_client_id>
 REACT_APP_CLIENT_SECRET=<the_client_secret>
 ```
 
+- Create a file called `.env.local` in the backend directory and add the following lines:
+
+```
+PORT=8000
+MONGO_DB_PASSWORD=<your_mongo_db_password>
+TOKEN_SECRET=<your_jwt_token_secret>
+```
+
 - Note: it is important that the file is called `.env.local` and not `.env` because the client secret and client ID should not be shared on GitHub 👍
 
 ## Linting and Code Style

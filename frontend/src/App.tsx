@@ -10,8 +10,8 @@ import { Theme } from './components/common/Theme';
 
 import '@fontsource/roboto';
 import { grey } from '@mui/material/colors';
-import { VibesProvider } from './components/pages/VibesPanel/VibesContext';
-import { Vibes } from './components/pages/VibesPanel/Vibes';
+import { VibesProvider } from './components/pages/VibesComponent/VibesContext';
+import { Vibes } from './components/pages/VibesComponent/Vibes';
 import { PlaylistProvider } from './components/data/PlaylistContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 

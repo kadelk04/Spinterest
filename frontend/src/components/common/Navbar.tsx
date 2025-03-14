@@ -12,11 +12,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import {
   Dashboard as DashboardIcon,
   AccountCircle as ProfileIcon,
-  Headphones as HeadphonesIcon,
   Headphones,
 } from '@mui/icons-material';
 import { List } from '@mui/material';
-import { useVibes } from '../pages/VibesPanel/VibesContext';
+import { useVibes } from '../pages/VibesComponent/VibesContext';
 
 interface NavbarProps {
   expanded: boolean;
@@ -27,7 +26,7 @@ interface ItemProps {
   href: string;
   label: string;
   icon: React.ReactNode;
-  onClick?: () => void; 
+  onClick?: () => void;
 }
 
 export const Navbar: FunctionComponent<NavbarProps> = (props) => {
@@ -69,7 +68,7 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
       href: '#',
       label: 'Vibes',
       icon: <Headphones />,
-      onClick: openVibes, 
+      onClick: openVibes,
     },
     {
       href: `/profile/${username}`,
@@ -131,8 +130,10 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
               to={item.href}
               sx={{ textDecoration: 'none' }}
             >
-              <ListItemButton sx={{ overflow: 'hidden', borderRadius: '24px' }}
-                onClick={item.onClick}>
+              <ListItemButton
+                sx={{ overflow: 'hidden', borderRadius: '24px' }}
+                onClick={item.onClick}
+              >
                 <ListItemIcon
                   sx={{
                     minWidth: '42px',

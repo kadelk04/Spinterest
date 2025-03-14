@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import trackRoutes from './api/trackRoutes';
+import trackRoutes from './api/vibeRoutes';
 import userRoutes from './api/userRoutes';
 import playlistRoutes from './api/playlistRoutes';
 import spotifyRoutes from './api/spotifyRoutes';

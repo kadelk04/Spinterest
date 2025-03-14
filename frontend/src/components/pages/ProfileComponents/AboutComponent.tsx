@@ -59,7 +59,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
       }
 
       const responseAbtFav = await axios.get<AbtFavResponse>(
-        'http://localhost:8000/api/profile/logProfileInput',
+        `${process.env.REACT_APP_API_URL}/api/profile/logProfileInput`,
         { params: { username } }
       );
 
@@ -102,7 +102,7 @@ const AboutComponent: React.FC<AboutComponentProps> = ({
 
     try {
       await axios.post(
-        'http://localhost:8000/api/profile/logProfileInput',
+        `${process.env.REACT_APP_API_URL}/api/profile/logProfileInput`,
         updatedData
       );
       console.log('Profile data updated successfully');

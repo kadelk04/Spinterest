@@ -194,21 +194,25 @@ export const viewProfile = async (req: Request, res: Response) => {
  * @param res
  * @returns
  */
-export const searchUsers = async (req: Request, res: Response) => {
+export const searchUsers = async (req: Request, res: Response): Promise<void> => {
   try {
     const searchTerm = req.params.username;
-    if (!searchTerm || searchTerm.length === 0) {
+    
+    // Check if searchTerm is empty or just whitespace
+    if (!searchTerm || searchTerm.trim() === '') {
       res.status(200).json([]);
       return;
     }
-
+    
     const UserModel = getModel<IUser>('User');
+    
+    // Use correct typing for MongoDB find operation
     const users = await UserModel.find({
-      username: { $regex: `^${searchTerm}`, $options: 'i' },
+      username: { $regex: `^${searchTerm}`, $options: 'i' }
     })
-      .limit(10) // Limit results to avoid overwhelming the frontend
-      .select('username'); // Only select needed fields
-
+      .limit(10)
+      .select('username');
+      
     res.status(200).json(users);
   } catch (err) {
     console.error('Error in searchUsers:', err);

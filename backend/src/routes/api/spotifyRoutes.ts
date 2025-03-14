@@ -20,5 +20,4 @@ router.get('/user/:userId/playlists/:playlistId', getUserPlaylistTracks);
 router.get('/artist/:artistId', getArtistInfo);
 router.get('/artists', getMultipleArtistInfo);
 
-
 export default router;
