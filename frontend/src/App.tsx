@@ -34,34 +34,24 @@ export default function App() {
             <Vibes expanded={expanded} />
             <Navbar expanded={expanded} setExpanded={setExpanded} />
           </VibesProvider>
+          <CssBaseline />
           <Box
+            component="main"
             sx={{
-              display: 'flex',
-              background: (theme) =>
-                theme.palette.mode === 'light'
-                  ? theme.palette.background.default
-                  : grey[900],
+              flexGrow: 1,
+              height: '100vh',
+              p: 3,
+              transition: 'all 0.3s ease',
             }}
           >
-            <CssBaseline />
-            <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                height: '100vh',
-                p: 3,
-                transition: 'all 0.3s ease',
-              }}
-            >
-              <PlaylistProvider>
-                <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile/:username" element={<Profile />} />
-                  <Route path="/" element={<Login />} />
-                </Routes>
-              </PlaylistProvider>
-            </Box>
+            <PlaylistProvider>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile/:username" element={<Profile />} />
+                <Route path="/" element={<Login />} />
+              </Routes>
+            </PlaylistProvider>
           </Box>
         </Box>
       </Router>
