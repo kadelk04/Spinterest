@@ -7,5 +7,6 @@
     "moduleResolution": "node",
     "strict": true
   },
-  "references": [{ "path": "./frontend" }, { "path": "./backend" }]
+  "references": [{ "path": "./frontend" }, { "path": "./backend" }],
+  "exclude": ["./cypress.config.ts", "./.cypress.config.ts"]
 }

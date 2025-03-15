@@ -22,6 +22,15 @@ TOKEN_SECRET=<your_jwt_token_secret>
 
 - Note: it is important that the file is called `.env.local` and not `.env` because the client secret and client ID should not be shared on GitHub 👍
 
+## Instructions for running Cypress Tests
+
+1. Copy the `.cypress.config.ts` file from the root directory and paste it into the root directory
+2. Rename the file to `cypress.config.ts`
+3. Add your spotify login information to the `cypress.config.ts` in the provided fields
+4. Run `npm run cy:open` to open the cypress test runner
+5. Click on the test you want to run
+   > Note: The login tests ARE flaky due to Spotify's recaptcha. If the test fails, it will be because the Spotify login page is trying to change the behavior to prevent bots from logging in.
+
 ## Linting and Code Style
 
 1. Install [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) and [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
@@ -56,33 +65,38 @@ TOKEN_SECRET=<your_jwt_token_secret>
 
 - No custom rules enforced.
 
+## Product Spec
+
+https://docs.google.com/document/d/1G4k80ptgRkWQshGMNhSnUkRGoNpu3IY-UyjHGVjwXWc/edit?usp=sharing
+
 ## Coverage
 
-----------------------------|---------|----------|---------|---------|---------------------------------------------------------------
+----------------------------|---------|----------|---------|---------|------------------------------------------------------------------------
 File | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
-----------------------------|---------|----------|---------|---------|---------------------------------------------------------------------
-All files | 81.62 | 89.74 | 79.36 | 81.62 |
+----------------------------|---------|----------|---------|---------|------------------------------------------------------------------------
+All files | 86.76 | 89.03 | 85.07 | 86.76 |
 src | 0 | 0 | 0 | 0 |
 backend.ts | 0 | 0 | 0 | 0 | 1-35
-src/controllers | 79.8 | 89.8 | 86.79 | 79.8 |
-UserController.ts | 75.27 | 91.37 | 76.47 | 75.27 | 36-48,61-65,160-189,198-217,227-228,263-266,341-342,345-346,356-368
+src/controllers | 86.84 | 89 | 92.98 | 86.84 |
+UserController.ts | 80.91 | 92.18 | 82.35 | 80.91 | 36-48,61-65,160-189,231-232,267-270,345-346,349-350,360-372
 artistController.ts | 91.66 | 90.9 | 100 | 91.66 | 94-98,100-103
 favoritesController.ts | 100 | 100 | 100 | 100 |
 notificationController.ts | 95.62 | 90.69 | 100 | 95.62 | 114-116,150-152,180-182,234-236
 playlistController.ts | 86.87 | 96 | 85.71 | 86.87 | 38-39,142-160
-profileController.ts | 35.22 | 61.53 | 50 | 35.22 | 33-106,108-109,114-115,159-213,221-247
+profileController.ts | 73.02 | 77.08 | 100 | 73.02 | 34-107,109-110,115-116,182-183,199-200,211-213,245-247,374-382,384-392
 spotifyController.ts | 100 | 87.09 | 100 | 100 | 34,163,183-184
+vibesController.ts | 92.02 | 88.57 | 100 | 92.02 | 64-66,99-101,115-121
 src/middleware | 96.06 | 92.3 | 100 | 96.06 |
 auth.ts | 96.06 | 92.3 | 100 | 96.06 | 41-44,53
-src/models | 98.19 | 100 | 0 | 98.19 |
+src/models | 98.21 | 100 | 0 | 98.21 |
 Artist.ts | 100 | 100 | 100 | 100 |
 Favorites.ts | 100 | 100 | 100 | 100 |
 Notification.ts | 98.24 | 100 | 0 | 98.24 | 44
 Playlist.ts | 100 | 100 | 100 | 100 |
-User.ts | 96.66 | 100 | 0 | 96.66 | 44,55
+User.ts | 96.77 | 100 | 0 | 96.77 | 46,57
 src/routes | 100 | 100 | 100 | 100 |
 index.ts | 100 | 100 | 100 | 100 |
-src/routes/api | 96.7 | 100 | 100 | 96.7 |
+src/routes/api | 96.92 | 100 | 100 | 96.92 |
 artistRoutes.ts | 84.37 | 100 | 100 | 84.37 | 13,17,21,25,29
 loginRoutes.ts | 90 | 100 | 100 | 90 | 7
 notificationRoutes.ts | 100 | 100 | 100 | 100 |
@@ -90,7 +104,9 @@ playlistRoutes.ts | 100 | 100 | 100 | 100 |
 profileRoute.ts | 100 | 100 | 100 | 100 |
 spotifyRoutes.ts | 100 | 100 | 100 | 100 |
 userRoutes.ts | 100 | 100 | 100 | 100 |
+vibeRoutes.ts | 100 | 100 | 100 | 100 |
 src/utils | 34.69 | 100 | 0 | 34.69 |
 connection.ts | 34.69 | 100 | 0 | 34.69 | 16-42,45-49
-----------------------------|---------|----------|---------|---------|---------------------------------------------------------------------
-@ 13 Mar 2025 23:37 PST
+----------------------------|---------|----------|---------|---------|------------------------------------------------------------------------
+
+@ 14 Mar 2025 15:16 PST
