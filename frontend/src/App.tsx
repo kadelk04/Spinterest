@@ -13,6 +13,7 @@ import { grey } from '@mui/material/colors';
 import { VibesProvider } from './components/pages/VibesComponent/VibesContext';
 import { Vibes } from './components/pages/VibesComponent/Vibes';
 import { PlaylistProvider } from './components/data/PlaylistContext';
+import { Settings } from './components/pages/Settings';
 
 export default function App() {
   const [expanded, setExpanded] = React.useState(false);
@@ -50,7 +51,8 @@ export default function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/profile/:username" element={<Profile />} />
                 <Route path="/" element={<Login />} />
-              </Routes>
+                <Route path="/settings" element={<Settings />} />
+            </Routes>
             </PlaylistProvider>
           </Box>
         </Box>

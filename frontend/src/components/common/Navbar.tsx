@@ -13,6 +13,7 @@ import {
   Dashboard as DashboardIcon,
   AccountCircle as ProfileIcon,
   Headphones,
+  Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { List } from '@mui/material';
 import { useVibes } from '../pages/VibesComponent/VibesContext';
@@ -74,6 +75,11 @@ export const Navbar: FunctionComponent<NavbarProps> = (props) => {
       href: `/profile/${username}`,
       label: 'Profile',
       icon: <ProfileIcon />,
+    },
+    {
+      href: '/settings',
+      label: 'Settings',
+      icon: <SettingsIcon />,
     },
   ];
 
